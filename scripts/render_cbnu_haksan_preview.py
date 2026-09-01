@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib import patches, transforms
 from matplotlib.lines import Line2D
 
-from generate_unified_sofa_meshes import U_OUTLINES
+from generate_unified_sofa_meshes import CORNER_OUTLINES, U_OUTLINES
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -404,11 +404,7 @@ def main() -> None:
             add_transformed_polygon(
                 axis,
                 (float(x), float(y)),
-                [(-0.41, -3.01), (0.41, -3.01), (0.41, -0.55),
-                 (0.427, -0.496), (0.496, -0.427), (0.55, -0.41),
-                 (2.54, -0.41), (2.54, 0.41), (0.0, 0.41),
-                 (-0.157, 0.379), (-0.29, 0.29), (-0.379, 0.157),
-                 (-0.41, 0.0)],
+                CORNER_OUTLINES["base"],
                 facecolor="#6d3b22",
                 edgecolor="#3b1d0f",
                 angle_deg=float(sofa["yaw_deg"]),
@@ -422,11 +418,7 @@ def main() -> None:
             add_transformed_polygon(
                 axis,
                 corner_center,
-                [(-0.35, -3.01), (0.23, -3.01), (0.23, -0.45),
-                 (0.247, -0.366), (0.321, -0.294), (0.405, -0.247),
-                 (0.45, -0.23), (2.54, -0.23), (2.54, 0.35),
-                 (0.0, 0.35), (-0.134, 0.323), (-0.247, 0.247),
-                 (-0.323, 0.134), (-0.35, 0.0)],
+                CORNER_OUTLINES["seat"],
                 facecolor="#a8643a",
                 edgecolor="#65351d",
                 linewidth=0.6,
@@ -436,11 +428,7 @@ def main() -> None:
             add_transformed_polygon(
                 axis,
                 corner_center,
-                [(0.25, -3.01), (0.41, -3.01), (0.41, 0.0),
-                 (0.379, -0.157), (0.29, -0.29), (0.157, -0.379),
-                 (0.0, -0.41), (2.54, -0.41), (2.54, -0.25),
-                 (0.0, -0.25), (0.096, -0.231), (0.177, -0.177),
-                 (0.231, -0.096), (0.25, 0.0)],
+                CORNER_OUTLINES["back"],
                 facecolor="#442111",
                 edgecolor="#442111",
                 linewidth=0.3,

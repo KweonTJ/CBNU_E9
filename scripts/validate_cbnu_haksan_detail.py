@@ -641,9 +641,10 @@ def main() -> None:
     print(f"facing: wall={facing_counts['wall']}, lobby={facing_counts['lobby']}, outward={facing_counts['outward']}")
     print("wall contact: 4/4 perimeter sofas flush; Table_03 replaces Sofa_01 at the west wall; U sofa attached to Column_02")
     print("sofa geometry: 4/4 armless assets use thick rounded plush cushions and soft matte upholstery")
-    print("sofa junctions: corner/U expose only three continuous watertight unified meshes; all helpers hidden")
+    print("sofa junctions: corner/U each expose one beveled watertight SofaUnified mesh; all helpers hidden")
     print("table fit: all 3 use filled bases; Table_01/02 match paired sofa widths and Table_03 matches former Sofa_01 footprint (1.6232 x 0.82 m)")
-    print("U sofa column contact: clearance=0 at x=+-1.0 m and y=-1.0 m")
+    print("main columns: 2 x 1.5 x 1.5 x 3.0 m; original centers retained")
+    print("U sofa column contact: clearance=0 at x=+-0.75 m and y=-0.75 m")
     print("floor material: Bala White polished granite with visible feldspar/quartz/mica pattern, 2.4 m repeat")
     print("ceiling: corridor-matched footprint, underside=3.0 m, thickness=0.1 m, collision enabled")
     print(

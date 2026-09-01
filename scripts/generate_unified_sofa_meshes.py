@@ -33,9 +33,9 @@ CORNER_OUTLINES = {
     "back": [
         (0.250, -3.010), (0.410, -3.010), (0.410, -0.460),
         (0.418, -0.438), (0.438, -0.418), (0.460, -0.410),
-        (2.540, -0.410), (2.540, -0.250), (0.450, -0.250),
-        (0.430, -0.245), (0.415, -0.230), (0.410, -0.210),
-        (0.410, 0.000), (0.250, 0.000),
+        (2.540, -0.410), (2.540, -0.250), (0.460, -0.250),
+        (0.416, -0.266), (0.366, -0.316), (0.316, -0.366),
+        (0.266, -0.416), (0.250, -0.460),
     ],
 }
 
@@ -119,6 +119,50 @@ def inset_polygon(points: list[tuple[float, float]], distance: float) -> list[tu
     return result
 
 
+def triangulate_polygon(points: list[tuple[float, float]]) -> list[tuple[int, int, int]]:
+    """Ear-clip a simple XY polygon so Hydra never guesses a concave n-gon cap."""
+    vertex_indices = list(range(len(points)))
+    if signed_area(points) < 0:
+        vertex_indices.reverse()
+
+    def cross(a, b, c) -> float:
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+    def inside_triangle(point, a, b, c) -> bool:
+        epsilon = 1e-10
+        return (
+            cross(a, b, point) >= -epsilon
+            and cross(b, c, point) >= -epsilon
+            and cross(c, a, point) >= -epsilon
+        )
+
+    triangles: list[tuple[int, int, int]] = []
+    guard = 0
+    while len(vertex_indices) > 3:
+        clipped = False
+        for offset, current in enumerate(vertex_indices):
+            previous = vertex_indices[offset - 1]
+            following = vertex_indices[(offset + 1) % len(vertex_indices)]
+            a, b, c = points[previous], points[current], points[following]
+            if cross(a, b, c) <= 1e-10:
+                continue
+            if any(
+                inside_triangle(points[candidate], a, b, c)
+                for candidate in vertex_indices
+                if candidate not in {previous, current, following}
+            ):
+                continue
+            triangles.append((previous, current, following))
+            del vertex_indices[offset]
+            clipped = True
+            break
+        guard += 1
+        if not clipped or guard > len(points) * len(points):
+            raise ValueError("failed to triangulate sofa footprint")
+    triangles.append(tuple(vertex_indices))
+    return triangles
+
+
 def add_beveled_shell(
     points_out: list[tuple[float, float, float]],
     counts_out: list[int],
@@ -152,9 +196,15 @@ def add_beveled_shell(
     for ring in rings:
         points_out.extend(ring)
 
-    counts_out.extend((count, count))
-    indices_out.extend(start + i for i in reversed(range(count)))
-    indices_out.extend(start + 3 * count + i for i in range(count))
+    cap_triangles = triangulate_polygon(inset)
+    for first, second, third in cap_triangles:
+        counts_out.append(3)
+        indices_out.extend((start + third, start + second, start + first))
+    for first, second, third in cap_triangles:
+        counts_out.append(3)
+        indices_out.extend(
+            (start + 3 * count + first, start + 3 * count + second, start + 3 * count + third)
+        )
     for ring_index in range(3):
         lower = start + ring_index * count
         upper = lower + count
@@ -237,7 +287,7 @@ def replace_render_mesh(path: Path, mesh_text: str, first_run_end_prim: str) -> 
 def main() -> None:
     replace_render_mesh(
         CORNER_ASSET,
-        build_mesh(CORNER_OUTLINES, "SofaCorner", taper_mode="corner_return_end"),
+        build_mesh(CORNER_OUTLINES, "SofaCorner"),
         "LongSeatPlush",
     )
     replace_render_mesh(
