@@ -1,0 +1,87 @@
+#usda 1.0
+(
+    defaultPrim = "DigitalDisplayPanel"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "DigitalDisplayPanel" (
+    kind = "component"
+)
+{
+    custom string cbnu:construction = "four-rail bezel with a recessed screen"
+    custom double cbnu:height = 0.98
+    custom double cbnu:screenRecessFromBezelFront = 0.009
+    custom double cbnu:width = 0.62
+
+    def Scope "Materials"
+    {
+        def Scope "ScreenMaterials" (
+            prepend references = @../../materials/display_wall/display_screen.usda@
+        )
+        {
+        }
+
+        def Material "BezelBlack"
+        {
+            token outputs:surface.connect = </DigitalDisplayPanel/Materials/BezelBlack/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.006, 0.008, 0.011)
+                float inputs:metallic = 0.18
+                float inputs:roughness = 0.30
+                token outputs:surface
+            }
+        }
+    }
+
+    def Xform "Bezel"
+    {
+        def Cube "LeftRail"
+        {
+            rel material:binding = </DigitalDisplayPanel/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (0.02, 0.020, 0.94)
+            double3 xformOp:translate = (-0.30, -0.010, 0.61)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightRail"
+        {
+            rel material:binding = </DigitalDisplayPanel/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (0.02, 0.020, 0.94)
+            double3 xformOp:translate = (0.30, -0.010, 0.61)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "BottomRail"
+        {
+            rel material:binding = </DigitalDisplayPanel/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (0.62, 0.020, 0.02)
+            double3 xformOp:translate = (0, -0.010, 0.13)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "TopRail"
+        {
+            rel material:binding = </DigitalDisplayPanel/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (0.62, 0.020, 0.02)
+            double3 xformOp:translate = (0, -0.010, 1.09)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Cube "Screen"
+    {
+        rel material:binding = </DigitalDisplayPanel/Materials/ScreenMaterials/ScreenBlue>
+        double size = 1
+        double3 xformOp:scale = (0.58, 0.006, 0.94)
+        double3 xformOp:translate = (0, -0.008, 0.61)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

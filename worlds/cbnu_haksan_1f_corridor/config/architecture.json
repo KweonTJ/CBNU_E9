@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "units": "meter",
+    "source": "photo-based approximation",
+    "note": "Independent architectural detail assets; existing corridor, columns, doors, furniture and floor remain unchanged."
+  },
+  "digital_display_walls": [
+    {
+      "name": "DigitalDisplayWall_01",
+      "position": [25.9724, 13.2044, 0.85],
+      "yaw_deg": 0,
+      "front_length": 2.5,
+      "side_length": 4.5,
+      "height": 1.22,
+      "depth": 0.3,
+      "front_display_count": 3,
+      "side_display_count": 5,
+      "display_width": 0.62,
+      "display_height": 0.98,
+      "left_section": "side",
+      "right_section": "front",
+      "mount_clearance": 0.85,
+      "placement": "wall_attached_corner",
+      "source_note": "wall-mounted above the floor on the empty inner faces of Wall_02 and Wall_03; left/side section has five displays and right/front section has three"
+    }
+  ]
+}

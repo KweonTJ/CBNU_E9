@@ -23,7 +23,9 @@ GEOMETRY_PATH = WORLD_DIR / "config/geometry.json"
 DOORS_PATH = WORLD_DIR / "config/doors.json"
 FURNITURE_PATH = WORLD_DIR / "config/furniture.json"
 CEILING_PATH = WORLD_DIR / "config/ceiling.json"
+ARCHITECTURE_PATH = WORLD_DIR / "config/architecture.json"
 OUTPUT_PATH = WORLD_DIR / "preview_top_view_detailed.png"
+ARCHITECTURE_OUTPUT_PATH = WORLD_DIR / "preview_architecture_detail.png"
 GRANITE_TEXTURE_PATH = ROOT / "assets/materials/lobby/textures/bala_white_granite_floor_pattern.png"
 GRANITE_REPEAT_METERS = 2.4
 
@@ -146,9 +148,11 @@ def main() -> None:
     doors = json.loads(DOORS_PATH.read_text(encoding="utf-8"))["doors"]
     furniture = json.loads(FURNITURE_PATH.read_text(encoding="utf-8"))
     ceiling = json.loads(CEILING_PATH.read_text(encoding="utf-8"))
+    architecture = json.loads(ARCHITECTURE_PATH.read_text(encoding="utf-8"))
     sofas = furniture["sofas"]
     fixtures = furniture.get("fixtures", [])
     ceiling_lights = ceiling["lights"]
+    display_walls = architecture["digital_display_walls"]
     polygon = np.asarray(geometry["corridor_polygon_xy"], dtype=float)
 
     fig, axis = plt.subplots(figsize=(15, 9.5))
@@ -553,6 +557,85 @@ def main() -> None:
                       color="white", fontsize=6.2, fontweight="bold",
                       ha="center", va="center", zorder=10)
 
+    for display_wall in display_walls:
+        origin = tuple(float(value) for value in display_wall["position"][:2])
+        yaw_deg = float(display_wall["yaw_deg"])
+        front_length = float(display_wall["front_length"])
+        side_length = float(display_wall["side_length"])
+        depth = float(display_wall["depth"])
+        local_outline = [
+            (-depth, -depth),
+            (front_length - depth, -depth),
+            (front_length - depth, 0),
+            (0, 0),
+            (0, side_length - depth),
+            (-depth, side_length - depth),
+        ]
+        add_transformed_polygon(
+            axis,
+            origin,
+            local_outline,
+            facecolor="#323941",
+            edgecolor="#080b0e",
+            angle_deg=yaw_deg,
+            linewidth=2.0,
+            zorder=9,
+        )
+
+        front_centers = np.linspace(0.31, front_length - depth - 0.41, int(display_wall["front_display_count"]))
+        for index, local_x in enumerate(front_centers, start=1):
+            screen_center = transform_local_point(origin, (float(local_x), -depth - 0.04), yaw_deg)
+            add_centered_rectangle(
+                axis,
+                screen_center,
+                0.54,
+                0.07,
+                facecolor="#174a64",
+                edgecolor="#03121c",
+                linewidth=0.8,
+                angle_deg=yaw_deg,
+                zorder=10,
+            )
+            axis.text(*screen_center, f"F{index}", color="white", fontsize=5.5,
+                      ha="center", va="center", zorder=11)
+
+        side_centers = np.linspace(0.57, side_length - depth - 0.57, int(display_wall["side_display_count"]))
+        for offset, local_y in enumerate(side_centers, start=1):
+            screen_center = transform_local_point(origin, (-depth - 0.04, float(local_y)), yaw_deg)
+            add_centered_rectangle(
+                axis,
+                screen_center,
+                0.54,
+                0.07,
+                facecolor="#15545b",
+                edgecolor="#03121c",
+                linewidth=0.8,
+                angle_deg=yaw_deg - 90,
+                zorder=10,
+            )
+            axis.text(*screen_center, f"S{offset}", color="white", fontsize=5.5,
+                      ha="center", va="center", zorder=11)
+
+        front_arrow_start = transform_local_point(origin, (front_length * 0.5 - depth, -depth - 0.12), yaw_deg)
+        front_arrow_end = transform_local_point(origin, (front_length * 0.5 - depth, -depth - 0.82), yaw_deg)
+        side_arrow_start = transform_local_point(origin, (-depth - 0.12, side_length * 0.5 - depth), yaw_deg)
+        side_arrow_end = transform_local_point(origin, (-depth - 0.82, side_length * 0.5 - depth), yaw_deg)
+        for start, end, label in (
+            (front_arrow_start, front_arrow_end, f"RIGHT ×{display_wall['front_display_count']}"),
+            (side_arrow_start, side_arrow_end, f"LEFT ×{display_wall['side_display_count']}"),
+        ):
+            axis.annotate(
+                label,
+                xy=end,
+                xytext=start,
+                color="#7c2caa",
+                fontsize=7,
+                fontweight="bold",
+                ha="center",
+                arrowprops={"arrowstyle": "->", "color": "#7c2caa", "lw": 1.8},
+                zorder=12,
+            )
+
     single_index = 0
     double_index = 0
     glass_index = 0
@@ -656,6 +739,7 @@ def main() -> None:
         patches.Patch(facecolor="#754126", edgecolor="#3d1f10", label="Cushioned open-top U sofa"),
         patches.Patch(facecolor="#63351d", edgecolor="#28160d", label="Sofa-width lobby table"),
         patches.Patch(facecolor="#252b31", edgecolor="#0a7898", label="Bank ATM"),
+        patches.Patch(facecolor="#323941", edgecolor="#080b0e", label="Compact floating display wall (z=0.85 m, left 5 + right 3)"),
         patches.Patch(facecolor="#7b4528", edgecolor="#4b2614", hatch="///", label="WA: wall attached"),
         patches.Patch(facecolor="#754126", edgecolor="#3d1f10", hatch="xx", label="CA: Column 2 attached"),
         Line2D([0], [0], color="#8b2515", marker=">", label="Seat faces wall"),
@@ -665,7 +749,7 @@ def main() -> None:
         patches.Patch(facecolor="#77b8c8", edgecolor="#163b48", linewidth=2, label="Double glass door"),
     ]
     axis.legend(handles=legend_handles, loc="lower left", framealpha=0.95)
-    axis.set_title("CBNU Haksan 1F Corridor — Indoor Lobby with Ceiling Lighting")
+    axis.set_title("CBNU Haksan 1F Corridor — Indoor Lobby with Digital Display Wall")
     axis.set_xlabel("X [m]")
     axis.set_ylabel("Y [m]")
     axis.set_xlim(-1, 36.5)
@@ -674,11 +758,14 @@ def main() -> None:
     axis.grid(True, alpha=0.22, linewidth=0.7)
     fig.tight_layout()
     fig.savefig(OUTPUT_PATH, dpi=150, facecolor="white")
+    fig.savefig(ARCHITECTURE_OUTPUT_PATH, dpi=150, facecolor="white")
     plt.close(fig)
     print(
         f"wrote {OUTPUT_PATH} "
         f"({single_index} single doors, {double_index} double doors including {glass_index} glass, "
-        f"{len(sofas)} sofas, {len(fixtures)} fixtures, {len(ceiling_lights)} ceiling lights)"
+        f"{len(sofas)} sofas, {len(fixtures)} fixtures, {len(ceiling_lights)} ceiling lights, "
+        f"{len(display_walls)} digital display wall)\n"
+        f"wrote {ARCHITECTURE_OUTPUT_PATH}"
     )
 
 

@@ -33,6 +33,14 @@ REQUIRED_PRIMS = {
     "/World/Columns/Column_01/Body": "Cube",
     "/World/Columns/Column_03/Body": "Cube",
     "/World/Columns/Column_02/Body": "Cube",
+    "/World/Architecture/DigitalDisplayWall_01/MainBody": "Mesh",
+    "/World/Architecture/DigitalDisplayWall_01/FrontSection/Display_01/Bezel/LeftRail": "Cube",
+    "/World/Architecture/DigitalDisplayWall_01/FrontSection/Display_01/Screen": "Cube",
+    "/World/Architecture/DigitalDisplayWall_01/FrontSection/Display_03/Screen": "Cube",
+    "/World/Architecture/DigitalDisplayWall_01/SideSection/Display_04/Screen": "Cube",
+    "/World/Architecture/DigitalDisplayWall_01/SideSection/Display_08/Screen": "Cube",
+    "/World/Architecture/DigitalDisplayWall_01/Collision/FrontCollision": "Cube",
+    "/World/Architecture/DigitalDisplayWall_01/Collision/SideCollision": "Cube",
     "/World/Furniture/Sofa_Corner_01/SofaUnified": "Mesh",
     "/World/Furniture/Sofa_U_Column_02/SofaUnified": "Mesh",
     "/World/Furniture/ATM_01/MainBody": "Cube",
@@ -100,6 +108,20 @@ def main() -> None:
         if tuple(scale) != (1.2, 1.2, 3.0):
             raise AssertionError(f"unexpected column size: {column_name}: {scale}")
 
+    for collision_name in ("FrontCollision", "SideCollision"):
+        collision = stage.GetPrimAtPath(
+            f"/World/Architecture/DigitalDisplayWall_01/Collision/{collision_name}"
+        )
+        if collision.GetAttribute("visibility").Get() != "invisible":
+            raise AssertionError(f"display wall collision helper remains visible: {collision_name}")
+        if collision.GetAttribute("physics:collisionEnabled").Get() is not True:
+            raise AssertionError(f"display wall collision helper is disabled: {collision_name}")
+
+    display_wall = stage.GetPrimAtPath("/World/Architecture/DigitalDisplayWall_01")
+    display_wall_translate = display_wall.GetAttribute("xformOp:translate").Get()
+    if tuple(display_wall_translate) != (25.9724, 13.2044, 0.85):
+        raise AssertionError(f"unexpected floating display wall pose: {display_wall_translate}")
+
     print(f"CBNU Haksan composed Stage: PASS (USD {Usd.GetVersion()})")
     print(f"verified composed prims: {len(REQUIRED_PRIMS)}")
     print("ATM geometry: loaded=2")
@@ -113,6 +135,8 @@ def main() -> None:
     print("front entrance center gap: filled with one fixed 0.42 m clear-glass panel")
     print("front entrance upper gap: filled to ceiling with one 4.16 x 0.72 m glass transom")
     print("main columns: loaded=3; each body=1.2 x 1.2 x 3.0 m")
+    print("digital display wall: loaded=1; no white header; floor clearance=0.85 m; compact charcoal background=1.22 m; depth=0.30 m; left=4.5 m/5 screens; right=2.5 m/3 screens; panel=0.62 x 0.98 m; bezel=0.02 m")
+    print("digital display wall collision: loaded=2 invisible box helpers")
     print("corner/U sofas: one visible SofaUnified mesh each; sampled helpers invisible=8")
 
 

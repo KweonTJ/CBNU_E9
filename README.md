@@ -2,7 +2,7 @@
 
 충북대학교 학연산공동기술연구원 1층 피난안내도를 기준으로 만든 Isaac Sim 근사 월드다.
 
-실측 복제가 아니라 현재 직각 복도 비율을 유지한 시각적 근사다. 현재 버전은 로비 바닥·문·소파·책상·ATM에 더해, 실내 천장·조명·정면 통유리 벽까지 포함한다.
+실측 복제가 아니라 현재 직각 복도 비율을 유지한 시각적 근사다. 현재 버전은 로비 바닥·문·소파·책상·ATM에 더해, 실내 천장·조명·정면 통유리 벽과 코너형 디지털 전시벽까지 포함한다.
 
 ![CBNU 학연산 1층 상세 평면도](worlds/cbnu_haksan_1f_corridor/preview_top_view_detailed.png)
 
@@ -37,6 +37,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 | Sofa | straight 3개, corner 1개, Column 2 U형 1개 |
 | Table | 하부가 채워진 목재 책상 3개 |
 | Equipment | 은행 ATM 2개 |
+| Architecture detail | 바닥에서 0.85m 띄운 compact L자 전시벽 1개, 긴 왼쪽 5개 + 짧은 오른쪽 3개 display |
 | Entrance pillar | ATM–문 사이 1개 + 문 반대편 대칭 1개 |
 | Raw obstacle Cube | 없음 |
 
@@ -74,6 +75,12 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 │   ├── Column_02
 │   ├── Entrance_Pillar_ATM_Side
 │   └── Entrance_Pillar_Opposite
+├── Architecture
+│   └── DigitalDisplayWall_01
+│       ├── MainBody
+│       ├── FrontSection / right (Display_01 ... Display_03)
+│       ├── SideSection / left (Display_04 ... Display_08)
+│       └── Collision
 ├── Furniture
 │   ├── Sofa_02
 │   ├── Sofa_03
@@ -178,6 +185,24 @@ Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_colu
 
 기존 `Wall_04`는 치수 `3.3332 × 0.20 × 3.0m`와 collision을 유지한다. 불투명 표면만 숨기고 단일 통유리 패널로 시각을 대체했다.
 
+### 코너형 디지털 전시벽
+
+- Asset: `assets/architecture/digital_display_wall/digital_display_wall_corner.usda`
+- 공용 display component: `assets/architecture/digital_display_wall/digital_display_panel.usda`
+- L자 길이: 왼쪽 `4.5m`, 오른쪽 `2.5m`
+- 차콜 본체 높이: `1.22m`
+- 깊이: `0.30m`(기존 `0.40m`보다 벽면 돌출 축소)
+- 바닥 clearance: `0.85m`(상단 높이 `2.07m`)
+- display: 왼쪽 5개, 오른쪽 3개
+- 모든 display 크기: `0.62 × 0.98m`(기존 세로의 `70%`)
+- display 검정 bezel 폭: `0.02m`, 외곽 section trim: `0.04m`
+- 배치: 북동쪽 로비/복도 분기 코너의 `Wall_02`·`Wall_03` 안쪽 면
+- 위치/yaw: `(25.9724, 13.2044, 0.85)`, `0°`
+
+흰색 header와 sign bar는 제거했다. 남은 차콜 본체는 하나의 watertight L-footprint Mesh이며, 화면 주변 검정 배경의 위·아래 여백을 줄였다. 전면·측면 body를 겹친 박스로 만들지 않아 코너의 중복 면과 z-fighting을 피했다. 각 display는 얇은 검정 4면 bezel과 bezel 전면보다 `0.009m` 들어간 저발광 screen으로 구성한다.
+
+Collision은 render Mesh와 분리된 invisible box 2개로 L자 전체만 근사한다. 개별 screen에는 collision이 없다.
+
 ### ATM
 
 - Asset: `assets/equipment/atm_machine.usda`
@@ -197,6 +222,9 @@ assets/
 │   │   ├── glass_door_double_pair.usda
 │   │   ├── wood_door_double.usda
 │   │   └── wood_door_single.usda
+│   ├── digital_display_wall/
+│   │   ├── digital_display_panel.usda
+│   │   └── digital_display_wall_corner.usda
 │   └── windows/
 │       ├── corridor_end_glass_wall.usda
 │       ├── front_entrance_glass_walls.usda
@@ -211,6 +239,9 @@ assets/
 │   ├── sofa_straight.usda
 │   └── sofa_u_around_2m_column.usda
 ├── materials/
+│   ├── display_wall/
+│   │   ├── display_screen.usda
+│   │   └── display_wall_dark.usda
 │   ├── furniture/brown_sofa_material.usda
 │   └── lobby/
 │       ├── ceiling_white.usda
@@ -229,10 +260,13 @@ worlds/cbnu_haksan_1f_corridor/
 │   ├── ceiling_layout.usda
 │   ├── furniture.json
 │   ├── furniture_layout.usda
+│   ├── architecture.json
+│   ├── architecture_layout.usda
 │   └── geometry.json
 ├── reference/
 │   └── evacuation_diagram_annotated.png
-└── preview_top_view_detailed.png
+├── preview_top_view_detailed.png
+└── preview_architecture_detail.png
 ```
 
 ## Isaac Sim에서 열기
@@ -326,7 +360,7 @@ assets/furniture/sofa_corner.usda
 assets/furniture/sofa_u_around_2m_column.usda
 ```
 
-메인 기둥 단면은 `column_2m.usda`의 `Body.xformOp:scale`과 `geometry.json`의 세 `columns[].size`를 함께 맞춘다. 현재 값은 `1.2 × 1.2m`다. `Column_01`은 기존 위치에서 서쪽으로 `0.4m` 이동했고, `Column_03`은 `Column_01`과 `Column_02`의 정확한 중점에 있다.
+메인 기둥 단면은 `column_2m.usda`의 `Body.xformOp:scale`과 `geometry.json`의 세 `columns[].size`를 함께 맞춘다. 현재 값은 `1.2 × 1.2m`다. `Column_01`은 기존 위치에서 서쪽으로 `0.4m` 이동했으며, 세 기둥은 이후 로비 방향(`-Y`)으로 `0.30m` 함께 이동했다. `Column_03`은 계속 `Column_01`과 `Column_02`의 정확한 중점에 있다.
 
 Column 2의 U형 소파는 기둥 외곽 `x=±0.6m`, `y=-0.6m`에 clearance 없이 접하도록 `generate_unified_sofa_meshes.py`에서 함께 재생성한다.
 
@@ -337,6 +371,46 @@ python3 scripts/generate_unified_sofa_meshes.py
 ```
 
 위 스크립트는 render Mesh만 갱신한다. 기존 invisible collision helper와 상대경로 material reference는 유지된다.
+
+### 디지털 전시벽 위치·외형 수정
+
+배치 위치와 yaw는 다음 config에서 관리한다.
+
+```text
+worlds/cbnu_haksan_1f_corridor/config/architecture.json
+```
+
+```json
+{
+  "name": "DigitalDisplayWall_01",
+  "position": [25.9724, 13.2044, 0.85],
+  "yaw_deg": 0,
+  "front_length": 2.5,
+  "side_length": 4.5,
+  "front_display_count": 3,
+  "side_display_count": 5,
+  "display_width": 0.62,
+  "display_height": 0.98,
+  "mount_clearance": 0.85
+}
+```
+
+수정 후 layout을 다시 만든다.
+
+```bash
+python3 scripts/update_cbnu_haksan_architecture.py
+```
+
+`architecture_layout.usda`는 생성 결과이므로 직접 수정하지 않는다. 현재 asset은 왼쪽 `4.5m`·오른쪽 `2.5m` footprint에 맞춰 제작되어 있으므로 길이를 실제로 바꿀 때는 config만 수정하지 말고 `digital_display_wall_corner.usda`의 L자 Mesh·frame·display 위치·collision도 함께 맞춘다. 모든 display는 공용 `digital_display_panel.usda`를 scale 없이 reference해 동일 크기를 유지한다.
+
+재질은 다음 파일로 분리돼 있다.
+
+```text
+assets/materials/display_wall/display_wall_dark.usda
+assets/materials/display_wall/display_screen.usda
+```
+
+screen은 bezel보다 앞쪽으로 나오지 않게 `screenRecessFromBezelFront = 0.009`를 유지한다.
 
 ### 가구 위치·크기 수정
 
@@ -465,6 +539,7 @@ cd ~/Isaac_Worlds
 python3 scripts/update_cbnu_haksan_doors.py
 python3 scripts/update_cbnu_haksan_furniture.py
 python3 scripts/update_cbnu_haksan_ceiling.py
+python3 scripts/update_cbnu_haksan_architecture.py
 MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_preview.py
 python3 scripts/validate_cbnu_haksan_detail.py
 ./scripts/test_world_with_isaac_usd.sh
@@ -479,7 +554,10 @@ python3 scripts/validate_cbnu_haksan_detail.py
 - 정면 좌우 통유리 2장과 기존 `Wall_10` collider
 - 폭 `1.73m`인 서쪽 복도와 불투명 `Wall_07` collider
 - 북쪽 복도 끝 통유리 1장과 기존 `Wall_04` collider
-- `1.2 × 1.2 × 3.0m` 메인 기둥 3개와 동일 간격 배치
+- `1.2 × 1.2 × 3.0m` 메인 기둥 3개, 동일 X 간격과 `-Y 0.30m` 이동
+- 바닥에서 `0.85m` 띄운 높이 `1.22m`의 watertight L자 전시벽, 긴 왼쪽 5개·짧은 오른쪽 3개 display
+- 동일한 `0.62 × 0.98m` recessed display 8개와 `0.02m` 얇은 bezel
+- 전시벽 render/collision 분리와 invisible collision helper 2개
 - ATM–문 사이와 문 반대편의 동일 크기 대칭 기둥 2개
 - Bala White texture, UV와 material binding
 - 문 유형과 실제 leaf 수
@@ -494,10 +572,11 @@ python3 scripts/validate_cbnu_haksan_detail.py
 
 ```text
 CBNU Haksan detailed lobby validation: PASS
-USD references: 51 relative and resolved
+USD references: 63 relative and resolved
 CBNU Haksan composed Stage: PASS (USD 24.05)
-verified composed prims: 39
+verified composed prims: 47
 preview: 2250 × 1425
+architecture preview: 2250 × 1425
 ```
 
 ## 작업 범위 밖

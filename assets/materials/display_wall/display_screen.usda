@@ -1,0 +1,56 @@
+#usda 1.0
+(
+    defaultPrim = "DisplayScreenMaterials"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Scope "DisplayScreenMaterials"
+{
+    custom string cbnu:screenStyle = "dark low-emission digital signage UI"
+
+    def Material "ScreenNavy"
+    {
+        token outputs:surface.connect = </DisplayScreenMaterials/ScreenNavy/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.012, 0.022, 0.040)
+            color3f inputs:emissiveColor = (0.018, 0.055, 0.095)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.22
+            token outputs:surface
+        }
+    }
+
+    def Material "ScreenBlue"
+    {
+        token outputs:surface.connect = </DisplayScreenMaterials/ScreenBlue/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.010, 0.032, 0.052)
+            color3f inputs:emissiveColor = (0.016, 0.075, 0.115)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.20
+            token outputs:surface
+        }
+    }
+
+    def Material "ScreenTeal"
+    {
+        token outputs:surface.connect = </DisplayScreenMaterials/ScreenTeal/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.008, 0.038, 0.044)
+            color3f inputs:emissiveColor = (0.014, 0.082, 0.088)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.24
+            token outputs:surface
+        }
+    }
+}

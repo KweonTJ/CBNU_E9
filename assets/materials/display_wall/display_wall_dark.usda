@@ -1,0 +1,24 @@
+#usda 1.0
+(
+    defaultPrim = "DisplayWallDark"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Material "DisplayWallDark"
+{
+    custom string cbnu:finish = "smooth charcoal semi-matte architectural panel"
+    token outputs:surface.connect = </DisplayWallDark/PreviewSurface.outputs:surface>
+
+    def Shader "PreviewSurface"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        float inputs:clearcoat = 0.06
+        float inputs:clearcoatRoughness = 0.42
+        color3f inputs:diffuseColor = (0.055, 0.063, 0.072)
+        float inputs:metallic = 0.08
+        float inputs:roughness = 0.40
+        color3f inputs:specularColor = (0.22, 0.24, 0.27)
+        token outputs:surface
+    }
+}

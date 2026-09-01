@@ -17,6 +17,9 @@ GEOMETRY = WORLD_DIR / "config/geometry.json"
 DOORS = WORLD_DIR / "config/doors.json"
 FURNITURE = WORLD_DIR / "config/furniture.json"
 PREVIEW = WORLD_DIR / "preview_top_view_detailed.png"
+ARCHITECTURE_PREVIEW = WORLD_DIR / "preview_architecture_detail.png"
+ARCHITECTURE_CONFIG = WORLD_DIR / "config/architecture.json"
+ARCHITECTURE_LAYOUT = WORLD_DIR / "config/architecture_layout.usda"
 SOFA_ASSETS = {
     "straight": ROOT / "assets/furniture/sofa_straight.usda",
     "corner": ROOT / "assets/furniture/sofa_corner.usda",
@@ -39,6 +42,10 @@ FRONT_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/front_entrance_glas
 NORTH_CORRIDOR_END_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/north_corridor_end_glass_wall.usda"
 ENTRANCE_PILLAR_ASSET = ROOT / "assets/structural/entrance_side_pillar.usda"
 COLUMN_ASSET = ROOT / "assets/structural/column_2m.usda"
+DISPLAY_WALL_ASSET = ROOT / "assets/architecture/digital_display_wall/digital_display_wall_corner.usda"
+DISPLAY_PANEL_ASSET = ROOT / "assets/architecture/digital_display_wall/digital_display_panel.usda"
+DISPLAY_WALL_DARK_MATERIAL = ROOT / "assets/materials/display_wall/display_wall_dark.usda"
+DISPLAY_SCREEN_MATERIAL = ROOT / "assets/materials/display_wall/display_screen.usda"
 
 
 def require(condition: bool, message: str) -> None:
@@ -213,12 +220,19 @@ def validate_world() -> None:
     )
     columns_by_name = {column["name"]: column for column in geometry["columns"]}
     require(set(columns_by_name) == {"Column_01", "Column_02", "Column_03"}, "main column names mismatch")
-    require(columns_by_name["Column_01"]["center"] == [21.7739, 10.6812], "Column_01 westward shift mismatch")
+    require(columns_by_name["Column_01"]["center"] == [21.7739, 10.3812], "Column_01 pose mismatch")
+    require(columns_by_name["Column_02"]["center"] == [31.1014, 10.3957], "Column_02 forward shift mismatch")
     midpoint = [
         (columns_by_name["Column_01"]["center"][axis] + columns_by_name["Column_02"]["center"][axis]) / 2
         for axis in (0, 1)
     ]
-    require(columns_by_name["Column_03"]["center"] == midpoint, "Column_03 must remain at the outer-column midpoint")
+    require(
+        all(
+            abs(columns_by_name["Column_03"]["center"][axis] - midpoint[axis]) < 1e-9
+            for axis in (0, 1)
+        ),
+        "Column_03 must remain at the outer-column midpoint",
+    )
     for column in geometry["columns"]:
         x, y = column["center"]
         expected = f'def Xform "{column["name"]}"'
@@ -638,6 +652,99 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     return type_counts, placement_counts, facing_counts, fixture_counts
 
 
+def validate_architecture() -> tuple[int, int]:
+    world_text = WORLD.read_text(encoding="utf-8")
+    config = json.loads(ARCHITECTURE_CONFIG.read_text(encoding="utf-8"))
+    display_walls = config.get("digital_display_walls", [])
+    require(len(display_walls) == 1, "expected one digital display wall")
+    display_wall = display_walls[0]
+    require(display_wall["name"] == "DigitalDisplayWall_01", "digital display wall name mismatch")
+    require(display_wall["position"] == [25.9724, 13.2044, 0.85], "digital display wall pose mismatch")
+    require(display_wall["yaw_deg"] == 0, "digital display wall yaw mismatch")
+    require(
+        [display_wall[field] for field in ("front_length", "side_length", "height", "depth")]
+        == [2.5, 4.5, 1.22, 0.3],
+        "digital display wall dimensions mismatch",
+    )
+    require(display_wall["front_display_count"] == 3, "right/front display count mismatch")
+    require(display_wall["side_display_count"] == 5, "left/side display count mismatch")
+    require(display_wall["mount_clearance"] == 0.85, "display wall must float 0.85 m above floor")
+    require(display_wall["display_width"] == 0.62 and display_wall["display_height"] == 0.98, "display dimensions must be uniform and 70% height")
+    require(display_wall["left_section"] == "side" and display_wall["right_section"] == "front", "left/right section mapping mismatch")
+
+    require('def Xform "Architecture"' in world_text, "/World/Architecture missing")
+    require(
+        'prepend references = @config/architecture_layout.usda@' in world_text,
+        "architecture layout reference missing",
+    )
+    layout_text = ARCHITECTURE_LAYOUT.read_text(encoding="utf-8")
+    require('def Xform "DigitalDisplayWall_01"' in layout_text, "display wall layout prim missing")
+    require(
+        'prepend references = @../../../assets/architecture/digital_display_wall/digital_display_wall_corner.usda@'
+        in layout_text,
+        "display wall asset reference mismatch",
+    )
+    require('double3 xformOp:translate = (25.9724, 13.2044, 0.85)' in layout_text, "display wall layout pose mismatch")
+    require('double xformOp:rotateZ = 0' in layout_text, "display wall layout yaw mismatch")
+
+    asset_text = DISPLAY_WALL_ASSET.read_text(encoding="utf-8")
+    require('custom string cbnu:bodyConstruction = "one watertight charcoal L-footprint mesh with a shared mitered corner"' in asset_text, "unified L body metadata missing")
+    require('custom double cbnu:frontLength = 2.5' in asset_text, "right/front length metadata mismatch")
+    require('custom double cbnu:sideLength = 4.5' in asset_text, "left/side length metadata mismatch")
+    require('custom double cbnu:height = 1.22' in asset_text, "display wall height metadata mismatch")
+    require('custom double cbnu:depth = 0.3' in asset_text, "display wall depth metadata mismatch")
+    require('custom int cbnu:frontDisplayCount = 3' in asset_text, "right/front display metadata mismatch")
+    require('custom int cbnu:sideDisplayCount = 5' in asset_text, "left/side display metadata mismatch")
+    require('custom double cbnu:displayWidth = 0.62' in asset_text, "uniform display width metadata mismatch")
+    require('custom double cbnu:displayHeight = 0.98' in asset_text, "70 percent display height metadata mismatch")
+    require('custom string cbnu:mounting = "wall-mounted with floor clearance supplied by architecture config"' in asset_text, "floating mount metadata missing")
+    require(set(re.findall(r'def Mesh "([^"]+)"', asset_text)) == {"MainBody"}, "display wall must use one charcoal L render mesh")
+    require('def Xform "Header"' not in asset_text and "HeaderIvory" not in asset_text, "white header/sign geometry remains")
+    for mesh_name in ("MainBody",):
+        validate_mesh_topology(asset_text, mesh_name)
+        validate_watertight_mesh(asset_text, mesh_name)
+        require("PhysicsCollisionAPI" not in prim_block(asset_text, mesh_name), f"render mesh has collision: {mesh_name}")
+    body_points = mesh_points(asset_text, "MainBody")
+    require(min(point[2] for point in body_points) == 0 and max(point[2] for point in body_points) == 1.22, "main body height interval mismatch")
+    require({(point[0], point[1]) for point in body_points} == {(-0.3, -0.3), (2.2, -0.3), (2.2, 0.0), (0.0, 0.0), (0.0, 4.2), (-0.3, 4.2)}, "L footprint mismatch")
+    require(asset_text.count('references = @./digital_display_panel.usda@') == 8, "display panel reference count mismatch")
+    for index in range(1, 9):
+        require(f'def Xform "Display_{index:02d}"' in asset_text, f"display missing: {index:02d}")
+        display_block = prim_block(asset_text, f"Display_{index:02d}")
+        require('custom double cbnu:panelWidth = 0.62' in display_block, f"display width differs: {index:02d}")
+        require('xformOp:scale' not in display_block, f"display instance is non-uniformly scaled: {index:02d}")
+
+    panel_text = DISPLAY_PANEL_ASSET.read_text(encoding="utf-8")
+    require('def Xform "Bezel"' in panel_text and 'def Cube "Screen"' in panel_text, "display panel Bezel/Screen structure missing")
+    require(panel_text.count('def Cube "') == 5, "display panel must contain four bezel rails and one screen")
+    require('custom double cbnu:height = 0.98' in panel_text, "display panel height must be 70 percent of 1.40 m")
+    require('double3 xformOp:scale = (0.58, 0.006, 0.94)' in prim_block(panel_text, "Screen"), "screen opening does not match thin bezel")
+    require('double3 xformOp:translate = (0, -0.008, 0.61)' in prim_block(panel_text, "Screen"), "screen depth/height mismatch")
+    require('double3 xformOp:scale = (0.02, 0.020, 0.94)' in prim_block(panel_text, "LeftRail"), "bezel rail must be 0.02 m wide")
+    require('double3 xformOp:translate = (-0.30, -0.010, 0.61)' in prim_block(panel_text, "LeftRail"), "thin bezel pose mismatch")
+    require(asset_text.count('double3 xformOp:scale = (2.08, 0.025, 0.04)') == 2, "front outer trim must be 0.04 m high")
+    require(asset_text.count('double3 xformOp:scale = (0.025, 3.68, 0.04)') == 2, "side outer trim must be 0.04 m high")
+    require('double3 xformOp:scale = (2.5, 0.3, 1.22)' in prim_block(asset_text, "FrontCollision"), "front collision dimensions mismatch")
+    require('double3 xformOp:scale = (0.3, 4.5, 1.22)' in prim_block(asset_text, "SideCollision"), "side collision dimensions mismatch")
+    bezel_front = -0.010 - 0.020 / 2
+    screen_front = -0.008 - 0.006 / 2
+    require(abs((screen_front - bezel_front) - 0.009) < 1e-9, "screen is not recessed 0.009 m behind bezel front")
+
+    for helper_name in ("FrontCollision", "SideCollision"):
+        helper = prim_block(asset_text, helper_name)
+        require("PhysicsCollisionAPI" in asset_text.split(f'def Cube "{helper_name}"', 1)[1].split("}", 1)[0], f"collision API missing: {helper_name}")
+        require('bool physics:collisionEnabled = true' in helper, f"collision disabled: {helper_name}")
+        require('token visibility = "invisible"' in helper, f"collision helper visible: {helper_name}")
+    require(asset_text.count("PhysicsCollisionAPI") == 2, "display wall collision helper count mismatch")
+
+    dark_text = DISPLAY_WALL_DARK_MATERIAL.read_text(encoding="utf-8")
+    screen_text = DISPLAY_SCREEN_MATERIAL.read_text(encoding="utf-8")
+    require('(0.055, 0.063, 0.072)' in dark_text and 'float inputs:roughness = 0.40' in dark_text, "charcoal wall material mismatch")
+    require(screen_text.count('color3f inputs:emissiveColor') == 3, "screen emissive material variants missing")
+    require(not (ROOT / "assets/materials/display_wall/display_header.usda").exists(), "removed white header material still exists")
+    return int(display_wall["front_display_count"]), int(display_wall["side_display_count"])
+
+
 def main() -> None:
     validate_world()
     ceiling_light_counts = validate_ceiling()
@@ -646,8 +753,10 @@ def main() -> None:
     validate_north_corridor_end_glass_wall()
     door_counts = validate_doors()
     type_counts, placement_counts, facing_counts, fixture_counts = validate_sofas()
+    front_display_count, side_display_count = validate_architecture()
     reference_count = validate_references()
     width, height = png_size(PREVIEW)
+    architecture_width, architecture_height = png_size(ARCHITECTURE_PREVIEW)
 
     print("CBNU Haksan detailed lobby validation: PASS")
     print(
@@ -668,7 +777,7 @@ def main() -> None:
     print("sofa geometry: 4/4 armless assets use thick rounded plush cushions and soft matte upholstery")
     print("sofa junctions: corner/U each expose one beveled watertight SofaUnified mesh; all helpers hidden")
     print("table fit: all 3 use filled bases; Table_01/02 match paired sofa widths and Table_03 matches former Sofa_01 footprint (1.6232 x 0.82 m)")
-    print("main columns: 3 x 1.2 x 1.2 x 3.0 m; Column_01 shifted 0.4 m west and Column_03 centered between outer columns")
+    print("main columns: 3 x 1.2 x 1.2 x 3.0 m; equal X spacing retained; all shifted 0.3 m lobbyward (-Y)")
     print("U sofa column contact: clearance=0 at x=+-0.6 m and y=-0.6 m")
     print("floor material: Bala White polished granite with visible feldspar/quartz/mica pattern, 2.4 m repeat")
     print("ceiling: corridor-matched footprint, underside=3.0 m, thickness=0.1 m, collision enabled")
@@ -679,8 +788,15 @@ def main() -> None:
     print("front entrance glazing: two 4.85 x 2.82 m full-height panels; Wall_10 collider unchanged")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision; three wood doors realigned to wall faces")
     print("north corridor end glazing: one 3.1332 x 2.82 m full-height panel; Wall_04 collider unchanged")
+    print(
+        f"digital display wall: floating 0.85 m above floor; compact 1.22 m charcoal L body, depth=0.30 m, without white header; "
+        f"left/side={side_display_count} on 4.5 m, right/front={front_display_count} on 2.5 m; "
+        "uniform display size=0.62 x 0.98 m; bezel=0.02 m"
+    )
+    print("display wall collision: two invisible PhysicsCollisionAPI box helpers")
     print(f"USD references: {reference_count} relative and resolved")
     print(f"preview: {width}x{height}")
+    print(f"architecture preview: {architecture_width}x{architecture_height}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,238 @@
+#usda 1.0
+(
+    defaultPrim = "DigitalDisplayWall"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "DigitalDisplayWall" (
+    kind = "component"
+)
+{
+    custom string cbnu:approximationBasis = "photo-based indoor lobby corner display wall"
+    custom string cbnu:bodyConstruction = "one watertight charcoal L-footprint mesh with a shared mitered corner"
+    custom bool cbnu:collisionEnabled = true
+    custom double cbnu:depth = 0.3
+    custom double cbnu:displayHeight = 0.98
+    custom double cbnu:displayWidth = 0.62
+    custom int cbnu:frontDisplayCount = 3
+    custom double cbnu:frontLength = 2.5
+    custom double cbnu:height = 1.22
+    custom string cbnu:mounting = "wall-mounted with floor clearance supplied by architecture config"
+    custom double cbnu:screenRecessFromBezelFront = 0.009
+    custom int cbnu:sideDisplayCount = 5
+    custom double cbnu:sideLength = 4.5
+
+    def Scope "Materials"
+    {
+        def Material "DarkWall" (
+            prepend references = @../../materials/display_wall/display_wall_dark.usda@
+        )
+        {
+        }
+
+    }
+
+    def Mesh "MainBody"
+    {
+        int[] faceVertexCounts = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [3, 2, 1, 0, 5, 4, 3, 0, 6, 7, 8, 9, 6, 9, 10, 11, 0, 1, 7, 6, 1, 2, 8, 7, 2, 3, 9, 8, 3, 4, 10, 9, 4, 5, 11, 10, 5, 0, 6, 11]
+        rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+        point3f[] points = [(-0.3, -0.3, 0), (2.2, -0.3, 0), (2.2, 0, 0), (0, 0, 0), (0, 4.2, 0), (-0.3, 4.2, 0), (-0.3, -0.3, 1.22), (2.2, -0.3, 1.22), (2.2, 0, 1.22), (0, 0, 1.22), (0, 4.2, 1.22), (-0.3, 4.2, 1.22)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    def Xform "FrontSection"
+    {
+        custom string cbnu:facing = "local -Y"
+
+        def Xform "FrontFrame"
+        {
+            def Cube "BottomTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (2.08, 0.025, 0.04)
+                double3 xformOp:translate = (1.0, -0.3125, 0.08)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "TopTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (2.08, 0.025, 0.04)
+                double3 xformOp:translate = (1.0, -0.3125, 1.14)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "LeftTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (0.04, 0.025, 1.10)
+                double3 xformOp:translate = (-0.03, -0.3125, 0.61)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "RightTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (0.04, 0.025, 1.10)
+                double3 xformOp:translate = (2.03, -0.3125, 0.61)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+        }
+
+        def Xform "Display_01" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double3 xformOp:translate = (0.31, -0.3, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Display_02" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double3 xformOp:translate = (1.0, -0.3, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Display_03" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double3 xformOp:translate = (1.69, -0.3, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Xform "SideSection"
+    {
+        custom string cbnu:facing = "local -X"
+
+        def Xform "SideFrame"
+        {
+            def Cube "BottomTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (0.025, 3.68, 0.04)
+                double3 xformOp:translate = (-0.3125, 2.05, 0.08)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "TopTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (0.025, 3.68, 0.04)
+                double3 xformOp:translate = (-0.3125, 2.05, 1.14)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "StartTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (0.025, 0.04, 1.10)
+                double3 xformOp:translate = (-0.3125, 0.19, 0.61)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "EndTrim"
+            {
+                rel material:binding = </DigitalDisplayWall/Materials/DarkWall>
+                double size = 1
+                double3 xformOp:scale = (0.025, 0.04, 1.10)
+                double3 xformOp:translate = (-0.3125, 3.91, 0.61)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+        }
+
+        def Xform "Display_04" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double xformOp:rotateZ = -90
+            double3 xformOp:translate = (-0.3, 0.57, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+
+        def Xform "Display_05" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double xformOp:rotateZ = -90
+            double3 xformOp:translate = (-0.3, 1.31, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+
+        def Xform "Display_06" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double xformOp:rotateZ = -90
+            double3 xformOp:translate = (-0.3, 2.05, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+
+        def Xform "Display_07" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double xformOp:rotateZ = -90
+            double3 xformOp:translate = (-0.3, 2.79, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+
+        def Xform "Display_08" (
+            prepend references = @./digital_display_panel.usda@
+        )
+        {
+            custom double cbnu:panelWidth = 0.62
+            double xformOp:rotateZ = -90
+            double3 xformOp:translate = (-0.3, 3.53, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+    }
+
+    def Xform "Collision"
+    {
+        custom string cbnu:approximation = "two overlapping boxes; no per-display collision"
+
+        def Cube "FrontCollision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            bool physics:collisionEnabled = true
+            double size = 1
+            token visibility = "invisible"
+            double3 xformOp:scale = (2.5, 0.3, 1.22)
+            double3 xformOp:translate = (0.95, -0.15, 0.61)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "SideCollision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            bool physics:collisionEnabled = true
+            double size = 1
+            token visibility = "invisible"
+            double3 xformOp:scale = (0.3, 4.5, 1.22)
+            double3 xformOp:translate = (-0.15, 1.95, 0.61)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+}

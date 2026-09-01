@@ -78,7 +78,7 @@ def Xform "Furniture"
         custom string cbnu:itemType = "u_column"
         custom string cbnu:sofaType = "u_column"
         double xformOp:rotateZ = 0
-        double3 xformOp:translate = (31.1014, 10.6957, 0)
+        double3 xformOp:translate = (31.1014, 10.3957, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 

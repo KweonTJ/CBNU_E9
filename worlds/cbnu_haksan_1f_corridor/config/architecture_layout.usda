@@ -1,0 +1,28 @@
+#usda 1.0
+(
+    defaultPrim = "Architecture"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "Architecture"
+{
+    custom string cbnu:sourceConfig = "architecture.json"
+
+    def Xform "DigitalDisplayWall_01" (
+        prepend references = @../../../assets/architecture/digital_display_wall/digital_display_wall_corner.usda@
+    )
+    {
+        custom string cbnu:assetType = "digital_display_wall_corner"
+        custom double cbnu:frontLength = 2.5
+        custom double cbnu:sideLength = 4.5
+        custom double cbnu:displayWidth = 0.62
+        custom double cbnu:displayHeight = 0.98
+        custom double cbnu:mountClearance = 0.85
+        custom int cbnu:frontDisplayCount = 3
+        custom int cbnu:sideDisplayCount = 5
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (25.9724, 13.2044, 0.85)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+}

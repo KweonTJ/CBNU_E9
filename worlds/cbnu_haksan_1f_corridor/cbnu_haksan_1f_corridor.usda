@@ -289,7 +289,7 @@ def Xform "World"
             prepend references = @../../assets/structural/column_2m.usda@
         )
         {
-            double3 xformOp:translate = (21.7739, 10.6812, 0)
+            double3 xformOp:translate = (21.7739, 10.3812, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 
@@ -298,7 +298,7 @@ def Xform "World"
         )
         {
             custom string cbnu:placement = "midpoint between Column_01 and Column_02"
-            double3 xformOp:translate = (26.43765, 10.68845, 0)
+            double3 xformOp:translate = (26.43765, 10.38845, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 
@@ -306,7 +306,7 @@ def Xform "World"
             prepend references = @../../assets/structural/column_2m.usda@
         )
         {
-            double3 xformOp:translate = (31.1014, 10.6957, 0)
+            double3 xformOp:translate = (31.1014, 10.3957, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 
@@ -328,6 +328,13 @@ def Xform "World"
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 
+    }
+
+    def Xform "Architecture" (
+        prepend references = @config/architecture_layout.usda@
+    )
+    {
+        custom string cbnu:layoutRevision = "2026-09-01-digital-display-wall-v1"
     }
 
     def Xform "Furniture" (
