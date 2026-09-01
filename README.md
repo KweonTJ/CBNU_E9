@@ -17,7 +17,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - 전체 크기: 약 `35.6 × 20.8m`
 - 벽: 높이 `3.0m`, 두께 `0.20m`, 총 12개
 - 천장: 실내 높이 `3.0m`, 두께 `0.10m`, 복도와 동일한 polygon
-- 기둥: `2.0 × 2.0 × 3.0m`, 총 2개
+- 기둥: `1.5 × 1.5 × 3.0m`, 총 2개(중심 위치 유지)
 - 모든 외곽 벽 회전: `0°` 또는 `90°`
 - 기준 이미지: `worlds/cbnu_haksan_1f_corridor/reference/evacuation_diagram_annotated.png`
 
@@ -35,7 +35,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 | Glass wall | 정면 출입문 좌우 2장 + 서쪽 끝 1장 + 북쪽 끝 1장 |
 | Sofa | straight 3개, corner 1개, Column 2 U형 1개 |
 | Table | 하부가 채워진 목재 책상 3개 |
-| Equipment | 은행 ATM 1개 |
+| Equipment | 은행 ATM 2개 |
 | Entrance pillar | ATM–문 사이 1개 + 문 반대편 대칭 1개 |
 | Raw obstacle Cube | 없음 |
 
@@ -80,6 +80,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 │   ├── Sofa_Corner_01
 │   ├── Sofa_U_Column_02
 │   ├── ATM_01
+│   ├── ATM_02
 │   ├── Table_01
 │   ├── Table_02
 │   └── Table_03
@@ -123,11 +124,14 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - 색상: 브라운 계열 soft matte upholstery
 - 팔걸이 없음
 - 일반 소파는 벽에 붙고 좌석은 로비를 향함
-- Corner/U형 visible geometry는 `BaseUpholsteryUnified`, `SeatCushionUnified`, `BackCushionUnified` 세 Mesh뿐임
+- Corner/U형 visible geometry는 asset별 `SofaUnified` 단일 Mesh만 사용
 - Capsule/Sphere/Cube/Cylinder helper와 collision proxy는 모두 invisible
-- 통합 Mesh는 닫힌 단일 footprint이며 validator에서 watertight edge와 XY 자기 교차를 검사
+- 단일 Mesh 안의 base·seat·back topology는 서로 겹치지 않고 경계에서 맞닿으며, 직접 만든 bevel ring으로 쿠션 윤곽을 구분
+- 오목한 L/U cap은 명시적으로 삼각화해 Hydra의 n-gon 분할로 면이 깨지는 문제를 방지
 - Column 2 U형은 좌·하·우를 감싸고 위쪽은 열림
 - U형 안쪽 면은 Column 2에 `clearance = 0`으로 접촉
+
+Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_column.usda`는 기존 reference 호환을 위해 유지하지만, 실제 기준 폭은 `1.5m`다.
 
 ### 정면 유리 출입구
 
@@ -313,6 +317,25 @@ worlds/cbnu_haksan_1f_corridor/config/geometry.json
 
 기둥 폭 `1.0425m`는 ATM과 문 사이 실제 빈 폭이다. 깊이는 `1.0m`이며 뒤쪽 면은 남쪽 벽선에 맞춘다. 위치를 조정할 때는 `entrance_pillars`의 두 X 중심이 출입구 중심 `x=23.5`에서 같은 거리를 유지해야 한다.
 
+### 메인 기둥과 통합 소파 Mesh 수정
+
+```text
+assets/structural/column_2m.usda
+scripts/generate_unified_sofa_meshes.py
+assets/furniture/sofa_corner.usda
+assets/furniture/sofa_u_around_2m_column.usda
+```
+
+메인 기둥 단면은 `column_2m.usda`의 `Body.xformOp:scale`과 `geometry.json`의 두 `columns[].size`를 함께 맞춘다. 현재 값은 `1.5 × 1.5m`이며 두 기둥의 중심 좌표는 변경하지 않았다.
+
+Corner/U형 소파의 보이는 `SofaUnified`는 생성 결과다. 윤곽·bevel·cap triangulation을 수정한 뒤 다음 명령으로 두 asset을 다시 만든다.
+
+```bash
+python3 scripts/generate_unified_sofa_meshes.py
+```
+
+위 스크립트는 render Mesh만 갱신한다. 기존 invisible collision helper와 상대경로 material reference는 유지된다.
+
 ### 가구 위치·크기 수정
 
 수정 파일:
@@ -458,7 +481,7 @@ python3 scripts/validate_cbnu_haksan_detail.py
 - Bala White texture, UV와 material binding
 - 문 유형과 실제 leaf 수
 - 소파 유형, 방향과 Column 2 접촉
-- ATM과 책상 asset load
+- ATM 2개와 책상 asset load
 - 세 책상의 filled lower body
 - raw Obstacle Cube 부재
 - 모든 USD reference의 상대경로와 대상 파일
@@ -468,9 +491,9 @@ python3 scripts/validate_cbnu_haksan_detail.py
 
 ```text
 CBNU Haksan detailed lobby validation: PASS
-USD references: 50 relative and resolved
+USD references: 51 relative and resolved
 CBNU Haksan composed Stage: PASS (USD 24.05)
-verified composed prims: 38
+verified composed prims: 39
 preview: 2250 × 1425
 ```
 

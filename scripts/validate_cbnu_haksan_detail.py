@@ -118,6 +118,9 @@ def validate_unified_sofa_render_policy(layer_text: str, asset_name: str) -> Non
         require('subdivisionScheme = "none"' in block, f"single sofa mesh must use authored bevels: {asset_name}")
         validate_mesh_topology(layer_text, mesh_name)
         validate_watertight_mesh(layer_text, mesh_name)
+        counts_match = re.search(r"faceVertexCounts\s*=\s*\[([^]]+)\]", block)
+        face_counts = {int(value) for value in re.findall(r"\d+", counts_match.group(1))}
+        require(face_counts <= {3, 4} and 3 in face_counts, f"concave n-gon cap remains: {asset_name}")
 
     helper_prims = re.findall(r'def (Cube|Capsule|Sphere|Cylinder) "([^"]+)"', layer_text)
     require(helper_prims, f"collision/helper prims missing: {asset_name}")

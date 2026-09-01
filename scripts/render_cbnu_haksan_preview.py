@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -12,6 +13,7 @@ import numpy as np
 from matplotlib import patches, transforms
 from matplotlib.lines import Line2D
 
+sys.dont_write_bytecode = True
 from generate_unified_sofa_meshes import CORNER_OUTLINES, U_OUTLINES
 
 
