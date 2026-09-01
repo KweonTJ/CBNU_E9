@@ -16,7 +16,7 @@ def Xform "Doors"
         custom string cbnu:doorType = "single"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 0
-        double3 xformOp:translate = (5.4, 13.08, 0)
+        double3 xformOp:translate = (5.4, 13.0175, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 
@@ -26,8 +26,8 @@ def Xform "Doors"
     {
         custom string cbnu:doorType = "single"
         custom string cbnu:placementSource = "doors.json"
-        double xformOp:rotateZ = 0
-        double3 xformOp:translate = (5.4, 11.47, 0)
+        double xformOp:rotateZ = 180
+        double3 xformOp:translate = (5.4, 11.5325, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 
@@ -38,7 +38,7 @@ def Xform "Doors"
         custom string cbnu:doorType = "single"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 0
-        double3 xformOp:translate = (10.5, 13.08, 0)
+        double3 xformOp:translate = (10.5, 13.0175, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 

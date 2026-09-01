@@ -7,8 +7,8 @@
 
 def Xform "Column"
 {
-    custom double cbnu:columnWidth = 1.5
-    custom string cbnu:compatibilityNote = "legacy filename retained; active column section is 1.5 m"
+    custom double cbnu:columnWidth = 1.2
+    custom string cbnu:compatibilityNote = "legacy filename retained; active column section is 1.2 m"
     def Scope "Materials"
     {
         def Material "LightConcrete"
@@ -35,7 +35,7 @@ def Xform "Column"
         rel material:binding = </Column/Materials/LightConcrete>
         float3[] primvars:displayColor = [(0.45, 0.45, 0.50)]
         double3 xformOp:translate = (0, 0, 1.5)
-        double3 xformOp:scale = (1.5, 1.5, 3.0)
+        double3 xformOp:scale = (1.2, 1.2, 3.0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
     }
 }

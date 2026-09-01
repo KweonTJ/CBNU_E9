@@ -2,7 +2,7 @@
   "meta": {
     "name": "CBNU Haksan 1F Corridor Approximation",
     "units": "meter",
-    "scale_basis": "corridor scale retained from the original 2.0 m-column reconstruction; active column width override = 1.5 m",
+    "scale_basis": "corridor scale retained from the original reconstruction; west corridor width = 1.73 m and active column width = 1.2 m",
     "note": "Approximate world reconstructed from evacuation diagram annotations. Corridor boundary snapped to exact orthogonal (90-degree) X/Y-aligned walls. Not survey-grade.",
     "geometry_revision": "v2_orthogonal"
   },
@@ -36,19 +36,19 @@
     ],
     [
       22.7392,
-      13.2028
+      13.1403
     ],
     [
       0.087,
-      13.2028
+      13.1403
     ],
     [
       0.087,
-      11.3478
+      11.4103
     ],
     [
       16.0145,
-      11.3478
+      11.4103
     ],
     [
       16.0145,
@@ -63,18 +63,37 @@
       6.1739
     ]
   ],
+  "west_corridor": {
+    "center_y": 12.2753,
+    "width": 1.73,
+    "end_treatment": "opaque_wall",
+    "revision_note": "width reduced symmetrically about the existing centerline; west end remains an opaque wall"
+  },
   "columns": [
     {
       "name": "Column_01",
       "center": [
-        22.1739,
+        21.7739,
         10.6812
       ],
       "size": [
-        1.5,
-        1.5,
+        1.2,
+        1.2,
         3.0
       ]
+    },
+    {
+      "name": "Column_03",
+      "center": [
+        26.43765,
+        10.68845
+      ],
+      "size": [
+        1.2,
+        1.2,
+        3.0
+      ],
+      "placement": "midpoint between Column_01 and Column_02"
     },
     {
       "name": "Column_02",
@@ -83,8 +102,8 @@
         10.6957
       ],
       "size": [
-        1.5,
-        1.5,
+        1.2,
+        1.2,
         3.0
       ]
     }
@@ -106,10 +125,10 @@
   "sofa": {
     "name": "Sofa_U_Column_02",
     "column": "Column_02",
-    "outer_width": 3.06,
-    "outer_depth": 2.38,
+    "outer_width": 2.76,
+    "outer_depth": 2.08,
     "thickness": 0.78,
     "height": 0.98,
-    "top_y_relative_to_column_center": 0.75
+    "top_y_relative_to_column_center": 0.6
   }
 }

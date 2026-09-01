@@ -36,7 +36,6 @@ CEILING_MATERIAL = ROOT / "assets/materials/lobby/ceiling_white.usda"
 CEILING_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light.usda"
 CEILING_LARGE_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light_large.usda"
 FRONT_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/front_entrance_glass_walls.usda"
-CORRIDOR_END_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/corridor_end_glass_wall.usda"
 NORTH_CORRIDOR_END_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/north_corridor_end_glass_wall.usda"
 ENTRANCE_PILLAR_ASSET = ROOT / "assets/structural/entrance_side_pillar.usda"
 COLUMN_ASSET = ROOT / "assets/structural/column_2m.usda"
@@ -193,11 +192,33 @@ def validate_world() -> None:
     require(all('PhysicsCollisionAPI' in block and 'physics:collisionEnabled = 1' in block for block in wall_blocks), "Wall collision missing")
 
     geometry = json.loads(GEOMETRY.read_text(encoding="utf-8"))
-    require(len(geometry["columns"]) == 2, "expected two main columns")
+    west_corridor = geometry.get("west_corridor", {})
+    require(west_corridor.get("width") == 1.73, "west corridor width must be 1.73 m")
+    require(west_corridor.get("center_y") == 12.2753, "west corridor centerline changed")
+    require(west_corridor.get("end_treatment") == "opaque_wall", "west corridor end must be an opaque wall")
+    polygon = geometry["corridor_polygon_xy"]
+    require(polygon[5][1] == polygon[6][1] == 13.1403, "west corridor north boundary mismatch")
+    require(polygon[7][1] == polygon[8][1] == 11.4103, "west corridor south boundary mismatch")
+    require(abs(polygon[5][1] - polygon[7][1] - 1.73) < 1e-9, "west corridor polygon width mismatch")
+    floor_points = mesh_points(world_text, "Floor")
     require(
-        all(column["size"] == [1.5, 1.5, 3.0] for column in geometry["columns"]),
-        "main column size must be 1.5 x 1.5 x 3.0 m",
+        [(point[0], point[1]) for point in floor_points[:12]] == [tuple(point) for point in polygon],
+        "Floor footprint does not match geometry.json",
     )
+
+    require(len(geometry["columns"]) == 3, "expected three main columns")
+    require(
+        all(column["size"] == [1.2, 1.2, 3.0] for column in geometry["columns"]),
+        "main column size must be 1.2 x 1.2 x 3.0 m",
+    )
+    columns_by_name = {column["name"]: column for column in geometry["columns"]}
+    require(set(columns_by_name) == {"Column_01", "Column_02", "Column_03"}, "main column names mismatch")
+    require(columns_by_name["Column_01"]["center"] == [21.7739, 10.6812], "Column_01 westward shift mismatch")
+    midpoint = [
+        (columns_by_name["Column_01"]["center"][axis] + columns_by_name["Column_02"]["center"][axis]) / 2
+        for axis in (0, 1)
+    ]
+    require(columns_by_name["Column_03"]["center"] == midpoint, "Column_03 must remain at the outer-column midpoint")
     for column in geometry["columns"]:
         x, y = column["center"]
         expected = f'def Xform "{column["name"]}"'
@@ -205,14 +226,14 @@ def validate_world() -> None:
         translate = f"double3 xformOp:translate = ({x}, {y}, 0)"
         require(translate in world_text, f"column pose mismatch: {column['name']}")
     require(
-        world_text.count('references = @../../assets/structural/column_2m.usda@') == 2,
+        world_text.count('references = @../../assets/structural/column_2m.usda@') == 3,
         "main column references mismatch",
     )
     column_text = COLUMN_ASSET.read_text(encoding="utf-8")
-    require("custom double cbnu:columnWidth = 1.5" in column_text, "column width metadata mismatch")
+    require("custom double cbnu:columnWidth = 1.2" in column_text, "column width metadata mismatch")
     require(
-        "double3 xformOp:scale = (1.5, 1.5, 3.0)" in prim_block(column_text, "Body"),
-        "column asset body must be 1.5 x 1.5 x 3.0 m",
+        "double3 xformOp:scale = (1.2, 1.2, 3.0)" in prim_block(column_text, "Body"),
+        "column asset body must be 1.2 x 1.2 x 3.0 m",
     )
 
     entrance_pillars = geometry.get("entrance_pillars", [])
@@ -331,26 +352,18 @@ def validate_front_glass_walls() -> None:
     require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative glass must not add collision")
 
 
-def validate_corridor_end_glass_wall() -> None:
+def validate_west_corridor_end_wall() -> None:
     world_text = WORLD.read_text(encoding="utf-8")
-    require('def Xform "WestCorridorEndGlassWall"' in world_text, "west corridor end glass wall prim missing")
+    require('def Xform "WestCorridorEndGlassWall"' not in world_text, "west corridor end glass must be removed")
     require(
-        'prepend references = @../../assets/architecture/windows/corridor_end_glass_wall.usda@' in world_text,
-        "west corridor end glass wall reference missing",
+        '@../../assets/architecture/windows/corridor_end_glass_wall.usda@' not in world_text,
+        "west corridor glass reference remains",
     )
-    glass_root = prim_block(world_text, "WestCorridorEndGlassWall")
-    require('double xformOp:rotateZ = 90' in glass_root, "west corridor glass rotation mismatch")
-    require('double3 xformOp:translate = (0.17, 12.2753, 0)' in glass_root, "west corridor glass pose mismatch")
     wall_07 = prim_block(world_text, "Wall_07")
-    require('token visibility = "invisible"' in wall_07, "opaque Wall_07 visual must be hidden behind glazing")
+    require('visibility = "invisible"' not in wall_07, "opaque Wall_07 must remain visible")
     require('bool physics:collisionEnabled = 1' in wall_07, "Wall_07 collision must remain enabled")
-    require('double3 xformOp:scale = (1.855, 0.2, 3)' in wall_07, "Wall_07 geometry changed")
-
-    glass_text = CORRIDOR_END_GLASS_WALL_ASSET.read_text(encoding="utf-8")
-    require('custom double2 cbnu:glassPanelSize = (1.655, 2.82)' in glass_text, "west corridor glass size mismatch")
-    require(glass_text.count('def Cube "GlassPanel"') == 1, "west corridor must use one full-height glass pane")
-    require('float inputs:opacity = 0.13' in glass_text, "west corridor glass transparency missing")
-    require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative west glass must not add collision")
+    require('double3 xformOp:scale = (1.73, 0.2, 3)' in wall_07, "Wall_07 width mismatch")
+    require('double3 xformOp:translate = (0.087, 12.2753, 1.5)' in wall_07, "Wall_07 pose mismatch")
 
 
 def validate_north_corridor_end_glass_wall() -> None:
@@ -378,6 +391,11 @@ def validate_doors() -> Counter[str]:
     doors = json.loads(DOORS.read_text(encoding="utf-8"))["doors"]
     counts = Counter(item["type"] for item in doors)
     require(counts == Counter({"double": 4, "single": 3, "double_glass_pair": 1}), f"unexpected door counts: {counts}")
+    doors_by_name = {item["name"]: item for item in doors}
+    require(doors_by_name["Door_Single_01"]["position"] == [5.4, 13.0175, 0.0], "north west-corridor door pose mismatch")
+    require(doors_by_name["Door_Single_02"]["position"] == [5.4, 11.5325, 0.0], "south west-corridor door pose mismatch")
+    require(doors_by_name["Door_Single_02"]["yaw_deg"] == 180, "south west-corridor door must face inward")
+    require(doors_by_name["Door_Single_03"]["position"] == [10.5, 13.0175, 0.0], "second north west-corridor door pose mismatch")
     single = (ROOT / "assets/architecture/doors/wood_door_single.usda").read_text(encoding="utf-8")
     double = (ROOT / "assets/architecture/doors/wood_door_double.usda").read_text(encoding="utf-8")
     require('"DoorLeaf"' in single, "single door leaf missing")
@@ -408,6 +426,10 @@ def validate_doors() -> Counter[str]:
     require('double3 xformOp:translate = (-1.15, 0, 0)' in pair, "left glass set spacing mismatch")
     require('double3 xformOp:translate = (1.15, 0, 0)' in pair, "right glass set spacing mismatch")
     layout = (WORLD_DIR / "config/doors_layout.usda").read_text(encoding="utf-8")
+    require(layout.count('double3 xformOp:translate = (5.4, 13.0175, 0)') == 1, "north west door layout mismatch")
+    require('double3 xformOp:translate = (5.4, 11.5325, 0)' in layout, "south west door layout mismatch")
+    require('double xformOp:rotateZ = 180' in prim_block(layout, "Door_Single_02"), "south west door layout orientation mismatch")
+    require('double3 xformOp:translate = (10.5, 13.0175, 0)' in layout, "second north west door layout mismatch")
     glass_block = prim_block(layout, "Door_Double_05")
     require("glass_door_double_pair.usda" in layout and 'cbnu:doorType = "double_glass_pair"' in glass_block, "front double-glass pair reference missing")
     return counts
@@ -582,7 +604,7 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
         "U unified render-mesh metadata missing",
     )
     require("custom double cbnu:columnClearance = 0" in u_text, "U sofa must touch Column_02")
-    require("custom double cbnu:columnWidth = 1.5" in u_text, "U sofa column width metadata mismatch")
+    require("custom double cbnu:columnWidth = 1.2" in u_text, "U sofa column width metadata mismatch")
     validate_unified_sofa_render_policy(u_text, "sofa_u_around_2m_column.usda")
     for plush_name in (
         "LeftSeatPlush", "RightSeatPlush", "BottomSeatPlush",
@@ -602,16 +624,16 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     ):
         require('visibility = "invisible"' in prim_block(u_text, hidden_name), f"legacy U module remains visible: {hidden_name}")
     require('"TopBar"' not in u_text, "U sofa must stay open at local +Y")
-    require('double3 xformOp:translate = (-1.150000, -0.450000, 0.230000)' in u_text, "U sofa left base pose mismatch")
-    require('double3 xformOp:translate = (1.150000, -0.450000, 0.230000)' in u_text, "U sofa right base pose mismatch")
-    require('double3 xformOp:translate = (0, -1.200000, 0.230000)' in u_text, "U sofa bottom base pose mismatch")
+    require('double3 xformOp:translate = (-0.990000, -0.450000, 0.230000)' in u_text, "U sofa left base pose mismatch")
+    require('double3 xformOp:translate = (0.990000, -0.450000, 0.230000)' in u_text, "U sofa right base pose mismatch")
+    require('double3 xformOp:translate = (0, -1.050000, 0.230000)' in u_text, "U sofa bottom base pose mismatch")
     for contact_point in (
-        "(0.7500, 0.4500, 0.4250)", "(-0.7500, 0.4500, 0.4250)",
-        "(0.5900, -0.7500, 0.4250)", "(-0.5900, -0.7500, 0.4250)",
+        "(0.6000, 0.3000, 0.4250)", "(-0.6000, 0.3000, 0.4250)",
+        "(0.4400, -0.6000, 0.4250)", "(-0.4400, -0.6000, 0.4250)",
     ):
         require(contact_point in u_text, f"U sofa/column contact point missing: {contact_point}")
     sofa_points = mesh_points(u_text, "SofaUnified")
-    require(max(point[2] for point in sofa_points if abs(point[1] - 0.75) < 1e-6) <= 0.58, "U sofa open-end backrest still protrudes")
+    require(max(point[2] for point in sofa_points if abs(point[1] - 0.6) < 1e-6) <= 0.58, "U sofa open-end backrest still protrudes")
     require(u_text.count('def Cylinder "') == 6, "U sofa helper-foot count changed")
     return type_counts, placement_counts, facing_counts, fixture_counts
 
@@ -620,7 +642,7 @@ def main() -> None:
     validate_world()
     ceiling_light_counts = validate_ceiling()
     validate_front_glass_walls()
-    validate_corridor_end_glass_wall()
+    validate_west_corridor_end_wall()
     validate_north_corridor_end_glass_wall()
     door_counts = validate_doors()
     type_counts, placement_counts, facing_counts, fixture_counts = validate_sofas()
@@ -646,8 +668,8 @@ def main() -> None:
     print("sofa geometry: 4/4 armless assets use thick rounded plush cushions and soft matte upholstery")
     print("sofa junctions: corner/U each expose one beveled watertight SofaUnified mesh; all helpers hidden")
     print("table fit: all 3 use filled bases; Table_01/02 match paired sofa widths and Table_03 matches former Sofa_01 footprint (1.6232 x 0.82 m)")
-    print("main columns: 2 x 1.5 x 1.5 x 3.0 m; original centers retained")
-    print("U sofa column contact: clearance=0 at x=+-0.75 m and y=-0.75 m")
+    print("main columns: 3 x 1.2 x 1.2 x 3.0 m; Column_01 shifted 0.4 m west and Column_03 centered between outer columns")
+    print("U sofa column contact: clearance=0 at x=+-0.6 m and y=-0.6 m")
     print("floor material: Bala White polished granite with visible feldspar/quartz/mica pattern, 2.4 m repeat")
     print("ceiling: corridor-matched footprint, underside=3.0 m, thickness=0.1 m, collision enabled")
     print(
@@ -655,7 +677,7 @@ def main() -> None:
         f"large central panel={ceiling_light_counts['large_panel']} (6.0 x 2.4 m)"
     )
     print("front entrance glazing: two 4.85 x 2.82 m full-height panels; Wall_10 collider unchanged")
-    print("west corridor end glazing: one 1.655 x 2.82 m full-height panel; Wall_07 collider unchanged")
+    print("west corridor: width=1.73 m; opaque Wall_07 visible with collision; three wood doors realigned to wall faces")
     print("north corridor end glazing: one 3.1332 x 2.82 m full-height panel; Wall_04 collider unchanged")
     print(f"USD references: {reference_count} relative and resolved")
     print(f"preview: {width}x{height}")

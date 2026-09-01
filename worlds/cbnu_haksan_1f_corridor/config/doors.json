@@ -3,23 +3,23 @@
     {
       "name": "Door_Single_01",
       "type": "single",
-      "position": [5.4, 13.08, 0.0],
+      "position": [5.4, 13.0175, 0.0],
       "yaw_deg": 0,
-      "source_note": "evacuation diagram: Room 104 side, north wall of west corridor"
+      "source_note": "evacuation diagram: Room 104 side; decorative frame offset into corridor so the opaque wall does not occlude it"
     },
     {
       "name": "Door_Single_02",
       "type": "single",
-      "position": [5.4, 11.47, 0.0],
-      "yaw_deg": 0,
-      "source_note": "evacuation diagram: opposite Room 105 side, south wall of west corridor"
+      "position": [5.4, 11.5325, 0.0],
+      "yaw_deg": 180,
+      "source_note": "evacuation diagram: opposite Room 105 side; decorative frame offset into corridor so the opaque wall does not occlude it"
     },
     {
       "name": "Door_Single_03",
       "type": "single",
-      "position": [10.5, 13.08, 0.0],
+      "position": [10.5, 13.0175, 0.0],
       "yaw_deg": 0,
-      "source_note": "evacuation diagram: Room 103 side"
+      "source_note": "evacuation diagram: Room 103 side; decorative frame offset into corridor so the opaque wall does not occlude it"
     },
     {
       "name": "Door_Double_01",

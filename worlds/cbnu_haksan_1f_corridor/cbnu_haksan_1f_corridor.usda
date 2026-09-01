@@ -71,9 +71,9 @@ def Xform "World"
             int[] faceVertexIndices = [11, 0, 1, 11, 1, 2, 2, 3, 4, 2, 4, 5, 11, 2, 5, 5, 6, 7, 5, 7, 8, 11, 5, 8, 11, 8, 9, 9, 10, 11, 13, 12, 23, 14, 13, 23, 16, 15, 14, 17, 16, 14, 17, 14, 23, 19, 18, 17, 20, 19, 17, 20, 17, 23, 21, 20, 23, 23, 22, 21, 0, 1, 13, 12, 1, 2, 14, 13, 2, 3, 15, 14, 3, 4, 16, 15, 4, 5, 17, 16, 5, 6, 18, 17, 6, 7, 19, 18, 7, 8, 20, 19, 8, 9, 21, 20, 9, 10, 22, 21, 10, 11, 23, 22, 11, 0, 12, 23]
             rel material:binding = </World/Looks/MarbleFloor>
             bool physics:collisionEnabled = 1
-            point3f[] points = [(35.4492, 6.1739, 0), (35.4492, 13.3044, 0), (26.0724, 13.3044, 0), (26.0724, 20.7246, 0), (22.7392, 20.7246, 0), (22.7392, 13.2028, 0), (0.087, 13.2028, 0), (0.087, 11.3478, 0), (16.0145, 11.3478, 0), (16.0145, 0.0435, 0), (30.7536, 0.0435, 0), (30.7536, 6.1739, 0), (35.4492, 6.1739, -0.1), (35.4492, 13.3044, -0.1), (26.0724, 13.3044, -0.1), (26.0724, 20.7246, -0.1), (22.7392, 20.7246, -0.1), (22.7392, 13.2028, -0.1), (0.087, 13.2028, -0.1), (0.087, 11.3478, -0.1), (16.0145, 11.3478, -0.1), (16.0145, 0.0435, -0.1), (30.7536, 0.0435, -0.1), (30.7536, 6.1739, -0.1)]
+            point3f[] points = [(35.4492, 6.1739, 0), (35.4492, 13.3044, 0), (26.0724, 13.3044, 0), (26.0724, 20.7246, 0), (22.7392, 20.7246, 0), (22.7392, 13.1403, 0), (0.087, 13.1403, 0), (0.087, 11.4103, 0), (16.0145, 11.4103, 0), (16.0145, 0.0435, 0), (30.7536, 0.0435, 0), (30.7536, 6.1739, 0), (35.4492, 6.1739, -0.1), (35.4492, 13.3044, -0.1), (26.0724, 13.3044, -0.1), (26.0724, 20.7246, -0.1), (22.7392, 20.7246, -0.1), (22.7392, 13.1403, -0.1), (0.087, 13.1403, -0.1), (0.087, 11.4103, -0.1), (16.0145, 11.4103, -0.1), (16.0145, 0.0435, -0.1), (30.7536, 0.0435, -0.1), (30.7536, 6.1739, -0.1)]
             float3[] primvars:displayColor = [(0.65, 0.65, 0.65)]
-            texCoord2f[] primvars:st = [(35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.2028), (0.087, 13.2028), (0.087, 11.3478), (16.0145, 11.3478), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739), (35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.2028), (0.087, 13.2028), (0.087, 11.3478), (16.0145, 11.3478), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739)]
+            texCoord2f[] primvars:st = [(35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.1403), (0.087, 13.1403), (0.087, 11.4103), (16.0145, 11.4103), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739), (35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.1403), (0.087, 13.1403), (0.087, 11.4103), (16.0145, 11.4103), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739)]
             uniform token primvars:st:interpolation = "vertex"
             uniform token subdivisionScheme = "none"
         }
@@ -89,7 +89,7 @@ def Xform "World"
             int[] faceVertexIndices = [11, 0, 1, 11, 1, 2, 2, 3, 4, 2, 4, 5, 11, 2, 5, 5, 6, 7, 5, 7, 8, 11, 5, 8, 11, 8, 9, 9, 10, 11, 13, 12, 23, 14, 13, 23, 16, 15, 14, 17, 16, 14, 17, 14, 23, 19, 18, 17, 20, 19, 17, 20, 17, 23, 21, 20, 23, 23, 22, 21, 0, 1, 13, 12, 1, 2, 14, 13, 2, 3, 15, 14, 3, 4, 16, 15, 4, 5, 17, 16, 5, 6, 18, 17, 6, 7, 19, 18, 7, 8, 20, 19, 8, 9, 21, 20, 9, 10, 22, 21, 10, 11, 23, 22, 11, 0, 12, 23]
             rel material:binding = </World/Looks/CeilingWhite>
             bool physics:collisionEnabled = 1
-            point3f[] points = [(35.4492, 6.1739, 3.1), (35.4492, 13.3044, 3.1), (26.0724, 13.3044, 3.1), (26.0724, 20.7246, 3.1), (22.7392, 20.7246, 3.1), (22.7392, 13.2028, 3.1), (0.087, 13.2028, 3.1), (0.087, 11.3478, 3.1), (16.0145, 11.3478, 3.1), (16.0145, 0.0435, 3.1), (30.7536, 0.0435, 3.1), (30.7536, 6.1739, 3.1), (35.4492, 6.1739, 3.0), (35.4492, 13.3044, 3.0), (26.0724, 13.3044, 3.0), (26.0724, 20.7246, 3.0), (22.7392, 20.7246, 3.0), (22.7392, 13.2028, 3.0), (0.087, 13.2028, 3.0), (0.087, 11.3478, 3.0), (16.0145, 11.3478, 3.0), (16.0145, 0.0435, 3.0), (30.7536, 0.0435, 3.0), (30.7536, 6.1739, 3.0)]
+            point3f[] points = [(35.4492, 6.1739, 3.1), (35.4492, 13.3044, 3.1), (26.0724, 13.3044, 3.1), (26.0724, 20.7246, 3.1), (22.7392, 20.7246, 3.1), (22.7392, 13.1403, 3.1), (0.087, 13.1403, 3.1), (0.087, 11.4103, 3.1), (16.0145, 11.4103, 3.1), (16.0145, 0.0435, 3.1), (30.7536, 0.0435, 3.1), (30.7536, 6.1739, 3.1), (35.4492, 6.1739, 3.0), (35.4492, 13.3044, 3.0), (26.0724, 13.3044, 3.0), (26.0724, 20.7246, 3.0), (22.7392, 20.7246, 3.0), (22.7392, 13.1403, 3.0), (0.087, 13.1403, 3.0), (0.087, 11.4103, 3.0), (16.0145, 11.4103, 3.0), (16.0145, 0.0435, 3.0), (30.7536, 0.0435, 3.0), (30.7536, 6.1739, 3.0)]
             float3[] primvars:displayColor = [(0.86, 0.87, 0.84)]
             uniform token subdivisionScheme = "none"
         }
@@ -108,16 +108,6 @@ def Xform "World"
             custom string cbnu:layoutRevision = "2026-09-01-full-height-glass-both-sides-v1"
             double3 xformOp:translate = (23.5, 0.17, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
-        }
-
-        def Xform "WestCorridorEndGlassWall" (
-            prepend references = @../../assets/architecture/windows/corridor_end_glass_wall.usda@
-        )
-        {
-            custom string cbnu:layoutRevision = "2026-09-01-west-corridor-end-full-height-glass-v1"
-            double xformOp:rotateZ = 90
-            double3 xformOp:translate = (0.17, 12.2753, 0)
-            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
         }
 
         def Xform "NorthCorridorEndGlassWall" (
@@ -193,8 +183,8 @@ def Xform "World"
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
                 double xformOp:rotateZ = 90
-                double3 xformOp:scale = (7.5218, 0.2, 3)
-                double3 xformOp:translate = (22.7392, 16.9637, 1.5)
+                double3 xformOp:scale = (7.5843, 0.2, 3)
+                double3 xformOp:translate = (22.7392, 16.93245, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
 
@@ -207,7 +197,7 @@ def Xform "World"
                 double size = 1
                 double xformOp:rotateZ = 0
                 double3 xformOp:scale = (22.6522, 0.2, 3)
-                double3 xformOp:translate = (11.4131, 13.2028, 1.5)
+                double3 xformOp:translate = (11.4131, 13.1403, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
 
@@ -215,13 +205,11 @@ def Xform "World"
                 prepend apiSchemas = ["PhysicsCollisionAPI"]
             )
             {
-                custom string cbnu:visualReplacement = "/World/Environment/WestCorridorEndGlassWall"
                 bool physics:collisionEnabled = 1
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
-                token visibility = "invisible"
                 double xformOp:rotateZ = 90
-                double3 xformOp:scale = (1.855, 0.2, 3)
+                double3 xformOp:scale = (1.73, 0.2, 3)
                 double3 xformOp:translate = (0.087, 12.2753, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
@@ -235,7 +223,7 @@ def Xform "World"
                 double size = 1
                 double xformOp:rotateZ = 0
                 double3 xformOp:scale = (15.9275, 0.2, 3)
-                double3 xformOp:translate = (8.05075, 11.3478, 1.5)
+                double3 xformOp:translate = (8.05075, 11.4103, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
 
@@ -247,8 +235,8 @@ def Xform "World"
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
                 double xformOp:rotateZ = 90
-                double3 xformOp:scale = (11.3043, 0.2, 3)
-                double3 xformOp:translate = (16.0145, 5.69565, 1.5)
+                double3 xformOp:scale = (11.3668, 0.2, 3)
+                double3 xformOp:translate = (16.0145, 5.7269, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
 
@@ -301,7 +289,16 @@ def Xform "World"
             prepend references = @../../assets/structural/column_2m.usda@
         )
         {
-            double3 xformOp:translate = (22.1739, 10.6812, 0)
+            double3 xformOp:translate = (21.7739, 10.6812, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Column_03" (
+            prepend references = @../../assets/structural/column_2m.usda@
+        )
+        {
+            custom string cbnu:placement = "midpoint between Column_01 and Column_02"
+            double3 xformOp:translate = (26.43765, 10.68845, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 

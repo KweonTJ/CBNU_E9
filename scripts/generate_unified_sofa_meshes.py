@@ -76,6 +76,26 @@ U_OUTLINES = {
 }
 
 
+def contract_toward_origin(value: float, amount: float) -> float:
+    if value > 0:
+        return value - amount
+    if value < 0:
+        return value + amount
+    return value
+
+
+# The authored source outline above fits the previous 1.5 m column. Contract
+# every non-zero XY boundary by 0.15 m so the active opening fits a 1.2 m
+# column while preserving the upholstery thickness and rounded corner samples.
+U_OUTLINES = {
+    region: [
+        (contract_toward_origin(x, 0.15), contract_toward_origin(y, 0.15))
+        for x, y in outline
+    ]
+    for region, outline in U_OUTLINES.items()
+}
+
+
 def signed_area(points: list[tuple[float, float]]) -> float:
     return 0.5 * sum(
         x1 * y2 - x2 * y1
@@ -177,8 +197,8 @@ def add_beveled_shell(
     inset = inset_polygon(outline, bevel_xy)
     top_heights = []
     for x_value, y_value in outline:
-        if taper_mode == "u_open_end" and y_value > 0.45:
-            ratio = min((y_value - 0.45) / 0.30, 1.0)
+        if taper_mode == "u_open_end" and y_value > 0.30:
+            ratio = min((y_value - 0.30) / 0.30, 1.0)
             top_heights.append(z_max + ratio * (0.58 - z_max))
         elif taper_mode == "corner_return_end" and x_value <= 0.41 and y_value > -0.30:
             ratio = min((y_value + 0.30) / 0.30, 1.0)

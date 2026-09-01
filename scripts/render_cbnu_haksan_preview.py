@@ -232,18 +232,6 @@ def main() -> None:
         )
     add_centered_rectangle(
         axis,
-        (0.17, 12.2753),
-        1.655,
-        0.10,
-        facecolor="#8ed7e5",
-        edgecolor="#1f6978",
-        linewidth=1.5,
-        angle_deg=90,
-        alpha=0.72,
-        zorder=5,
-    )
-    add_centered_rectangle(
-        axis,
         (24.4058, 20.60),
         3.1332,
         0.10,
@@ -476,9 +464,9 @@ def main() -> None:
 
             # Render the unified U-shaped upholstery as a lighter seat surface,
             # a continuous dark column-side back and outward-facing arrows.
-            left_seat_x = sofa_x - 1.30
-            right_seat_x = sofa_x + 1.30
-            bottom_seat_y = sofa_y - 1.40
+            left_seat_x = sofa_x - 1.15
+            right_seat_x = sofa_x + 1.15
+            bottom_seat_y = sofa_y - 1.25
             add_transformed_polygon(
                 axis,
                 (sofa_x, sofa_y),
@@ -498,9 +486,9 @@ def main() -> None:
                 zorder=7,
             )
             for arrow_start, arrow_end in (
-                ((left_seat_x, sofa_y - 0.20), (sofa_x - 2.10, sofa_y - 0.20)),
-                ((right_seat_x, sofa_y - 0.20), (sofa_x + 2.10, sofa_y - 0.20)),
-                ((sofa_x, bottom_seat_y), (sofa_x, sofa_y - 2.20)),
+                ((left_seat_x, sofa_y - 0.20), (sofa_x - 1.95, sofa_y - 0.20)),
+                ((right_seat_x, sofa_y - 0.20), (sofa_x + 1.95, sofa_y - 0.20)),
+                ((sofa_x, bottom_seat_y), (sofa_x, sofa_y - 2.05)),
             ):
                 axis.annotate(
                     "",
@@ -660,7 +648,7 @@ def main() -> None:
         patches.Patch(facecolor="#fff7cf", edgecolor="#c8ad64", label="Recessed ceiling LED panel"),
         patches.Patch(facecolor="#fff2ad", edgecolor="#d39b28", linewidth=2, label="Large central ceiling light"),
         patches.Patch(facecolor="#8ed7e5", edgecolor="#1f6978", label="Full-height entrance glass wall"),
-        patches.Patch(facecolor="#a9c9dd", edgecolor="#42677b", label="1.5 m column"),
+        patches.Patch(facecolor="#a9c9dd", edgecolor="#42677b", label="1.2 m column"),
         patches.Patch(facecolor="#777a76", edgecolor="#333532", label="Entrance side pillar"),
         patches.Patch(facecolor="#7b4528", edgecolor="#4b2614", label="Straight armless sofa"),
         patches.Patch(facecolor="#9b5c35", edgecolor="#4b2614", label="Single armless sofa"),

@@ -27,11 +27,11 @@ REQUIRED_PRIMS = {
     "/World/Environment/CeilingLights/CeilingLight_Central_Large/Light": "RectLight",
     "/World/Environment/FrontEntranceGlassWalls/LeftFullHeightGlass/GlassPanel": "Cube",
     "/World/Environment/FrontEntranceGlassWalls/RightFullHeightGlass/GlassPanel": "Cube",
-    "/World/Environment/WestCorridorEndGlassWall/GlassPanel": "Cube",
     "/World/Environment/NorthCorridorEndGlassWall/GlassPanel": "Cube",
     "/World/Columns/Entrance_Pillar_ATM_Side/Body": "Cube",
     "/World/Columns/Entrance_Pillar_Opposite/Body": "Cube",
     "/World/Columns/Column_01/Body": "Cube",
+    "/World/Columns/Column_03/Body": "Cube",
     "/World/Columns/Column_02/Body": "Cube",
     "/World/Furniture/Sofa_Corner_01/SofaUnified": "Mesh",
     "/World/Furniture/Sofa_U_Column_02/SofaUnified": "Mesh",
@@ -94,10 +94,10 @@ def main() -> None:
         if prim.GetAttribute("visibility").Get() != "invisible":
             raise AssertionError(f"composed sofa helper remains visible: {path}")
 
-    for column_name in ("Column_01", "Column_02"):
+    for column_name in ("Column_01", "Column_03", "Column_02"):
         body = stage.GetPrimAtPath(f"/World/Columns/{column_name}/Body")
         scale = body.GetAttribute("xformOp:scale").Get()
-        if tuple(scale) != (1.5, 1.5, 3.0):
+        if tuple(scale) != (1.2, 1.2, 3.0):
             raise AssertionError(f"unexpected column size: {column_name}: {scale}")
 
     print(f"CBNU Haksan composed Stage: PASS (USD {Usd.GetVersion()})")
@@ -107,12 +107,12 @@ def main() -> None:
     print("lobby tables: loaded=3; all use filled lower bodies")
     print("ceiling: loaded; standard panels=12 at 8000; large central panel=1 at 12000 (6.0 x 2.4 m)")
     print("front entrance glazing: loaded=2 full-height panels; original Wall_10 collider retained")
-    print("west corridor end glazing: loaded=1 full-height panel; original Wall_07 collider retained")
+    print("west corridor: width=1.73 m; opaque Wall_07 visible with collision")
     print("north corridor end glazing: loaded=1 full-height panel; original Wall_04 collider retained")
     print("entrance side pillars: loaded=2; mirrored 1.0425 x 1.0 x 3.0 m bodies projecting into lobby")
     print("front entrance center gap: filled with one fixed 0.42 m clear-glass panel")
     print("front entrance upper gap: filled to ceiling with one 4.16 x 0.72 m glass transom")
-    print("main columns: loaded=2; each body=1.5 x 1.5 x 3.0 m")
+    print("main columns: loaded=3; each body=1.2 x 1.2 x 3.0 m")
     print("corner/U sofas: one visible SofaUnified mesh each; sampled helpers invisible=8")
 
 

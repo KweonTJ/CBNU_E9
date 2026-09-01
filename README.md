@@ -17,11 +17,12 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - 전체 크기: 약 `35.6 × 20.8m`
 - 벽: 높이 `3.0m`, 두께 `0.20m`, 총 12개
 - 천장: 실내 높이 `3.0m`, 두께 `0.10m`, 복도와 동일한 polygon
-- 기둥: `1.5 × 1.5 × 3.0m`, 총 2개(중심 위치 유지)
+- 서쪽 긴 복도 폭: `1.73m`(기존 중심선 `y=12.2753` 유지)
+- 메인 기둥: `1.2 × 1.2 × 3.0m`, 총 3개
 - 모든 외곽 벽 회전: `0°` 또는 `90°`
 - 기준 이미지: `worlds/cbnu_haksan_1f_corridor/reference/evacuation_diagram_annotated.png`
 
-복도 polygon, 복도 폭, 기둥 위치, Floor/Wall collision은 기존 값을 유지했다.
+서쪽 긴 복도만 기존 중심선을 기준으로 폭을 `1.73m`로 줄였다. 이에 연결된 Floor/Ceiling polygon과 벽 위치를 함께 맞췄으며 기존 Floor/Wall collision은 유지했다.
 
 ## 현재 구성
 
@@ -32,7 +33,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 | Ceiling light | 일반 LED panel 12개, 중앙 대형 panel 1개 (`6.0 × 2.4m`) |
 | Wood door | single 3개, double 4개 |
 | Glass entrance | 양개 유리문 2세트, 투명 문짝 총 4개 |
-| Glass wall | 정면 출입문 좌우 2장 + 서쪽 끝 1장 + 북쪽 끝 1장 |
+| Glass wall | 정면 출입문 좌우 2장 + 북쪽 끝 1장 |
 | Sofa | straight 3개, corner 1개, Column 2 U형 1개 |
 | Table | 하부가 채워진 목재 책상 3개 |
 | Equipment | 은행 ATM 2개 |
@@ -65,11 +66,11 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 │   ├── FrontEntranceGlassWalls
 │   │   ├── LeftFullHeightGlass
 │   │   └── RightFullHeightGlass
-│   ├── WestCorridorEndGlassWall
 │   ├── NorthCorridorEndGlassWall
 │   └── Walls
 ├── Columns
 │   ├── Column_01
+│   ├── Column_03
 │   ├── Column_02
 │   ├── Entrance_Pillar_ATM_Side
 │   └── Entrance_Pillar_Opposite
@@ -156,16 +157,16 @@ Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_colu
 
 정면 남쪽 경계의 기존 `Wall_10`은 크기와 collision을 그대로 유지한다. 불투명 벽 표현만 숨기고 유리 출입문과 양쪽 통유리 asset으로 시각을 대체했다.
 
-### 서쪽 복도 끝 통유리
+### 서쪽 긴 복도와 끝 벽
 
-- Asset: `assets/architecture/windows/corridor_end_glass_wall.usda`
-- 위치: 기존 `Wall_07` 자리
-- 유리 크기: `1.655 × 2.82m`
-- 회전: `90°`
-- 유리 opacity: `0.13`
-- 유리 collision: disabled
+- 복도 중심선: `y=12.2753`
+- 복도 폭: `1.73m`
+- 북쪽 경계: `y=13.1403`
+- 남쪽 경계: `y=11.4103`
+- 끝 벽: 불투명 `Wall_07`, 크기 `1.73 × 0.20 × 3.0m`
+- 끝 벽 collision: enabled
 
-기존 `Wall_07`은 치수 `1.855 × 0.20 × 3.0m`와 collision을 유지한다. 불투명 표면만 숨기고 단일 통유리 패널로 시각을 대체했다.
+서쪽 끝에는 유리 asset을 reference하지 않는다. 축소된 복도의 목재 문 3개는 새 벽선에 맞춘 뒤 불투명 벽에 가리지 않도록 복도 쪽으로 얕게 오프셋했으며, 문 collision은 계속 비활성화되어 있다.
 
 ### 북쪽 복도 끝 통유리
 
@@ -293,7 +294,6 @@ python3 scripts/update_cbnu_haksan_ceiling.py
 
 ```text
 assets/architecture/windows/front_entrance_glass_walls.usda
-assets/architecture/windows/corridor_end_glass_wall.usda
 assets/architecture/windows/north_corridor_end_glass_wall.usda
 ```
 
@@ -304,7 +304,7 @@ assets/architecture/windows/north_corridor_end_glass_wall.usda
 
 통유리의 투명도를 유지하려면 `opacityThreshold = 0`을 유지한다. 기존 `Wall_10`은 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
 
-서쪽 복도 끝 통유리의 전체 위치와 회전은 메인 world의 `/World/Environment/WestCorridorEndGlassWall`에서 수정한다. 이 구간의 `Wall_07`도 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
+서쪽 복도 끝은 통유리가 아니라 메인 world의 `/World/Environment/Walls/Wall_07` 불투명 벽이다. 폭을 바꿀 때는 `geometry.json`의 `west_corridor`, Floor/Ceiling polygon, `Wall_05`–`Wall_09`와 서쪽 복도 문 위치를 함께 맞춘다.
 
 북쪽 복도 끝 통유리는 `/World/Environment/NorthCorridorEndGlassWall`에서 위치를 수정한다. 이 구간의 `Wall_04`도 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
 
@@ -326,7 +326,9 @@ assets/furniture/sofa_corner.usda
 assets/furniture/sofa_u_around_2m_column.usda
 ```
 
-메인 기둥 단면은 `column_2m.usda`의 `Body.xformOp:scale`과 `geometry.json`의 두 `columns[].size`를 함께 맞춘다. 현재 값은 `1.5 × 1.5m`이며 두 기둥의 중심 좌표는 변경하지 않았다.
+메인 기둥 단면은 `column_2m.usda`의 `Body.xformOp:scale`과 `geometry.json`의 세 `columns[].size`를 함께 맞춘다. 현재 값은 `1.2 × 1.2m`다. `Column_01`은 기존 위치에서 서쪽으로 `0.4m` 이동했고, `Column_03`은 `Column_01`과 `Column_02`의 정확한 중점에 있다.
+
+Column 2의 U형 소파는 기둥 외곽 `x=±0.6m`, `y=-0.6m`에 clearance 없이 접하도록 `generate_unified_sofa_meshes.py`에서 함께 재생성한다.
 
 Corner/U형 소파의 보이는 `SofaUnified`는 생성 결과다. 윤곽·bevel·cap triangulation을 수정한 뒤 다음 명령으로 두 asset을 다시 만든다.
 
@@ -451,7 +453,7 @@ assets/materials/furniture/brown_sofa_material.usda
 
 `geometry.json`은 현재 구조의 기준값을 기록한 config다. 이 파일을 수정한다고 메인 world geometry가 자동 재생성되지는 않는다.
 
-복도 polygon, 벽, Floor point 또는 기둥 위치를 바꾸려면 별도 geometry 재생성 작업이 필요하다. 시각 디테일만 수정할 때는 건드리지 않는다.
+복도 polygon, 벽, Floor/Ceiling point 또는 기둥 위치를 바꾸면 메인 world와 config를 함께 수정해야 한다. 서쪽 복도 폭 변경 시 인접 목재 문도 `doors.json`에서 새 벽면에 맞추고 `update_cbnu_haksan_doors.py`를 실행한다.
 
 ## 미리보기와 검증
 
@@ -475,8 +477,9 @@ python3 scripts/validate_cbnu_haksan_detail.py
 - 천장 footprint, 높이, 두께와 collision
 - 일반 천장 조명 12개와 중앙 대형 조명 1개
 - 정면 좌우 통유리 2장과 기존 `Wall_10` collider
-- 서쪽 복도 끝 통유리 1장과 기존 `Wall_07` collider
+- 폭 `1.73m`인 서쪽 복도와 불투명 `Wall_07` collider
 - 북쪽 복도 끝 통유리 1장과 기존 `Wall_04` collider
+- `1.2 × 1.2 × 3.0m` 메인 기둥 3개와 동일 간격 배치
 - ATM–문 사이와 문 반대편의 동일 크기 대칭 기둥 2개
 - Bala White texture, UV와 material binding
 - 문 유형과 실제 leaf 수
