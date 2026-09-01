@@ -1,0 +1,38 @@
+{
+  "ceiling": {
+    "height": 3.0,
+    "thickness": 0.1,
+    "material": "ceiling_white.usda",
+    "surface_prim": "/World/Environment/Ceiling",
+    "source_note": "same XY footprint as the existing orthogonal corridor polygon"
+  },
+  "lighting_profile": {
+    "standard_panel_intensity": 8000,
+    "large_panel_intensity": 12000,
+    "large_panel_normalize": false,
+    "dome_intensity": 1600,
+    "revision_note": "bright indoor lobby profile after GUI darkness review"
+  },
+  "lights": [
+    {"name": "CeilingLight_01", "position": [4.0, 12.25, 2.96], "yaw_deg": 0},
+    {"name": "CeilingLight_02", "position": [10.0, 12.25, 2.96], "yaw_deg": 0},
+    {"name": "CeilingLight_03", "position": [14.0, 12.25, 2.96], "yaw_deg": 0},
+    {"name": "CeilingLight_04", "position": [24.4, 15.2, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_05", "position": [24.4, 19.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_06", "position": [19.0, 3.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_07", "position": [19.0, 8.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_08", "position": [24.5, 3.0, 2.96], "yaw_deg": 0},
+    {"name": "CeilingLight_09", "position": [24.5, 9.0, 2.96], "yaw_deg": 0},
+    {"name": "CeilingLight_10", "position": [29.0, 3.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_11", "position": [32.8, 8.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_12", "position": [32.8, 12.0, 2.96], "yaw_deg": 90},
+    {
+      "name": "CeilingLight_Central_Large",
+      "type": "large_panel",
+      "position": [25.0, 8.5, 2.95],
+      "yaw_deg": 0,
+      "size": [6.0, 2.4],
+      "note": "large central lobby ceiling light"
+    }
+  ]
+}

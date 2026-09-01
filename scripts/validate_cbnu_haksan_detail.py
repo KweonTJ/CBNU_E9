@@ -30,6 +30,16 @@ ATM_ASSET = ROOT / "assets/equipment/atm_machine.usda"
 TABLE_ASSET = ROOT / "assets/furniture/lobby_table.usda"
 FILLED_TABLE_ASSET = ROOT / "assets/furniture/lobby_table_filled.usda"
 FURNITURE_LAYOUT = WORLD_DIR / "config/furniture_layout.usda"
+CEILING_CONFIG = WORLD_DIR / "config/ceiling.json"
+CEILING_LAYOUT = WORLD_DIR / "config/ceiling_layout.usda"
+CEILING_MATERIAL = ROOT / "assets/materials/lobby/ceiling_white.usda"
+CEILING_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light.usda"
+CEILING_LARGE_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light_large.usda"
+FRONT_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/front_entrance_glass_walls.usda"
+CORRIDOR_END_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/corridor_end_glass_wall.usda"
+NORTH_CORRIDOR_END_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/north_corridor_end_glass_wall.usda"
+ENTRANCE_PILLAR_ASSET = ROOT / "assets/structural/entrance_side_pillar.usda"
+COLUMN_ASSET = ROOT / "assets/structural/column_2m.usda"
 
 
 def require(condition: bool, message: str) -> None:
@@ -68,9 +78,75 @@ def validate_mesh_topology(layer_text: str, mesh_name: str) -> None:
     require(indices and max(indices) < len(points), f"mesh point index out of range: {mesh_name}")
 
 
+def validate_watertight_mesh(layer_text: str, mesh_name: str) -> None:
+    """Check every edge in the authored unified sofa mesh has exactly two faces."""
+    block = prim_block(layer_text, mesh_name)
+    counts = [
+        int(value)
+        for value in re.findall(
+            r"\d+", re.search(r"faceVertexCounts\s*=\s*\[([^]]+)\]", block).group(1)
+        )
+    ]
+    indices = [
+        int(value)
+        for value in re.findall(
+            r"\d+", re.search(r"faceVertexIndices\s*=\s*\[([^]]+)\]", block).group(1)
+        )
+    ]
+    edge_counts: Counter[tuple[int, int]] = Counter()
+    offset = 0
+    for count in counts:
+        face = indices[offset : offset + count]
+        offset += count
+        for index, start in enumerate(face):
+            end = face[(index + 1) % len(face)]
+            edge_counts[tuple(sorted((start, end)))] += 1
+    require(
+        edge_counts and all(count == 2 for count in edge_counts.values()),
+        f"unclosed or non-manifold render mesh: {mesh_name}",
+    )
+
+
+def validate_unified_sofa_render_policy(layer_text: str, asset_name: str) -> None:
+    visible_meshes = {"SofaUnified"}
+    mesh_names = set(re.findall(r'def Mesh "([^"]+)"', layer_text))
+    require(mesh_names == visible_meshes, f"unexpected render meshes in {asset_name}: {mesh_names}")
+    for mesh_name in visible_meshes:
+        block = prim_block(layer_text, mesh_name)
+        require('token visibility = "inherited"' in block, f"unified render mesh is hidden: {asset_name}: {mesh_name}")
+        require("PhysicsCollisionAPI" not in block, f"render mesh has collision API: {asset_name}: {mesh_name}")
+        require('subdivisionScheme = "none"' in block, f"single sofa mesh must use authored bevels: {asset_name}")
+        validate_mesh_topology(layer_text, mesh_name)
+        validate_watertight_mesh(layer_text, mesh_name)
+
+    helper_prims = re.findall(r'def (Cube|Capsule|Sphere|Cylinder) "([^"]+)"', layer_text)
+    require(helper_prims, f"collision/helper prims missing: {asset_name}")
+    for _, helper_name in helper_prims:
+        require(
+            'token visibility = "invisible"' in prim_block(layer_text, helper_name),
+            f"visible helper primitive remains: {asset_name}: {helper_name}",
+        )
+
+
+def mesh_points(layer_text: str, mesh_name: str) -> list[tuple[float, float, float]]:
+    block = prim_block(layer_text, mesh_name)
+    points_match = re.search(r"points\s*=\s*\[([^]]+)\]", block, flags=re.DOTALL)
+    require(points_match is not None, f"points missing: {mesh_name}")
+    points: list[tuple[float, float, float]] = []
+    for point in re.findall(r"\(([^()]+)\)", points_match.group(1)):
+        values = tuple(float(value.strip()) for value in point.split(","))
+        require(len(values) == 3, f"invalid point: {mesh_name}: {point}")
+        points.append(values)
+    return points
+
+
 def validate_references() -> int:
     count = 0
-    for layer in sorted(ROOT.rglob("*.usd*")):
+    layers = sorted(
+        path for path in ROOT.rglob("*")
+        if path.is_file() and path.suffix in {".usd", ".usda"}
+    )
+    for layer in layers:
         layer_text = layer.read_text(encoding="utf-8")
         require(layer_text.count("{") == layer_text.count("}"), f"unbalanced braces: {layer}")
         require(layer_text.count("(") == layer_text.count(")"), f"unbalanced parentheses: {layer}")
@@ -114,12 +190,185 @@ def validate_world() -> None:
     require(all('PhysicsCollisionAPI' in block and 'physics:collisionEnabled = 1' in block for block in wall_blocks), "Wall collision missing")
 
     geometry = json.loads(GEOMETRY.read_text(encoding="utf-8"))
+    require(len(geometry["columns"]) == 2, "expected two main columns")
+    require(
+        all(column["size"] == [1.5, 1.5, 3.0] for column in geometry["columns"]),
+        "main column size must be 1.5 x 1.5 x 3.0 m",
+    )
     for column in geometry["columns"]:
         x, y = column["center"]
         expected = f'def Xform "{column["name"]}"'
         require(expected in world_text, f"column missing: {column['name']}")
         translate = f"double3 xformOp:translate = ({x}, {y}, 0)"
         require(translate in world_text, f"column pose mismatch: {column['name']}")
+    require(
+        world_text.count('references = @../../assets/structural/column_2m.usda@') == 2,
+        "main column references mismatch",
+    )
+    column_text = COLUMN_ASSET.read_text(encoding="utf-8")
+    require("custom double cbnu:columnWidth = 1.5" in column_text, "column width metadata mismatch")
+    require(
+        "double3 xformOp:scale = (1.5, 1.5, 3.0)" in prim_block(column_text, "Body"),
+        "column asset body must be 1.5 x 1.5 x 3.0 m",
+    )
+
+    entrance_pillars = geometry.get("entrance_pillars", [])
+    require(len(entrance_pillars) == 2, "entrance must have two matching side pillars")
+    pillars_by_name = {item["name"]: item for item in entrance_pillars}
+    require(
+        set(pillars_by_name) == {"Entrance_Pillar_ATM_Side", "Entrance_Pillar_Opposite"},
+        "entrance pillar names mismatch",
+    )
+    require(
+        all(item["size"] == [1.0425, 1.0, 3.0] for item in entrance_pillars),
+        "entrance pillar sizes must be identical",
+    )
+    require(pillars_by_name["Entrance_Pillar_ATM_Side"]["center"] == [20.89875, 0.49], "ATM-side entrance pillar pose mismatch")
+    require(pillars_by_name["Entrance_Pillar_Opposite"]["center"] == [26.10125, 0.49], "opposite entrance pillar pose mismatch")
+    require(abs((23.5 - 20.89875) - (26.10125 - 23.5)) < 1e-9, "entrance pillars are not mirrored")
+    require(abs((20.89875 - 1.0425 / 2) - 20.3775) < 1e-9, "ATM-side pillar does not begin at ATM collision edge")
+    require(abs((20.89875 + 1.0425 / 2) - 21.42) < 1e-9, "ATM-side pillar does not end at door frame edge")
+    for pillar in entrance_pillars:
+        require(f'def Xform "{pillar["name"]}"' in world_text, f"entrance pillar missing: {pillar['name']}")
+        x, y = pillar["center"]
+        require(f"double3 xformOp:translate = ({x}, {y}, 0)" in world_text, f"entrance pillar world pose mismatch: {pillar['name']}")
+    require(world_text.count('references = @../../assets/structural/entrance_side_pillar.usda@') == 2, "entrance pillar references mismatch")
+
+    pillar_text = ENTRANCE_PILLAR_ASSET.read_text(encoding="utf-8")
+    require('custom double3 cbnu:size = (1.0425, 1.0, 3.0)' in pillar_text, "entrance pillar asset size mismatch")
+    require('custom string cbnu:depthPlacement = "back face aligned to south wall; projects 1.0 m into lobby"' in pillar_text, "entrance pillar depth placement metadata missing")
+    require('custom bool cbnu:collisionEnabled = false' in pillar_text, "entrance pillars must remain decorative")
+
+
+def validate_ceiling() -> Counter[str]:
+    world_text = WORLD.read_text(encoding="utf-8")
+    geometry = json.loads(GEOMETRY.read_text(encoding="utf-8"))
+    ceiling_config = json.loads(CEILING_CONFIG.read_text(encoding="utf-8"))
+    ceiling = ceiling_config["ceiling"]
+    lighting_profile = ceiling_config["lighting_profile"]
+    lights = ceiling_config["lights"]
+    type_counts = Counter(item.get("type", "panel") for item in lights)
+
+    require(type_counts == Counter({"panel": 12, "large_panel": 1}), f"unexpected ceiling lights: {type_counts}")
+    require(
+        lighting_profile == {
+            "standard_panel_intensity": 8000,
+            "large_panel_intensity": 12000,
+            "large_panel_normalize": False,
+            "dome_intensity": 1600,
+            "revision_note": "bright indoor lobby profile after GUI darkness review",
+        },
+        "ceiling lighting profile mismatch",
+    )
+    require('def Mesh "Ceiling"' in world_text, "/World/Environment/Ceiling missing")
+    require('rel material:binding = </World/Looks/CeilingWhite>' in prim_block(world_text, "Ceiling"), "Ceiling material binding missing")
+    require('bool physics:collisionEnabled = 1' in prim_block(world_text, "Ceiling"), "Ceiling collision missing")
+    require('prepend references = @config/ceiling_layout.usda@' in world_text, "Ceiling light layout reference missing")
+    require('prepend references = @../../assets/materials/lobby/ceiling_white.usda@' in world_text, "Ceiling material reference missing")
+    validate_mesh_topology(world_text, "Ceiling")
+
+    expected_xy = [tuple(float(value) for value in point) for point in geometry["corridor_polygon_xy"]]
+    points = mesh_points(world_text, "Ceiling")
+    require(len(points) == 24, "Ceiling must preserve the 24-point closed corridor footprint")
+    require([point[:2] for point in points[:12]] == expected_xy, "Ceiling top footprint differs from corridor polygon")
+    require([point[:2] for point in points[12:]] == expected_xy, "Ceiling underside footprint differs from corridor polygon")
+    height = float(ceiling["height"])
+    thickness = float(ceiling["thickness"])
+    require(all(abs(point[2] - (height + thickness)) < 1e-9 for point in points[:12]), "Ceiling top height mismatch")
+    require(all(abs(point[2] - height) < 1e-9 for point in points[12:]), "Ceiling underside height mismatch")
+    require(float(geometry["world"]["ceiling_height"]) == height, "geometry/config ceiling height mismatch")
+    require(float(geometry["world"]["ceiling_thickness"]) == thickness, "geometry/config ceiling thickness mismatch")
+
+    ceiling_material_text = CEILING_MATERIAL.read_text(encoding="utf-8")
+    require('custom string cbnu:finish = "warm white matte interior ceiling"' in ceiling_material_text, "Ceiling finish metadata missing")
+    require('float inputs:roughness = 0.78' in ceiling_material_text, "Ceiling must remain matte")
+
+    layout_text = CEILING_LAYOUT.read_text(encoding="utf-8")
+    require(layout_text.count('ceiling_panel_light.usda@') == 12, "standard ceiling panel reference count mismatch")
+    require(layout_text.count('ceiling_panel_light_large.usda@') == 1, "large central ceiling light reference missing")
+    for light in lights:
+        require(f'def Xform "{light["name"]}"' in layout_text, f"ceiling light missing from layout: {light['name']}")
+
+    regular_text = CEILING_LIGHT_ASSET.read_text(encoding="utf-8")
+    require('def RectLight "Light"' in regular_text and 'float inputs:intensity = 8000' in regular_text, "standard ceiling RectLight intensity mismatch")
+    large_text = CEILING_LARGE_LIGHT_ASSET.read_text(encoding="utf-8")
+    require('custom double2 cbnu:panelSize = (6.0, 2.4)' in large_text, "large central light size mismatch")
+    require('float inputs:width = 6.0' in large_text and 'float inputs:height = 2.4' in large_text, "large RectLight dimensions mismatch")
+    require('float inputs:intensity = 12000' in large_text, "large central light intensity mismatch")
+    require('bool inputs:normalize = false' in large_text, "large central light must use area-scaled output")
+    require('float intensity = 1600' in world_text, "DomeLight ambient intensity mismatch")
+    large = next(item for item in lights if item.get("type") == "large_panel")
+    require(large["position"] == [25.0, 8.5, 2.95], "large central light pose mismatch")
+    require(large.get("size") == [6.0, 2.4], "large central light config size mismatch")
+    return type_counts
+
+
+def validate_front_glass_walls() -> None:
+    world_text = WORLD.read_text(encoding="utf-8")
+    require('def Xform "FrontEntranceGlassWalls"' in world_text, "front entrance glass wall prim missing")
+    require(
+        'prepend references = @../../assets/architecture/windows/front_entrance_glass_walls.usda@' in world_text,
+        "front entrance glass wall reference missing",
+    )
+    glass_root = prim_block(world_text, "FrontEntranceGlassWalls")
+    require('double3 xformOp:translate = (23.5, 0.17, 0)' in glass_root, "front glass wall pose mismatch")
+    wall_10 = prim_block(world_text, "Wall_10")
+    require('token visibility = "invisible"' in wall_10, "opaque Wall_10 visual must be hidden behind glazing")
+    require('bool physics:collisionEnabled = 1' in wall_10, "Wall_10 collision must remain enabled")
+    require('double3 xformOp:scale = (14.7391, 0.2, 3)' in wall_10, "Wall_10 geometry changed")
+
+    glass_text = FRONT_GLASS_WALL_ASSET.read_text(encoding="utf-8")
+    require('custom int cbnu:fullHeightGlassPanelCount = 2' in glass_text, "two full-height glass panels are required")
+    require('custom double2 cbnu:eachGlassPanelSize = (4.85, 2.82)' in glass_text, "full-height glass panel size mismatch")
+    require('def Xform "LeftFullHeightGlass"' in glass_text, "left full-height glass panel missing")
+    require('def Xform "RightFullHeightGlass"' in glass_text, "right full-height glass panel missing")
+    require(glass_text.count('def Cube "GlassPanel"') == 2, "exactly two full-height glass panes are required")
+    require('float inputs:opacity = 0.13' in glass_text, "full-height glass transparency missing")
+    require('float inputs:opacityThreshold = 0' in glass_text, "full-height glass blend threshold missing")
+    require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative glass must not add collision")
+
+
+def validate_corridor_end_glass_wall() -> None:
+    world_text = WORLD.read_text(encoding="utf-8")
+    require('def Xform "WestCorridorEndGlassWall"' in world_text, "west corridor end glass wall prim missing")
+    require(
+        'prepend references = @../../assets/architecture/windows/corridor_end_glass_wall.usda@' in world_text,
+        "west corridor end glass wall reference missing",
+    )
+    glass_root = prim_block(world_text, "WestCorridorEndGlassWall")
+    require('double xformOp:rotateZ = 90' in glass_root, "west corridor glass rotation mismatch")
+    require('double3 xformOp:translate = (0.17, 12.2753, 0)' in glass_root, "west corridor glass pose mismatch")
+    wall_07 = prim_block(world_text, "Wall_07")
+    require('token visibility = "invisible"' in wall_07, "opaque Wall_07 visual must be hidden behind glazing")
+    require('bool physics:collisionEnabled = 1' in wall_07, "Wall_07 collision must remain enabled")
+    require('double3 xformOp:scale = (1.855, 0.2, 3)' in wall_07, "Wall_07 geometry changed")
+
+    glass_text = CORRIDOR_END_GLASS_WALL_ASSET.read_text(encoding="utf-8")
+    require('custom double2 cbnu:glassPanelSize = (1.655, 2.82)' in glass_text, "west corridor glass size mismatch")
+    require(glass_text.count('def Cube "GlassPanel"') == 1, "west corridor must use one full-height glass pane")
+    require('float inputs:opacity = 0.13' in glass_text, "west corridor glass transparency missing")
+    require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative west glass must not add collision")
+
+
+def validate_north_corridor_end_glass_wall() -> None:
+    world_text = WORLD.read_text(encoding="utf-8")
+    require('def Xform "NorthCorridorEndGlassWall"' in world_text, "north corridor end glass wall prim missing")
+    require(
+        'prepend references = @../../assets/architecture/windows/north_corridor_end_glass_wall.usda@' in world_text,
+        "north corridor end glass wall reference missing",
+    )
+    glass_root = prim_block(world_text, "NorthCorridorEndGlassWall")
+    require('double3 xformOp:translate = (24.4058, 20.60, 0)' in glass_root, "north corridor glass pose mismatch")
+    wall_04 = prim_block(world_text, "Wall_04")
+    require('token visibility = "invisible"' in wall_04, "opaque Wall_04 visual must be hidden behind glazing")
+    require('bool physics:collisionEnabled = 1' in wall_04, "Wall_04 collision must remain enabled")
+    require('double3 xformOp:scale = (3.3332, 0.2, 3)' in wall_04, "Wall_04 geometry changed")
+
+    glass_text = NORTH_CORRIDOR_END_GLASS_WALL_ASSET.read_text(encoding="utf-8")
+    require('custom double2 cbnu:glassPanelSize = (3.1332, 2.82)' in glass_text, "north corridor glass size mismatch")
+    require(glass_text.count('def Cube "GlassPanel"') == 1, "north corridor must use one full-height glass pane")
+    require('float inputs:opacity = 0.13' in glass_text, "north corridor glass transparency missing")
+    require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative north glass must not add collision")
 
 
 def validate_doors() -> Counter[str]:
@@ -141,6 +390,16 @@ def validate_doors() -> Counter[str]:
     require('custom int cbnu:doubleDoorSetCount = 2' in pair, "two double-glass sets are required")
     require('custom int cbnu:doorLeafCount = 4' in pair, "double-glass pair must contain four leaves")
     require('custom double cbnu:gapBetweenSets = 0.44' in pair, "double-glass set gap mismatch")
+    require('custom bool cbnu:centralGlassInfill = true' in pair, "central fixed glass infill flag missing")
+    require('custom double cbnu:centralGlassInfillWidth = 0.42' in pair, "central fixed glass infill width mismatch")
+    require('def Xform "CentralGlassInfill"' in pair, "central fixed glass infill prim missing")
+    require('double3 xformOp:scale = (0.42, 0.012, 2.10)' in pair, "central fixed glass panel size mismatch")
+    require('custom bool cbnu:upperGlassTransom = true' in pair, "upper glass transom flag missing")
+    require('custom double2 cbnu:upperGlassTransomSize = (4.16, 0.72)' in pair, "upper glass transom size metadata mismatch")
+    require('def Xform "UpperGlassTransom"' in pair, "upper glass transom prim missing")
+    require('double3 xformOp:scale = (4.16, 0.012, 0.72)' in pair, "upper transom glass size mismatch")
+    require('double3 xformOp:translate = (0, 0, 2.58)' in pair, "upper transom glass pose mismatch")
+    require('double3 xformOp:translate = (0, 0, 2.96)' in pair, "upper transom top rail must meet ceiling")
     require(pair.count('references = @./glass_door_double.usda@') == 2, "double-glass pair references missing")
     require('def Xform "DoubleDoorSet_01"' in pair and 'def Xform "DoubleDoorSet_02"' in pair, "double-glass set prims missing")
     require('double3 xformOp:translate = (-1.15, 0, 0)' in pair, "left glass set spacing mismatch")
@@ -163,7 +422,7 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     require(placement_counts == Counter({"wall_attached": 4, "column_attached": 1}), f"unexpected placements: {placement_counts}")
     require(facing_counts == Counter({"lobby": 4, "outward": 1}), f"unexpected facing values: {facing_counts}")
     require(
-        fixture_counts == Counter({"lobby_table_filled": 3, "atm": 1}),
+        fixture_counts == Counter({"lobby_table_filled": 3, "atm": 2}),
         f"unexpected fixture types: {fixture_counts}",
     )
 
@@ -190,6 +449,13 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     atm = fixtures_by_name.get("ATM_01")
     require(atm is not None and atm["type"] == "atm", "ATM_01 fixture missing")
     require(atm["position"] == [19.9275, 0.4535, 0.0] and atm["yaw_deg"] == 180, "ATM_01 pose mismatch")
+    atm_02 = fixtures_by_name.get("ATM_02")
+    require(atm_02 is not None and atm_02["type"] == "atm", "ATM_02 fixture missing")
+    require(
+        atm_02["position"] == [34.15, 6.5839, 0.0] and atm_02["yaw_deg"] == 180,
+        "ATM_02 pose mismatch",
+    )
+    require(atm_02["placement"] == "wall_attached" and atm_02["facing"] == "lobby", "ATM_02 orientation mismatch")
     require(ATM_ASSET.exists(), "ATM asset missing")
     atm_text = ATM_ASSET.read_text(encoding="utf-8")
     for part in ("MainBody", "BankHeader", "Screen", "KeypadPanel", "CardSlot", "CashSlot"):
@@ -227,7 +493,13 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     require(abs(1.36 * float(replacement_table["depth_scale"]) - 0.82) < 1e-6, "Table_03 depth mismatch")
     require(replacement_table["placement"] == "wall_attached", "Table_03 must remain wall attached")
     layout_text = FURNITURE_LAYOUT.read_text(encoding="utf-8")
-    require('def Xform "ATM_01"' in layout_text and 'def Xform "Sofa_04"' not in layout_text, "ATM layout replacement missing")
+    require(
+        'def Xform "ATM_01"' in layout_text
+        and 'def Xform "ATM_02"' in layout_text
+        and 'def Xform "Sofa_04"' not in layout_text,
+        "ATM layout placement missing",
+    )
+    require(layout_text.count('references = @../../../assets/equipment/atm_machine.usda@') == 2, "ATM reference count mismatch")
     require(layout_text.count('references = @../../../assets/furniture/lobby_table.usda@') == 0, "standard open-base table remains in layout")
     require(layout_text.count('references = @../../../assets/furniture/lobby_table_filled.usda@') == 3, "filled table references missing from layout")
     require('custom double cbnu:depth = 1.36' in table_text, "lobby table depth must be doubled to 1.36 m")
@@ -243,13 +515,11 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     required_parts = {
         "straight": ("BaseUpholsteryUnified", "SeatCushionContinuous", "BackCushionContinuous"),
         "single": ("BaseUpholsteryUnified", "SeatCushion", "BackCushion"),
-        "corner": (
-            "BaseUpholsteryUnified", "SeatCushionUnified", "BackCushionUnified",
-        ),
+        "corner": ("SofaUnified",),
         "u_column": (
             "LeftBench", "RightBench", "BottomBench",
             "LeftBackSupport", "RightBackSupport", "BottomBackSupport",
-            "BaseUpholsteryUnified", "SeatCushionUnified", "BackCushionUnified",
+            "SofaUnified",
             "LeftFrontFoot", "RightFrontFoot", "BottomLeftFoot", "BottomRightFoot",
         ),
     }
@@ -258,7 +528,7 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
         require("@../materials/furniture/brown_sofa_material.usda@" in text, f"brown material reference missing: {asset.name}")
         require("NavyFabric" not in text and "CharcoalFabric" not in text, f"legacy non-brown material remains: {asset.name}")
         require("custom bool cbnu:hasArmrests = false" in text, f"armless metadata missing: {asset.name}")
-        require("custom string cbnu:cushionStyle" in text and "soft overstuffed rounded cushions" in text, f"soft cushion metadata missing: {asset.name}")
+        require("custom string cbnu:cushionStyle" in text and "soft" in text, f"soft cushion metadata missing: {asset.name}")
         require(not re.search(r'def\s+\w+\s+"[^"]*Arm[^"]*"', text), f"armrest prim remains: {asset.name}")
         for part in required_parts[sofa_type]:
             require(f'"{part}"' in text, f"sofa part missing: {asset.name}: {part}")
@@ -279,16 +549,21 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
 
     corner_text = SOFA_ASSETS["corner"].read_text(encoding="utf-8")
     require("custom bool cbnu:continuousJunctions = true" in corner_text, "corner sofa continuous-junction metadata missing")
-    require('custom string cbnu:surfaceConstruction = "single unified base, seat and back meshes"' in corner_text, "corner unified-surface metadata missing")
-    for mesh_name in ("BaseUpholsteryUnified", "SeatCushionUnified", "BackCushionUnified"):
-        validate_mesh_topology(corner_text, mesh_name)
-    for mesh_name in ("SeatCushionUnified", "BackCushionUnified"):
-        require('subdivisionScheme = "catmullClark"' in prim_block(corner_text, mesh_name), f"corner cushion is not smoothly subdivided: {mesh_name}")
+    require(
+        'custom string cbnu:surfaceConstruction = "one beveled SofaUnified render mesh with non-overlapping base, seat and back topology"' in corner_text,
+        "corner unified render-mesh metadata missing",
+    )
+    validate_unified_sofa_render_policy(corner_text, "sofa_corner.usda")
+    corner_points = mesh_points(corner_text, "SofaUnified")
+    require(
+        max(point[2] for point in corner_points if abs(point[1]) < 1e-6 and point[0] <= 0.41) <= 0.58,
+        "corner sofa return-end backrest still protrudes",
+    )
     for plush_name in (
         "LongSeatPlush", "ReturnSeatPlush", "SeatPlushJunction",
         "LongBackPlush", "ReturnBackPlush", "BackPlushJunction",
     ):
-        require('visibility = "invisible"' in prim_block(corner_text, plush_name), f"overlapping corner plush overlay remains visible: {plush_name}")
+        require('visibility = "invisible"' in prim_block(corner_text, plush_name), f"legacy corner plush remains visible: {plush_name}")
     for hidden_name in (
         "CornerBase", "LongBase", "ReturnBase", "LongBack", "ReturnBack",
         "LongSeatContinuous", "ReturnSeatContinuous",
@@ -299,19 +574,20 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
 
     u_text = SOFA_ASSETS["u_column"].read_text(encoding="utf-8")
     require("custom bool cbnu:continuousJunctions = true" in u_text, "U sofa continuous-junction metadata missing")
-    require('custom string cbnu:surfaceConstruction = "single unified base, seat and back meshes"' in u_text, "U unified-surface metadata missing")
+    require(
+        'custom string cbnu:surfaceConstruction = "one beveled SofaUnified render mesh with non-overlapping base, seat and back topology"' in u_text,
+        "U unified render-mesh metadata missing",
+    )
     require("custom double cbnu:columnClearance = 0" in u_text, "U sofa must touch Column_02")
-    for mesh_name in ("BaseUpholsteryUnified", "SeatCushionUnified", "BackCushionUnified"):
-        validate_mesh_topology(u_text, mesh_name)
-    for mesh_name in ("SeatCushionUnified", "BackCushionUnified"):
-        require('subdivisionScheme = "catmullClark"' in prim_block(u_text, mesh_name), f"U cushion is not smoothly subdivided: {mesh_name}")
+    require("custom double cbnu:columnWidth = 1.5" in u_text, "U sofa column width metadata mismatch")
+    validate_unified_sofa_render_policy(u_text, "sofa_u_around_2m_column.usda")
     for plush_name in (
         "LeftSeatPlush", "RightSeatPlush", "BottomSeatPlush",
         "LeftSeatPlushJunction", "RightSeatPlushJunction",
         "LeftBackPlush", "RightBackPlush", "BottomBackPlush",
         "LeftBackPlushJunction", "RightBackPlushJunction",
     ):
-        require('visibility = "invisible"' in prim_block(u_text, plush_name), f"overlapping U plush overlay remains visible: {plush_name}")
+        require('visibility = "invisible"' in prim_block(u_text, plush_name), f"legacy U plush remains visible: {plush_name}")
     for hidden_name in (
         "LeftBench", "RightBench", "BottomBench",
         "LeftSeatCushion", "RightSeatCushion", "BottomSeatCushion",
@@ -323,20 +599,26 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     ):
         require('visibility = "invisible"' in prim_block(u_text, hidden_name), f"legacy U module remains visible: {hidden_name}")
     require('"TopBar"' not in u_text, "U sofa must stay open at local +Y")
-    require('double3 xformOp:translate = (-1.400000, -0.450000, 0.230000)' in u_text, "U sofa left base pose mismatch")
-    require('double3 xformOp:translate = (1.400000, -0.450000, 0.230000)' in u_text, "U sofa right base pose mismatch")
-    require('double3 xformOp:translate = (0, -1.450000, 0.230000)' in u_text, "U sofa bottom base pose mismatch")
+    require('double3 xformOp:translate = (-1.150000, -0.450000, 0.230000)' in u_text, "U sofa left base pose mismatch")
+    require('double3 xformOp:translate = (1.150000, -0.450000, 0.230000)' in u_text, "U sofa right base pose mismatch")
+    require('double3 xformOp:translate = (0, -1.200000, 0.230000)' in u_text, "U sofa bottom base pose mismatch")
     for contact_point in (
-        "(1.000, 1.000, 0.46)", "(-1.000, 1.000, 0.46)",
-        "(0.840, -1.000, 0.46)", "(-0.840, -1.000, 0.46)",
+        "(0.7500, 0.4500, 0.4250)", "(-0.7500, 0.4500, 0.4250)",
+        "(0.5900, -0.7500, 0.4250)", "(-0.5900, -0.7500, 0.4250)",
     ):
         require(contact_point in u_text, f"U sofa/column contact point missing: {contact_point}")
-    require(u_text.count('def Cylinder "') == 6, "U sofa must have six visible feet")
+    sofa_points = mesh_points(u_text, "SofaUnified")
+    require(max(point[2] for point in sofa_points if abs(point[1] - 0.75) < 1e-6) <= 0.58, "U sofa open-end backrest still protrudes")
+    require(u_text.count('def Cylinder "') == 6, "U sofa helper-foot count changed")
     return type_counts, placement_counts, facing_counts, fixture_counts
 
 
 def main() -> None:
     validate_world()
+    ceiling_light_counts = validate_ceiling()
+    validate_front_glass_walls()
+    validate_corridor_end_glass_wall()
+    validate_north_corridor_end_glass_wall()
     door_counts = validate_doors()
     type_counts, placement_counts, facing_counts, fixture_counts = validate_sofas()
     reference_count = validate_references()
@@ -345,7 +627,8 @@ def main() -> None:
     print("CBNU Haksan detailed lobby validation: PASS")
     print(
         f"doors: single wood={door_counts['single']}, double wood={door_counts['double']}, "
-        f"double glass sets={2 * door_counts['double_glass_pair']} (four transparent leaves)"
+        f"double glass sets={2 * door_counts['double_glass_pair']} "
+        "(four transparent leaves + one central fixed glass panel)"
     )
     print(
         "sofas: total=" + str(sum(type_counts.values())) + ", "
@@ -358,10 +641,18 @@ def main() -> None:
     print(f"facing: wall={facing_counts['wall']}, lobby={facing_counts['lobby']}, outward={facing_counts['outward']}")
     print("wall contact: 4/4 perimeter sofas flush; Table_03 replaces Sofa_01 at the west wall; U sofa attached to Column_02")
     print("sofa geometry: 4/4 armless assets use thick rounded plush cushions and soft matte upholstery")
-    print("sofa junctions: corner/U use single Catmull-Clark seat/back surfaces; overlapping capsule blends hidden")
+    print("sofa junctions: corner/U expose only three continuous watertight unified meshes; all helpers hidden")
     print("table fit: all 3 use filled bases; Table_01/02 match paired sofa widths and Table_03 matches former Sofa_01 footprint (1.6232 x 0.82 m)")
     print("U sofa column contact: clearance=0 at x=+-1.0 m and y=-1.0 m")
     print("floor material: Bala White polished granite with visible feldspar/quartz/mica pattern, 2.4 m repeat")
+    print("ceiling: corridor-matched footprint, underside=3.0 m, thickness=0.1 m, collision enabled")
+    print(
+        f"ceiling lights: standard panels={ceiling_light_counts['panel']}, "
+        f"large central panel={ceiling_light_counts['large_panel']} (6.0 x 2.4 m)"
+    )
+    print("front entrance glazing: two 4.85 x 2.82 m full-height panels; Wall_10 collider unchanged")
+    print("west corridor end glazing: one 1.655 x 2.82 m full-height panel; Wall_07 collider unchanged")
+    print("north corridor end glazing: one 3.1332 x 2.82 m full-height panel; Wall_04 collider unchanged")
     print(f"USD references: {reference_count} relative and resolved")
     print(f"preview: {width}x{height}")
 

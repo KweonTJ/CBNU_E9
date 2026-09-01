@@ -43,13 +43,19 @@ def Xform "World"
 
     def DomeLight "DomeLight"
     {
-        float intensity = 800
+        float intensity = 1600
     }
 
     def Scope "Looks"
     {
         def Material "MarbleFloor" (
             prepend references = @../../assets/materials/lobby/marble_floor.usda@
+        )
+        {
+        }
+
+        def Material "CeilingWhite" (
+            prepend references = @../../assets/materials/lobby/ceiling_white.usda@
         )
         {
         }
@@ -70,6 +76,57 @@ def Xform "World"
             texCoord2f[] primvars:st = [(35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.2028), (0.087, 13.2028), (0.087, 11.3478), (16.0145, 11.3478), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739), (35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.2028), (0.087, 13.2028), (0.087, 11.3478), (16.0145, 11.3478), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739)]
             uniform token primvars:st:interpolation = "vertex"
             uniform token subdivisionScheme = "none"
+        }
+
+        def Mesh "Ceiling" (
+            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            custom double cbnu:ceilingHeight = 3
+            custom double cbnu:ceilingThickness = 0.1
+            custom string cbnu:editorHint = "toggle this prim visibility to inspect the interior from above"
+            int[] faceVertexCounts = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+            int[] faceVertexIndices = [11, 0, 1, 11, 1, 2, 2, 3, 4, 2, 4, 5, 11, 2, 5, 5, 6, 7, 5, 7, 8, 11, 5, 8, 11, 8, 9, 9, 10, 11, 13, 12, 23, 14, 13, 23, 16, 15, 14, 17, 16, 14, 17, 14, 23, 19, 18, 17, 20, 19, 17, 20, 17, 23, 21, 20, 23, 23, 22, 21, 0, 1, 13, 12, 1, 2, 14, 13, 2, 3, 15, 14, 3, 4, 16, 15, 4, 5, 17, 16, 5, 6, 18, 17, 6, 7, 19, 18, 7, 8, 20, 19, 8, 9, 21, 20, 9, 10, 22, 21, 10, 11, 23, 22, 11, 0, 12, 23]
+            rel material:binding = </World/Looks/CeilingWhite>
+            bool physics:collisionEnabled = 1
+            point3f[] points = [(35.4492, 6.1739, 3.1), (35.4492, 13.3044, 3.1), (26.0724, 13.3044, 3.1), (26.0724, 20.7246, 3.1), (22.7392, 20.7246, 3.1), (22.7392, 13.2028, 3.1), (0.087, 13.2028, 3.1), (0.087, 11.3478, 3.1), (16.0145, 11.3478, 3.1), (16.0145, 0.0435, 3.1), (30.7536, 0.0435, 3.1), (30.7536, 6.1739, 3.1), (35.4492, 6.1739, 3.0), (35.4492, 13.3044, 3.0), (26.0724, 13.3044, 3.0), (26.0724, 20.7246, 3.0), (22.7392, 20.7246, 3.0), (22.7392, 13.2028, 3.0), (0.087, 13.2028, 3.0), (0.087, 11.3478, 3.0), (16.0145, 11.3478, 3.0), (16.0145, 0.0435, 3.0), (30.7536, 0.0435, 3.0), (30.7536, 6.1739, 3.0)]
+            float3[] primvars:displayColor = [(0.86, 0.87, 0.84)]
+            uniform token subdivisionScheme = "none"
+        }
+
+        def Xform "CeilingLights" (
+            prepend references = @config/ceiling_layout.usda@
+        )
+        {
+            custom string cbnu:layoutRevision = "2026-09-01-indoor-ceiling-lights-v1"
+        }
+
+        def Xform "FrontEntranceGlassWalls" (
+            prepend references = @../../assets/architecture/windows/front_entrance_glass_walls.usda@
+        )
+        {
+            custom string cbnu:layoutRevision = "2026-09-01-full-height-glass-both-sides-v1"
+            double3 xformOp:translate = (23.5, 0.17, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "WestCorridorEndGlassWall" (
+            prepend references = @../../assets/architecture/windows/corridor_end_glass_wall.usda@
+        )
+        {
+            custom string cbnu:layoutRevision = "2026-09-01-west-corridor-end-full-height-glass-v1"
+            double xformOp:rotateZ = 90
+            double3 xformOp:translate = (0.17, 12.2753, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+
+        def Xform "NorthCorridorEndGlassWall" (
+            prepend references = @../../assets/architecture/windows/north_corridor_end_glass_wall.usda@
+        )
+        {
+            custom string cbnu:layoutRevision = "2026-09-01-north-corridor-end-full-height-glass-v1"
+            double3 xformOp:translate = (24.4058, 20.60, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 
         def Xform "Walls"
@@ -117,9 +174,11 @@ def Xform "World"
                 prepend apiSchemas = ["PhysicsCollisionAPI"]
             )
             {
+                custom string cbnu:visualReplacement = "/World/Environment/NorthCorridorEndGlassWall"
                 bool physics:collisionEnabled = 1
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
+                token visibility = "invisible"
                 double xformOp:rotateZ = 0
                 double3 xformOp:scale = (3.3332, 0.2, 3)
                 double3 xformOp:translate = (24.4058, 20.7246, 1.5)
@@ -156,9 +215,11 @@ def Xform "World"
                 prepend apiSchemas = ["PhysicsCollisionAPI"]
             )
             {
+                custom string cbnu:visualReplacement = "/World/Environment/WestCorridorEndGlassWall"
                 bool physics:collisionEnabled = 1
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
+                token visibility = "invisible"
                 double xformOp:rotateZ = 90
                 double3 xformOp:scale = (1.855, 0.2, 3)
                 double3 xformOp:translate = (0.087, 12.2753, 1.5)
@@ -195,9 +256,11 @@ def Xform "World"
                 prepend apiSchemas = ["PhysicsCollisionAPI"]
             )
             {
+                custom string cbnu:visualReplacement = "/World/Environment/FrontEntranceGlassWalls plus /World/Doors/Door_Double_05"
                 bool physics:collisionEnabled = 1
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
+                token visibility = "invisible"
                 double xformOp:rotateZ = 0
                 double3 xformOp:scale = (14.7391, 0.2, 3)
                 double3 xformOp:translate = (23.38405, 0.0435, 1.5)
@@ -249,6 +312,25 @@ def Xform "World"
             double3 xformOp:translate = (31.1014, 10.6957, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
+
+        def Xform "Entrance_Pillar_ATM_Side" (
+            prepend references = @../../assets/structural/entrance_side_pillar.usda@
+        )
+        {
+            custom string cbnu:placement = "exact gap between ATM_01 and left edge of Door_Double_05"
+            double3 xformOp:translate = (20.89875, 0.49, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Entrance_Pillar_Opposite" (
+            prepend references = @../../assets/structural/entrance_side_pillar.usda@
+        )
+        {
+            custom string cbnu:placement = "same-size mirrored pillar at right edge of Door_Double_05"
+            double3 xformOp:translate = (26.10125, 0.49, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
     }
 
     def Xform "Furniture" (

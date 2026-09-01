@@ -1,0 +1,148 @@
+#usda 1.0
+(
+    defaultPrim = "FrontEntranceGlassWalls"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "FrontEntranceGlassWalls" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom int cbnu:fullHeightGlassPanelCount = 2
+    custom string cbnu:placement = "both sides of the south double-glass entrance"
+    custom double cbnu:doorOpeningWidth = 4.6
+    custom double2 cbnu:eachGlassPanelSize = (4.85, 2.82)
+
+    def Material "GlassMaterial"
+    {
+        token outputs:surface.connect = </FrontEntranceGlassWalls/GlassMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.48, 0.73, 0.78)
+            float inputs:ior = 1.5
+            float inputs:metallic = 0
+            float inputs:opacity = 0.13
+            float inputs:opacityThreshold = 0
+            float inputs:roughness = 0.08
+            token outputs:surface
+        }
+    }
+
+    def Material "FrameMaterial"
+    {
+        token outputs:surface.connect = </FrontEntranceGlassWalls/FrameMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.14, 0.16, 0.17)
+            float inputs:metallic = 0.72
+            float inputs:roughness = 0.28
+            token outputs:surface
+        }
+    }
+
+    def Xform "LeftFullHeightGlass"
+    {
+        custom string cbnu:side = "left of entrance"
+
+        def Cube "GlassPanel"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/GlassMaterial>
+            double size = 1
+            double3 xformOp:scale = (4.85, 0.025, 2.82)
+            double3 xformOp:translate = (-4.725, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "OuterFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.10, 0.060, 3.0)
+            double3 xformOp:translate = (-7.20, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "DoorSideFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.10, 0.060, 3.0)
+            double3 xformOp:translate = (-2.25, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "BottomFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (4.85, 0.060, 0.10)
+            double3 xformOp:translate = (-4.725, 0, 0.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "TopFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (4.85, 0.060, 0.10)
+            double3 xformOp:translate = (-4.725, 0, 2.95)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "RightFullHeightGlass"
+    {
+        custom string cbnu:side = "right of entrance"
+
+        def Cube "GlassPanel"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/GlassMaterial>
+            double size = 1
+            double3 xformOp:scale = (4.85, 0.025, 2.82)
+            double3 xformOp:translate = (4.725, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "DoorSideFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.10, 0.060, 3.0)
+            double3 xformOp:translate = (2.25, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "OuterFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.10, 0.060, 3.0)
+            double3 xformOp:translate = (7.20, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "BottomFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (4.85, 0.060, 0.10)
+            double3 xformOp:translate = (4.725, 0, 0.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "TopFrame"
+        {
+            rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
+            double size = 1
+            double3 xformOp:scale = (4.85, 0.060, 0.10)
+            double3 xformOp:translate = (4.725, 0, 2.95)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+}

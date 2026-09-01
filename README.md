@@ -2,7 +2,7 @@
 
 충북대학교 학연산공동기술연구원 1층 피난안내도를 기준으로 만든 Isaac Sim 근사 월드다.
 
-실측 복제가 아니라 현재 직각 복도 비율을 유지한 시각적 근사이며, 이번 버전은 로비 바닥·문·소파·책상·ATM 디테일에 초점을 맞췄다.
+실측 복제가 아니라 현재 직각 복도 비율을 유지한 시각적 근사다. 현재 버전은 로비 바닥·문·소파·책상·ATM에 더해, 실내 천장·조명·정면 통유리 벽까지 포함한다.
 
 ![CBNU 학연산 1층 상세 평면도](worlds/cbnu_haksan_1f_corridor/preview_top_view_detailed.png)
 
@@ -16,6 +16,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - Up axis: `Z`
 - 전체 크기: 약 `35.6 × 20.8m`
 - 벽: 높이 `3.0m`, 두께 `0.20m`, 총 12개
+- 천장: 실내 높이 `3.0m`, 두께 `0.10m`, 복도와 동일한 polygon
 - 기둥: `2.0 × 2.0 × 3.0m`, 총 2개
 - 모든 외곽 벽 회전: `0°` 또는 `90°`
 - 기준 이미지: `worlds/cbnu_haksan_1f_corridor/reference/evacuation_diagram_annotated.png`
@@ -27,11 +28,15 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 | 구분 | 구성 |
 | --- | --- |
 | Floor | Bala White 스타일 polished granite |
+| Ceiling | warm white 무광 천장, collision 유지 |
+| Ceiling light | 일반 LED panel 12개, 중앙 대형 panel 1개 (`6.0 × 2.4m`) |
 | Wood door | single 3개, double 4개 |
 | Glass entrance | 양개 유리문 2세트, 투명 문짝 총 4개 |
+| Glass wall | 정면 출입문 좌우 2장 + 서쪽 끝 1장 + 북쪽 끝 1장 |
 | Sofa | straight 3개, corner 1개, Column 2 U형 1개 |
 | Table | 하부가 채워진 목재 책상 3개 |
 | Equipment | 은행 ATM 1개 |
+| Entrance pillar | ATM–문 사이 1개 + 문 반대편 대칭 1개 |
 | Raw obstacle Cube | 없음 |
 
 ### 책상 크기
@@ -53,10 +58,21 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 ├── Looks
 ├── Environment
 │   ├── Floor
+│   ├── Ceiling
+│   ├── CeilingLights
+│   │   ├── CeilingLight_01 ... CeilingLight_12
+│   │   └── CeilingLight_Central_Large
+│   ├── FrontEntranceGlassWalls
+│   │   ├── LeftFullHeightGlass
+│   │   └── RightFullHeightGlass
+│   ├── WestCorridorEndGlassWall
+│   ├── NorthCorridorEndGlassWall
 │   └── Walls
 ├── Columns
 │   ├── Column_01
-│   └── Column_02
+│   ├── Column_02
+│   ├── Entrance_Pillar_ATM_Side
+│   └── Entrance_Pillar_Opposite
 ├── Furniture
 │   ├── Sofa_02
 │   ├── Sofa_03
@@ -75,6 +91,21 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 
 ## 주요 시각 요소
 
+### 실내 천장과 조명
+
+- 천장 Material: `assets/materials/lobby/ceiling_white.usda`
+- 천장 아래 면 높이: `3.0m`
+- 천장 두께: `0.10m`
+- 천장 XY footprint: 기존 복도 polygon과 동일
+- 일반 매입형 LED panel: 12개
+- 중앙 대형 조명: `6.0 × 2.4m`, 위치 `(25.0, 8.5, 2.95)`
+- 일반 조명 RectLight intensity: `8000`
+- 대형 조명 RectLight intensity: `12000`, normalize `false`
+- DomeLight intensity: `1600`
+- 천장 collision: enabled
+
+일반 조명과 중앙 대형 조명은 asset을 분리했다. 중앙 조명의 크기와 밝기를 바꿔도 나머지 12개 조명에는 영향이 없다.
+
 ### 화강암 바닥
 
 - Material: `assets/materials/lobby/marble_floor.usda`
@@ -92,7 +123,9 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - 색상: 브라운 계열 soft matte upholstery
 - 팔걸이 없음
 - 일반 소파는 벽에 붙고 좌석은 로비를 향함
-- Corner/U형 seat와 back은 각각 하나의 `catmullClark` 통합 Mesh
+- Corner/U형 visible geometry는 `BaseUpholsteryUnified`, `SeatCushionUnified`, `BackCushionUnified` 세 Mesh뿐임
+- Capsule/Sphere/Cube/Cylinder helper와 collision proxy는 모두 invisible
+- 통합 Mesh는 닫힌 단일 footprint이며 validator에서 watertight edge와 XY 자기 교차를 검사
 - Column 2 U형은 좌·하·우를 감싸고 위쪽은 열림
 - U형 안쪽 면은 Column 2에 `clearance = 0`으로 접촉
 
@@ -102,9 +135,43 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - 양개문 2세트: `assets/architecture/doors/glass_door_double_pair.usda`
 - 세트 수: 2
 - 문짝 수: 4
-- 두 세트 사이 간격: `0.44m`
+- 두 세트 사이 간격: `0.44m`, 중앙 `0.42m` 고정 유리로 채움
+- 문 header와 천장 사이: `4.16 × 0.72m` 고정 유리 transom과 상·하부 rail로 마감
 - 유리 opacity: `0.16`
 - 문 collision: disabled
+- 문 좌우 통유리: `assets/architecture/windows/front_entrance_glass_walls.usda`
+- 통유리 크기: 좌우 각 `4.85 × 2.82m`
+- 통유리 opacity: `0.13`
+- 얇은 dark metal 외곽 frame만 사용하고 중간 mullion은 두지 않음
+- 출입구 좌우 기둥: `assets/structural/entrance_side_pillar.usda`
+- 기둥 크기: 각각 `1.0425 × 1.0 × 3.0m`
+- 기둥 뒤쪽 면은 남쪽 벽선에 두고 실내 방향으로 `1.0m` 돌출
+- ATM 쪽 기둥은 ATM collision 끝 `x=20.3775`부터 문 frame 시작 `x=21.42`까지 빈 공간을 정확히 채움
+- 반대쪽 기둥은 출입구 중심 `x=23.5` 기준 대칭
+- 기둥 collision: disabled; 기존 남쪽 벽 collider 사용
+
+정면 남쪽 경계의 기존 `Wall_10`은 크기와 collision을 그대로 유지한다. 불투명 벽 표현만 숨기고 유리 출입문과 양쪽 통유리 asset으로 시각을 대체했다.
+
+### 서쪽 복도 끝 통유리
+
+- Asset: `assets/architecture/windows/corridor_end_glass_wall.usda`
+- 위치: 기존 `Wall_07` 자리
+- 유리 크기: `1.655 × 2.82m`
+- 회전: `90°`
+- 유리 opacity: `0.13`
+- 유리 collision: disabled
+
+기존 `Wall_07`은 치수 `1.855 × 0.20 × 3.0m`와 collision을 유지한다. 불투명 표면만 숨기고 단일 통유리 패널로 시각을 대체했다.
+
+### 북쪽 복도 끝 통유리
+
+- Asset: `assets/architecture/windows/north_corridor_end_glass_wall.usda`
+- 위치: 기존 `Wall_04` 자리
+- 유리 크기: `3.1332 × 2.82m`
+- 유리 opacity: `0.13`
+- 유리 collision: disabled
+
+기존 `Wall_04`는 치수 `3.3332 × 0.20 × 3.0m`와 collision을 유지한다. 불투명 표면만 숨기고 단일 통유리 패널로 시각을 대체했다.
 
 ### ATM
 
@@ -116,11 +183,19 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 
 ```text
 assets/
-├── architecture/doors/
-│   ├── glass_door_double.usda
-│   ├── glass_door_double_pair.usda
-│   ├── wood_door_double.usda
-│   └── wood_door_single.usda
+├── architecture/
+│   ├── ceiling/
+│   │   ├── ceiling_panel_light.usda
+│   │   └── ceiling_panel_light_large.usda
+│   ├── doors/
+│   │   ├── glass_door_double.usda
+│   │   ├── glass_door_double_pair.usda
+│   │   ├── wood_door_double.usda
+│   │   └── wood_door_single.usda
+│   └── windows/
+│       ├── corridor_end_glass_wall.usda
+│       ├── front_entrance_glass_walls.usda
+│       └── north_corridor_end_glass_wall.usda
 ├── equipment/
 │   └── atm_machine.usda
 ├── furniture/
@@ -133,16 +208,20 @@ assets/
 ├── materials/
 │   ├── furniture/brown_sofa_material.usda
 │   └── lobby/
+│       ├── ceiling_white.usda
 │       ├── marble_floor.usda
 │       └── textures/
 └── structural/
-    └── column_2m.usda
+    ├── column_2m.usda
+    └── entrance_side_pillar.usda
 
 worlds/cbnu_haksan_1f_corridor/
 ├── cbnu_haksan_1f_corridor.usda
 ├── config/
 │   ├── doors.json
 │   ├── doors_layout.usda
+│   ├── ceiling.json
+│   ├── ceiling_layout.usda
 │   ├── furniture.json
 │   ├── furniture_layout.usda
 │   └── geometry.json
@@ -167,7 +246,72 @@ Isaac Sim GUI에서 다음 파일을 연다.
 
 설정이나 asset을 수정한 뒤 GUI에 변화가 없으면 기존 Stage를 닫고 같은 파일을 다시 연다. 하위 reference layer는 열린 Stage에서 이전 값이 남을 수 있다.
 
+Top view로 편집할 때 천장이 내부를 가리면 Stage에서 `/World/Environment/Ceiling`의 visibility만 임시로 끈다. 조명 위치를 함께 확인하려면 `/World/Environment/CeilingLights`는 켜 둔다.
+
 ## 수정 방법
+
+### 천장 조명 위치·종류 수정
+
+수정 파일:
+
+```text
+worlds/cbnu_haksan_1f_corridor/config/ceiling.json
+```
+
+일반 조명은 `type`을 생략하거나 `panel`을 사용한다. 중앙 대형 조명은 `large_panel`을 사용한다.
+
+```json
+{
+  "name": "CeilingLight_Central_Large",
+  "type": "large_panel",
+  "position": [25.0, 8.5, 2.95],
+  "yaw_deg": 0,
+  "size": [6.0, 2.4]
+}
+```
+
+수정 후 layout을 다시 만든다.
+
+```bash
+python3 scripts/update_cbnu_haksan_ceiling.py
+```
+
+`position`과 `yaw_deg`는 config에서 관리한다. 실제 조명 크기와 밝기는 다음 asset에서 수정한다.
+
+```text
+일반 조명: assets/architecture/ceiling/ceiling_panel_light.usda
+대형 조명: assets/architecture/ceiling/ceiling_panel_light_large.usda
+```
+
+천장 본체의 높이·두께를 바꿀 때는 `geometry.json`, `ceiling.json`, 메인 world의 `Ceiling.points`를 함께 맞춰야 한다. `ceiling.json`만 바꿔도 천장 Mesh는 자동 재생성되지 않는다.
+
+### 통유리 수정
+
+```text
+assets/architecture/windows/front_entrance_glass_walls.usda
+assets/architecture/windows/corridor_end_glass_wall.usda
+assets/architecture/windows/north_corridor_end_glass_wall.usda
+```
+
+- 투명도: `GlassMaterial/PreviewSurface.inputs:opacity`
+- 좌우 유리 크기: 각 `GlassPanel.xformOp:scale`
+- 프레임 굵기: `OuterFrame`, `DoorSideFrame`, `TopFrame`, `BottomFrame`의 scale
+- 전체 위치: 메인 world의 `/World/Environment/FrontEntranceGlassWalls.xformOp:translate`
+
+통유리의 투명도를 유지하려면 `opacityThreshold = 0`을 유지한다. 기존 `Wall_10`은 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
+
+서쪽 복도 끝 통유리의 전체 위치와 회전은 메인 world의 `/World/Environment/WestCorridorEndGlassWall`에서 수정한다. 이 구간의 `Wall_07`도 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
+
+북쪽 복도 끝 통유리는 `/World/Environment/NorthCorridorEndGlassWall`에서 위치를 수정한다. 이 구간의 `Wall_04`도 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
+
+### 출입구 좌우 기둥 수정
+
+```text
+assets/structural/entrance_side_pillar.usda
+worlds/cbnu_haksan_1f_corridor/config/geometry.json
+```
+
+기둥 폭 `1.0425m`는 ATM과 문 사이 실제 빈 폭이다. 깊이는 `1.0m`이며 뒤쪽 면은 남쪽 벽선에 맞춘다. 위치를 조정할 때는 `entrance_pillars`의 두 X 중심이 출입구 중심 `x=23.5`에서 같은 거리를 유지해야 한다.
 
 ### 가구 위치·크기 수정
 
@@ -295,6 +439,7 @@ cd ~/Isaac_Worlds
 
 python3 scripts/update_cbnu_haksan_doors.py
 python3 scripts/update_cbnu_haksan_furniture.py
+python3 scripts/update_cbnu_haksan_ceiling.py
 MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_preview.py
 python3 scripts/validate_cbnu_haksan_detail.py
 ./scripts/test_world_with_isaac_usd.sh
@@ -304,6 +449,12 @@ python3 scripts/validate_cbnu_haksan_detail.py
 
 - 직각 벽 12개와 Column pose
 - Floor/Wall collision
+- 천장 footprint, 높이, 두께와 collision
+- 일반 천장 조명 12개와 중앙 대형 조명 1개
+- 정면 좌우 통유리 2장과 기존 `Wall_10` collider
+- 서쪽 복도 끝 통유리 1장과 기존 `Wall_07` collider
+- 북쪽 복도 끝 통유리 1장과 기존 `Wall_04` collider
+- ATM–문 사이와 문 반대편의 동일 크기 대칭 기둥 2개
 - Bala White texture, UV와 material binding
 - 문 유형과 실제 leaf 수
 - 소파 유형, 방향과 Column 2 접촉
@@ -317,8 +468,9 @@ python3 scripts/validate_cbnu_haksan_detail.py
 
 ```text
 CBNU Haksan detailed lobby validation: PASS
-USD references: 30 relative and resolved
+USD references: 50 relative and resolved
 CBNU Haksan composed Stage: PASS (USD 24.05)
+verified composed prims: 38
 preview: 2250 × 1425
 ```
 

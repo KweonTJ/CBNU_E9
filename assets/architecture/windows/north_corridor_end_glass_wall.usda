@@ -1,0 +1,91 @@
+#usda 1.0
+(
+    defaultPrim = "NorthCorridorEndGlassWall"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "NorthCorridorEndGlassWall" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom string cbnu:placement = "north end of the vertical corridor"
+    custom double2 cbnu:glassPanelSize = (3.1332, 2.82)
+
+    def Material "GlassMaterial"
+    {
+        token outputs:surface.connect = </NorthCorridorEndGlassWall/GlassMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.48, 0.73, 0.78)
+            float inputs:ior = 1.5
+            float inputs:metallic = 0
+            float inputs:opacity = 0.13
+            float inputs:opacityThreshold = 0
+            float inputs:roughness = 0.08
+            token outputs:surface
+        }
+    }
+
+    def Material "FrameMaterial"
+    {
+        token outputs:surface.connect = </NorthCorridorEndGlassWall/FrameMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.14, 0.16, 0.17)
+            float inputs:metallic = 0.72
+            float inputs:roughness = 0.28
+            token outputs:surface
+        }
+    }
+
+    def Cube "GlassPanel"
+    {
+        rel material:binding = </NorthCorridorEndGlassWall/GlassMaterial>
+        double size = 1
+        double3 xformOp:scale = (3.1332, 0.025, 2.82)
+        double3 xformOp:translate = (0, 0, 1.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "LeftFrame"
+    {
+        rel material:binding = </NorthCorridorEndGlassWall/FrameMaterial>
+        double size = 1
+        double3 xformOp:scale = (0.10, 0.060, 3.0)
+        double3 xformOp:translate = (-1.6166, 0, 1.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "RightFrame"
+    {
+        rel material:binding = </NorthCorridorEndGlassWall/FrameMaterial>
+        double size = 1
+        double3 xformOp:scale = (0.10, 0.060, 3.0)
+        double3 xformOp:translate = (1.6166, 0, 1.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "BottomFrame"
+    {
+        rel material:binding = </NorthCorridorEndGlassWall/FrameMaterial>
+        double size = 1
+        double3 xformOp:scale = (3.3332, 0.060, 0.10)
+        double3 xformOp:translate = (0, 0, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "TopFrame"
+    {
+        rel material:binding = </NorthCorridorEndGlassWall/FrameMaterial>
+        double size = 1
+        double3 xformOp:scale = (3.3332, 0.060, 0.10)
+        double3 xformOp:translate = (0, 0, 2.95)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

@@ -59,6 +59,15 @@
       "source_note": "replaces the former Sofa_04 at the same south-wall position"
     },
     {
+      "name": "ATM_02",
+      "type": "atm",
+      "position": [34.15, 6.5839, 0.0],
+      "yaw_deg": 180,
+      "placement": "wall_attached",
+      "facing": "lobby",
+      "source_note": "fills the wall gap immediately east of the long end of Sofa_Corner_01"
+    },
+    {
       "name": "Table_01",
       "type": "lobby_table_filled",
       "position": [17.7101, 1.74, 0.0],

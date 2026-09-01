@@ -1,0 +1,74 @@
+#usda 1.0
+(
+    defaultPrim = "CeilingPanelLightLarge"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "CeilingPanelLightLarge" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom string cbnu:fixtureType = "large recessed rectangular LED ceiling panel"
+    custom string cbnu:lightDirection = "local -Z"
+    custom double2 cbnu:panelSize = (6.0, 2.4)
+
+    def Material "HousingMaterial"
+    {
+        token outputs:surface.connect = </CeilingPanelLightLarge/HousingMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.72, 0.73, 0.71)
+            float inputs:metallic = 0.25
+            float inputs:roughness = 0.46
+            token outputs:surface
+        }
+    }
+
+    def Material "DiffuserMaterial"
+    {
+        token outputs:surface.connect = </CeilingPanelLightLarge/DiffuserMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (1.0, 0.97, 0.88)
+            color3f inputs:emissiveColor = (1.0, 0.96, 0.82)
+            float inputs:roughness = 0.28
+            token outputs:surface
+        }
+    }
+
+    def Cube "Housing"
+    {
+        rel material:binding = </CeilingPanelLightLarge/HousingMaterial>
+        double size = 1
+        double3 xformOp:scale = (6.10, 2.50, 0.050)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "Diffuser"
+    {
+        rel material:binding = </CeilingPanelLightLarge/DiffuserMaterial>
+        double size = 1
+        double3 xformOp:scale = (6.0, 2.4, 0.018)
+        double3 xformOp:translate = (0, 0, -0.034)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def RectLight "Light"
+    {
+        color3f inputs:color = (1.0, 0.95, 0.82)
+        float inputs:exposure = 0
+        float inputs:height = 2.4
+        float inputs:intensity = 12000
+        bool inputs:normalize = false
+        float inputs:width = 6.0
+        double3 xformOp:translate = (0, 0, -0.060)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

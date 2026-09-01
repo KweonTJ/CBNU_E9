@@ -2,14 +2,16 @@
   "meta": {
     "name": "CBNU Haksan 1F Corridor Approximation",
     "units": "meter",
-    "scale_basis": "69 image pixels = 2.0 m column side",
+    "scale_basis": "corridor scale retained from the original 2.0 m-column reconstruction; active column width override = 1.5 m",
     "note": "Approximate world reconstructed from evacuation diagram annotations. Corridor boundary snapped to exact orthogonal (90-degree) X/Y-aligned walls. Not survey-grade.",
     "geometry_revision": "v2_orthogonal"
   },
   "world": {
     "wall_height": 3.0,
     "wall_thickness": 0.2,
-    "floor_thickness": 0.1
+    "floor_thickness": 0.1,
+    "ceiling_height": 3.0,
+    "ceiling_thickness": 0.1
   },
   "corridor_polygon_xy": [
     [
@@ -69,8 +71,8 @@
         10.6812
       ],
       "size": [
-        2.0,
-        2.0,
+        1.5,
+        1.5,
         3.0
       ]
     },
@@ -81,19 +83,33 @@
         10.6957
       ],
       "size": [
-        2.0,
-        2.0,
+        1.5,
+        1.5,
         3.0
       ]
+    }
+  ],
+  "entrance_pillars": [
+    {
+      "name": "Entrance_Pillar_ATM_Side",
+      "center": [20.89875, 0.49],
+      "size": [1.0425, 1.0, 3.0],
+      "placement": "exact_gap_between_atm_and_entrance"
+    },
+    {
+      "name": "Entrance_Pillar_Opposite",
+      "center": [26.10125, 0.49],
+      "size": [1.0425, 1.0, 3.0],
+      "placement": "mirrored_across_entrance_center"
     }
   ],
   "sofa": {
     "name": "Sofa_U_Column_02",
     "column": "Column_02",
-    "outer_width": 3.6,
-    "outer_depth": 2.9,
-    "thickness": 0.55,
-    "height": 0.8,
-    "top_y_relative_to_column_center": 1.0
+    "outer_width": 3.06,
+    "outer_depth": 2.38,
+    "thickness": 0.78,
+    "height": 0.98,
+    "top_y_relative_to_column_center": 0.75
   }
 }

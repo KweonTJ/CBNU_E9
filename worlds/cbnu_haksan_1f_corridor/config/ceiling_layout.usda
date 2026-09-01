@@ -1,0 +1,154 @@
+#usda 1.0
+(
+    defaultPrim = "CeilingLights"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "CeilingLights"
+{
+    custom string cbnu:sourceConfig = "ceiling.json"
+
+    def Xform "CeilingLight_01" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (4, 12.25, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_02" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (10, 12.25, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_03" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (14, 12.25, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_04" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (24.4, 15.2, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_05" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (24.4, 19, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_06" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (19, 3, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_07" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (19, 8, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_08" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (24.5, 3, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_09" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (24.5, 9, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_10" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (29, 3, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_11" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (32.8, 8, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_12" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "panel"
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (32.8, 12, 2.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "CeilingLight_Central_Large" (
+        prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light_large.usda@
+    )
+    {
+        custom string cbnu:placementSource = "ceiling.json"
+        custom string cbnu:lightType = "large_panel"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (25, 8.5, 2.95)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+}

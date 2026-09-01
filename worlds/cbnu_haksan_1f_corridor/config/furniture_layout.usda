@@ -96,6 +96,20 @@ def Xform "Furniture"
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 
+    def Xform "ATM_02" (
+        prepend references = @../../../assets/equipment/atm_machine.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "wall_attached"
+        custom string cbnu:facing = "lobby"
+        custom string cbnu:itemType = "atm"
+        custom string cbnu:semanticClass = "bank_atm"
+        double xformOp:rotateZ = 180
+        double3 xformOp:translate = (34.15, 6.5839, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
     def Xform "Table_01" (
         prepend references = @../../../assets/furniture/lobby_table_filled.usda@
     )

@@ -12,12 +12,15 @@ import numpy as np
 from matplotlib import patches, transforms
 from matplotlib.lines import Line2D
 
+from generate_unified_sofa_meshes import U_OUTLINES
+
 
 ROOT = Path(__file__).resolve().parents[1]
 WORLD_DIR = ROOT / "worlds/cbnu_haksan_1f_corridor"
 GEOMETRY_PATH = WORLD_DIR / "config/geometry.json"
 DOORS_PATH = WORLD_DIR / "config/doors.json"
 FURNITURE_PATH = WORLD_DIR / "config/furniture.json"
+CEILING_PATH = WORLD_DIR / "config/ceiling.json"
 OUTPUT_PATH = WORLD_DIR / "preview_top_view_detailed.png"
 GRANITE_TEXTURE_PATH = ROOT / "assets/materials/lobby/textures/bala_white_granite_floor_pattern.png"
 GRANITE_REPEAT_METERS = 2.4
@@ -140,8 +143,10 @@ def main() -> None:
     geometry = json.loads(GEOMETRY_PATH.read_text(encoding="utf-8"))
     doors = json.loads(DOORS_PATH.read_text(encoding="utf-8"))["doors"]
     furniture = json.loads(FURNITURE_PATH.read_text(encoding="utf-8"))
+    ceiling = json.loads(CEILING_PATH.read_text(encoding="utf-8"))
     sofas = furniture["sofas"]
     fixtures = furniture.get("fixtures", [])
+    ceiling_lights = ceiling["lights"]
     polygon = np.asarray(geometry["corridor_polygon_xy"], dtype=float)
 
     fig, axis = plt.subplots(figsize=(15, 9.5))
@@ -186,6 +191,67 @@ def main() -> None:
     )
     axis.add_patch(floor_outline)
 
+    # The ceiling surface has the same footprint as the floor, so the cutaway
+    # plan only overlays its light fixtures instead of hiding the room below.
+    for light in ceiling_lights:
+        x, y, _ = light["position"]
+        yaw_deg = float(light["yaw_deg"])
+        is_large = light.get("type", "panel") == "large_panel"
+        width, depth = light.get("size", [1.2, 0.3])
+        add_centered_rounded_rectangle(
+            axis,
+            (float(x), float(y)),
+            float(width),
+            float(depth),
+            facecolor="#fff2ad" if is_large else "#fff7cf",
+            edgecolor="#d39b28" if is_large else "#c8ad64",
+            linewidth=2.0 if is_large else 0.8,
+            angle_deg=yaw_deg,
+            zorder=4,
+        )
+        if is_large:
+            axis.text(
+                float(x), float(y), "CENTRAL 6.0 × 2.4 m",
+                color="#76510a", fontsize=7.5, fontweight="bold",
+                ha="center", va="center", zorder=5,
+            )
+
+    for center_x in (18.775, 28.225):
+        add_centered_rectangle(
+            axis,
+            (center_x, 0.17),
+            4.85,
+            0.10,
+            facecolor="#8ed7e5",
+            edgecolor="#1f6978",
+            linewidth=1.5,
+            alpha=0.72,
+            zorder=5,
+        )
+    add_centered_rectangle(
+        axis,
+        (0.17, 12.2753),
+        1.655,
+        0.10,
+        facecolor="#8ed7e5",
+        edgecolor="#1f6978",
+        linewidth=1.5,
+        angle_deg=90,
+        alpha=0.72,
+        zorder=5,
+    )
+    add_centered_rectangle(
+        axis,
+        (24.4058, 20.60),
+        3.1332,
+        0.10,
+        facecolor="#8ed7e5",
+        edgecolor="#1f6978",
+        linewidth=1.5,
+        alpha=0.72,
+        zorder=5,
+    )
+
     for column in geometry["columns"]:
         center = tuple(column["center"])
         add_centered_rectangle(
@@ -199,6 +265,19 @@ def main() -> None:
             zorder=4,
         )
         axis.text(*center, column["name"], ha="center", va="center", fontsize=8, zorder=6)
+
+    for pillar in geometry.get("entrance_pillars", []):
+        center = tuple(pillar["center"])
+        add_centered_rectangle(
+            axis,
+            center,
+            float(pillar["size"][0]),
+            float(pillar["size"][1]),
+            facecolor="#777a76",
+            edgecolor="#333532",
+            linewidth=1.1,
+            zorder=7,
+        )
 
     columns_by_name = {item["name"]: item for item in geometry["columns"]}
     for sofa in sofas:
@@ -393,18 +472,11 @@ def main() -> None:
             sofa_width = float(sofa_geometry["outer_width"])
             sofa_depth = float(sofa_geometry["outer_depth"])
             sofa_thickness = float(sofa_geometry["thickness"])
-            sofa_center_y = sofa_y + 1.0 - sofa_depth / 2
+            sofa_center_y = sofa_y + float(sofa_geometry["top_y_relative_to_column_center"]) - sofa_depth / 2
             add_transformed_polygon(
                 axis,
                 (sofa_x, sofa_y),
-                [(-1.50, -1.88), (1.50, -1.88), (1.607, -1.859),
-                 (1.698, -1.798), (1.759, -1.707), (1.78, -1.60),
-                 (1.78, 1.0), (1.0, 1.0), (1.0, -0.80),
-                 (0.985, -0.877), (0.941, -0.941), (0.877, -0.985),
-                 (0.80, -1.0), (-0.80, -1.0), (-0.877, -0.985),
-                 (-0.941, -0.941), (-0.985, -0.877), (-1.0, -0.80),
-                 (-1.0, 1.0), (-1.78, 1.0), (-1.78, -1.60),
-                 (-1.759, -1.707), (-1.698, -1.798), (-1.607, -1.859)],
+                U_OUTLINES["base"],
                 facecolor="#754126",
                 edgecolor="#3d1f10",
                 zorder=5,
@@ -414,20 +486,13 @@ def main() -> None:
 
             # Render the unified U-shaped upholstery as a lighter seat surface,
             # a continuous dark column-side back and outward-facing arrows.
-            left_seat_x = sofa_x - 1.55
-            right_seat_x = sofa_x + 1.55
-            bottom_seat_y = sofa_y - 1.65
+            left_seat_x = sofa_x - 1.30
+            right_seat_x = sofa_x + 1.30
+            bottom_seat_y = sofa_y - 1.40
             add_transformed_polygon(
                 axis,
                 (sofa_x, sofa_y),
-                [(-1.50, -1.84), (1.50, -1.84), (1.592, -1.822),
-                 (1.670, -1.770), (1.722, -1.692), (1.74, -1.60),
-                 (1.74, 0.95), (1.16, 0.95), (1.16, -0.96),
-                 (1.145, -1.037), (1.101, -1.101), (1.037, -1.145),
-                 (0.96, -1.16), (-0.96, -1.16), (-1.037, -1.145),
-                 (-1.101, -1.101), (-1.145, -1.037), (-1.16, -0.96),
-                 (-1.16, 0.95), (-1.74, 0.95), (-1.74, -1.60),
-                 (-1.722, -1.692), (-1.670, -1.770), (-1.592, -1.822)],
+                U_OUTLINES["seat"],
                 facecolor="#a8643a",
                 edgecolor="#65351d",
                 linewidth=0.6,
@@ -436,14 +501,7 @@ def main() -> None:
             add_transformed_polygon(
                 axis,
                 (sofa_x, sofa_y),
-                [(-1.0, -1.16), (1.0, -1.16), (1.061, -1.148),
-                 (1.113, -1.103), (1.148, -1.061), (1.16, -1.0),
-                 (1.16, 1.0), (1.0, 1.0), (1.0, -0.84),
-                 (0.988, -0.901), (0.953, -0.953), (0.901, -0.988),
-                 (0.84, -1.0), (-0.84, -1.0), (-0.901, -0.988),
-                 (-0.953, -0.953), (-0.988, -0.901), (-1.0, -0.84),
-                 (-1.0, 1.0), (-1.16, 1.0), (-1.16, -1.0),
-                 (-1.148, -1.061), (-1.113, -1.103), (-1.061, -1.148)],
+                U_OUTLINES["back"],
                 facecolor="#442111",
                 edgecolor="#442111",
                 linewidth=0.3,
@@ -593,11 +651,27 @@ def main() -> None:
                 angle_deg=yaw_deg,
                 zorder=8,
             )
+        if door_type == "double_glass_pair":
+            add_centered_rectangle(
+                axis,
+                (float(x), float(y)),
+                0.42,
+                0.11,
+                facecolor="#c8edf2",
+                edgecolor="#397a8d",
+                linewidth=0.8,
+                angle_deg=yaw_deg,
+                zorder=8,
+            )
         axis.text(float(x), float(y) + 0.34, label, fontsize=7, ha="center", zorder=9)
 
     legend_handles = [
         patches.Patch(facecolor="#dddcd8", edgecolor="#7a7975", label="Bala White polished granite floor"),
-        patches.Patch(facecolor="#a9c9dd", edgecolor="#42677b", label="2 m column"),
+        patches.Patch(facecolor="#fff7cf", edgecolor="#c8ad64", label="Recessed ceiling LED panel"),
+        patches.Patch(facecolor="#fff2ad", edgecolor="#d39b28", linewidth=2, label="Large central ceiling light"),
+        patches.Patch(facecolor="#8ed7e5", edgecolor="#1f6978", label="Full-height entrance glass wall"),
+        patches.Patch(facecolor="#a9c9dd", edgecolor="#42677b", label="1.5 m column"),
+        patches.Patch(facecolor="#777a76", edgecolor="#333532", label="Entrance side pillar"),
         patches.Patch(facecolor="#7b4528", edgecolor="#4b2614", label="Straight armless sofa"),
         patches.Patch(facecolor="#9b5c35", edgecolor="#4b2614", label="Single armless sofa"),
         patches.Patch(facecolor="#6d3b22", edgecolor="#3b1d0f", label="Continuous L sofa"),
@@ -613,7 +687,7 @@ def main() -> None:
         patches.Patch(facecolor="#77b8c8", edgecolor="#163b48", linewidth=2, label="Double glass door"),
     ]
     axis.legend(handles=legend_handles, loc="lower left", framealpha=0.95)
-    axis.set_title("CBNU Haksan 1F Corridor — Detailed Lobby Furniture")
+    axis.set_title("CBNU Haksan 1F Corridor — Indoor Lobby with Ceiling Lighting")
     axis.set_xlabel("X [m]")
     axis.set_ylabel("Y [m]")
     axis.set_xlim(-1, 36.5)
@@ -626,7 +700,7 @@ def main() -> None:
     print(
         f"wrote {OUTPUT_PATH} "
         f"({single_index} single doors, {double_index} double doors including {glass_index} glass, "
-        f"{len(sofas)} sofas, {len(fixtures)} fixtures)"
+        f"{len(sofas)} sofas, {len(fixtures)} fixtures, {len(ceiling_lights)} ceiling lights)"
     )
 
 
