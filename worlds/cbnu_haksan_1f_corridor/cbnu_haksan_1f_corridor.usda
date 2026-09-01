@@ -1,0 +1,339 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary cameraSettings = {
+            dictionary Front = {
+                double3 position = (5, 0, 0)
+                double radius = 5
+            }
+            dictionary Perspective = {
+                double3 position = (7.96925217600392, 45.136133339611675, 69.7430541016427)
+                double3 target = (8.385244490843217, 44.41755321136597, 68.57002285551205)
+            }
+            dictionary Right = {
+                double3 position = (0, -5, 0)
+                double radius = 5
+            }
+            dictionary Top = {
+                double3 position = (0, 0, 5)
+                double radius = 5
+            }
+            string boundCamera = "/OmniverseKit_Persp"
+        }
+        dictionary omni_layer = {
+            string authoring_layer = "./cbnu_haksan_1f_corridor.usda"
+        }
+        dictionary renderSettings = {
+        }
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "World"
+{
+    def PhysicsScene "PhysicsScene" (
+        prepend apiSchemas = ["PhysxSceneAPI"]
+    )
+    {
+        float3 physics:gravityDirection = (0, 0, -1)
+        float physics:gravityMagnitude = 9.81
+    }
+
+    def DomeLight "DomeLight"
+    {
+        float intensity = 800
+    }
+
+    def Scope "Looks"
+    {
+        def Material "MarbleFloor" (
+            prepend references = @../../assets/materials/lobby/marble_floor.usda@
+        )
+        {
+        }
+    }
+
+    def Xform "Environment"
+    {
+        def Mesh "Floor" (
+            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            int[] faceVertexCounts = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+            int[] faceVertexIndices = [11, 0, 1, 11, 1, 2, 2, 3, 4, 2, 4, 5, 11, 2, 5, 5, 6, 7, 5, 7, 8, 11, 5, 8, 11, 8, 9, 9, 10, 11, 13, 12, 23, 14, 13, 23, 16, 15, 14, 17, 16, 14, 17, 14, 23, 19, 18, 17, 20, 19, 17, 20, 17, 23, 21, 20, 23, 23, 22, 21, 0, 1, 13, 12, 1, 2, 14, 13, 2, 3, 15, 14, 3, 4, 16, 15, 4, 5, 17, 16, 5, 6, 18, 17, 6, 7, 19, 18, 7, 8, 20, 19, 8, 9, 21, 20, 9, 10, 22, 21, 10, 11, 23, 22, 11, 0, 12, 23]
+            rel material:binding = </World/Looks/MarbleFloor>
+            bool physics:collisionEnabled = 1
+            point3f[] points = [(35.4492, 6.1739, 0), (35.4492, 13.3044, 0), (26.0724, 13.3044, 0), (26.0724, 20.7246, 0), (22.7392, 20.7246, 0), (22.7392, 13.2028, 0), (0.087, 13.2028, 0), (0.087, 11.3478, 0), (16.0145, 11.3478, 0), (16.0145, 0.0435, 0), (30.7536, 0.0435, 0), (30.7536, 6.1739, 0), (35.4492, 6.1739, -0.1), (35.4492, 13.3044, -0.1), (26.0724, 13.3044, -0.1), (26.0724, 20.7246, -0.1), (22.7392, 20.7246, -0.1), (22.7392, 13.2028, -0.1), (0.087, 13.2028, -0.1), (0.087, 11.3478, -0.1), (16.0145, 11.3478, -0.1), (16.0145, 0.0435, -0.1), (30.7536, 0.0435, -0.1), (30.7536, 6.1739, -0.1)]
+            float3[] primvars:displayColor = [(0.65, 0.65, 0.65)]
+            texCoord2f[] primvars:st = [(35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.2028), (0.087, 13.2028), (0.087, 11.3478), (16.0145, 11.3478), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739), (35.4492, 6.1739), (35.4492, 13.3044), (26.0724, 13.3044), (26.0724, 20.7246), (22.7392, 20.7246), (22.7392, 13.2028), (0.087, 13.2028), (0.087, 11.3478), (16.0145, 11.3478), (16.0145, 0.0435), (30.7536, 0.0435), (30.7536, 6.1739)]
+            uniform token primvars:st:interpolation = "vertex"
+            uniform token subdivisionScheme = "none"
+        }
+
+        def Xform "Walls"
+        {
+            def Cube "Wall_01" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 90
+                double3 xformOp:scale = (7.1305, 0.2, 3)
+                double3 xformOp:translate = (35.4492, 9.73915, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_02" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 0
+                double3 xformOp:scale = (9.3768, 0.2, 3)
+                double3 xformOp:translate = (30.7608, 13.3044, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_03" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 90
+                double3 xformOp:scale = (7.4202, 0.2, 3)
+                double3 xformOp:translate = (26.0724, 17.0145, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_04" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 0
+                double3 xformOp:scale = (3.3332, 0.2, 3)
+                double3 xformOp:translate = (24.4058, 20.7246, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_05" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 90
+                double3 xformOp:scale = (7.5218, 0.2, 3)
+                double3 xformOp:translate = (22.7392, 16.9637, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_06" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 0
+                double3 xformOp:scale = (22.6522, 0.2, 3)
+                double3 xformOp:translate = (11.4131, 13.2028, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_07" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 90
+                double3 xformOp:scale = (1.855, 0.2, 3)
+                double3 xformOp:translate = (0.087, 12.2753, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_08" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 0
+                double3 xformOp:scale = (15.9275, 0.2, 3)
+                double3 xformOp:translate = (8.05075, 11.3478, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_09" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 90
+                double3 xformOp:scale = (11.3043, 0.2, 3)
+                double3 xformOp:translate = (16.0145, 5.69565, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_10" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 0
+                double3 xformOp:scale = (14.7391, 0.2, 3)
+                double3 xformOp:translate = (23.38405, 0.0435, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_11" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 90
+                double3 xformOp:scale = (6.1304, 0.2, 3)
+                double3 xformOp:translate = (30.7536, 3.1087, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+
+            def Cube "Wall_12" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+            )
+            {
+                bool physics:collisionEnabled = 1
+                float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
+                double size = 1
+                double xformOp:rotateZ = 0
+                double3 xformOp:scale = (4.6956, 0.2, 3)
+                double3 xformOp:translate = (33.1014, 6.1739, 1.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+            }
+        }
+    }
+
+    def Xform "Columns"
+    {
+        def Xform "Column_01" (
+            prepend references = @../../assets/structural/column_2m.usda@
+        )
+        {
+            double3 xformOp:translate = (22.1739, 10.6812, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Column_02" (
+            prepend references = @../../assets/structural/column_2m.usda@
+        )
+        {
+            double3 xformOp:translate = (31.1014, 10.6957, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Xform "Furniture" (
+        prepend references = @config/furniture_layout.usda@
+    )
+    {
+        custom string cbnu:layoutRevision = "2026-09-01-all-tables-filled-base-v6"
+    }
+
+    def Xform "Doors" (
+        prepend references = @config/doors_layout.usda@
+    )
+    {
+        custom string cbnu:layoutRevision = "2026-09-01-two-double-glass-sets-gap-v3"
+    }
+
+    def Xform "SpawnPoints"
+    {
+        def Xform "Spawn_South"
+        {
+            double3 xformOp:translate = (24, 2.5, 0.35)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}
+
+def "Render" (
+    hide_in_stage_window = true
+    no_delete = true
+)
+{
+    def "OmniverseKit"
+    {
+        def "HydraTextures" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            def RenderProduct "omni_kit_widget_viewport_ViewportTexture_0" (
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1"]
+                hide_in_stage_window = true
+                no_delete = true
+            )
+            {
+                rel camera = </OmniverseKit_Persp>
+                token omni:rtx:background:source:texture:textureMode = "repeatMirrored"
+                token omni:rtx:background:source:type = "domeLight"
+                bool omni:rtx:dlss:frameGeneration = 0
+                bool omni:rtx:material:db:nonVisualMaterialCSV:enabled = 0
+                bool omni:rtx:material:db:syncLoads = 1
+                token omni:rtx:post:dlss:execMode = "performance"
+                bool omni:rtx:post:registeredCompositing:invertColorCorrection = 1
+                bool omni:rtx:post:registeredCompositing:invertToneMap = 1
+                bool omni:rtx:pt:lightcache:cached:dontResolveConflicts = 1
+                int omni:rtx:pt:maxSamplesPerLaunch = 2073600
+                int omni:rtx:pt:mgpu:maxPixelsPerRegionExponent = 12
+                color3f omni:rtx:rt:ambientLight:color = (0.1, 0.1, 0.1)
+                bool omni:rtx:rt:demoire = 0
+                bool omni:rtx:rt:lightcache:spatialCache:dontResolveConflicts = 1
+                bool omni:rtx:scene:hydra:materialSyncLoads = 1
+                bool omni:rtx:scene:hydra:mdlMaterialWarmup = 1
+                uint omni:rtx:viewTile:limit = 4294967295
+                rel orderedVars = </Render/Vars/LdrColor>
+                custom bool overrideClipRange = 0
+                uniform int2 resolution = (1280, 720)
+            }
+        }
+    }
+
+    def RenderSettings "OmniverseGlobalRenderSettings" (
+        prepend apiSchemas = ["OmniRtxSettingsGlobalRtAdvancedAPI_1", "OmniRtxSettingsGlobalPtAdvancedAPI_1"]
+        no_delete = true
+    )
+    {
+        rel products = </Render/OmniverseKit/HydraTextures/omni_kit_widget_viewport_ViewportTexture_0>
+    }
+
+    def "Vars"
+    {
+        def RenderVar "LdrColor" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            uniform string sourceName = "LdrColor"
+        }
+    }
+}

@@ -1,0 +1,151 @@
+#usda 1.0
+(
+    defaultPrim = "SofaStraight"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "SofaStraight" (
+    kind = "component"
+)
+{
+    custom string cbnu:furnitureType = "continuous armless straight brown leather bench sofa"
+    custom bool cbnu:hasArmrests = false
+    custom string cbnu:frontDirection = "local -Y"
+    custom string cbnu:surfaceConstruction = "single continuous base, seat and back surfaces"
+    custom string cbnu:cushionStyle = "soft overstuffed rounded cushions"
+
+    def Scope "Materials" (
+        prepend references = @../materials/furniture/brown_sofa_material.usda@
+    )
+    {
+    }
+
+    def Cube "CollisionBase" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token purpose = "guide"
+        rel material:binding = </SofaStraight/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (2.0, 0.82, 0.30)
+        double3 xformOp:translate = (0, 0, 0.22)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "UpholsteredBase"
+    {
+        token visibility = "invisible"
+        rel material:binding = </SofaStraight/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (2.0, 0.80, 0.28)
+        double3 xformOp:translate = (0, 0, 0.23)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "BaseUpholsteryUnified"
+    {
+        token axis = "X"
+        rel material:binding = </SofaStraight/Materials/BrownLeather>
+        double height = 1.64
+        double radius = 0.18
+        double3 xformOp:scale = (1, 2.10, 0.78)
+        double3 xformOp:translate = (0, 0, 0.23)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "SeatCushionContinuous"
+    {
+        token axis = "X"
+        rel material:binding = </SofaStraight/Materials/BrownLeatherHighlight>
+        double height = 1.64
+        double radius = 0.18
+        double3 xformOp:scale = (1, 1.72, 0.80)
+        double3 xformOp:translate = (0, -0.075, 0.48)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "BackSupport" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token visibility = "invisible"
+        rel material:binding = </SofaStraight/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (1.64, 0.15, 0.68)
+        double3 xformOp:translate = (0, 0.32, 0.64)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "BackCushionContinuous"
+    {
+        token axis = "X"
+        rel material:binding = </SofaStraight/Materials/BrownLeatherHighlight>
+        double height = 1.62
+        double radius = 0.18
+        double xformOp:rotateX = -7
+        double3 xformOp:scale = (1, 0.78, 1.62)
+        double3 xformOp:translate = (0, 0.190, 0.72)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX", "xformOp:scale"]
+    }
+
+    def Sphere "LeftBackButton"
+    {
+        rel material:binding = </SofaStraight/Materials/BrownPiping>
+        double radius = 1
+        double3 xformOp:scale = (0.027, 0.018, 0.027)
+        double3 xformOp:translate = (-0.40, 0.083, 0.69)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "RightBackButton"
+    {
+        rel material:binding = </SofaStraight/Materials/BrownPiping>
+        double radius = 1
+        double3 xformOp:scale = (0.027, 0.018, 0.027)
+        double3 xformOp:translate = (0.40, 0.083, 0.69)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cylinder "LeftFrontFoot"
+    {
+        token axis = "Z"
+        rel material:binding = </SofaStraight/Materials/BronzeFeet>
+        double height = 0.10
+        double radius = 0.035
+        double3 xformOp:translate = (-0.76, -0.26, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cylinder "RightFrontFoot"
+    {
+        token axis = "Z"
+        rel material:binding = </SofaStraight/Materials/BronzeFeet>
+        double height = 0.10
+        double radius = 0.035
+        double3 xformOp:translate = (0.76, -0.26, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cylinder "LeftRearFoot"
+    {
+        token axis = "Z"
+        rel material:binding = </SofaStraight/Materials/BronzeFeet>
+        double height = 0.10
+        double radius = 0.035
+        double3 xformOp:translate = (-0.76, 0.26, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cylinder "RightRearFoot"
+    {
+        token axis = "Z"
+        rel material:binding = </SofaStraight/Materials/BronzeFeet>
+        double height = 0.10
+        double radius = 0.035
+        double3 xformOp:translate = (0.76, 0.26, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

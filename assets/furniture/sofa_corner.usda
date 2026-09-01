@@ -1,0 +1,363 @@
+#usda 1.0
+(
+    defaultPrim = "SofaCorner"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "SofaCorner" (
+    kind = "component"
+)
+{
+    custom string cbnu:furnitureType = "continuous armless L-shaped brown leather bench sofa"
+    custom bool cbnu:hasArmrests = false
+    custom bool cbnu:continuousJunctions = true
+    custom string cbnu:frontDirections = "local +Y and local -X"
+    custom string cbnu:surfaceConstruction = "single unified base, seat and back meshes"
+    custom string cbnu:cushionStyle = "soft overstuffed rounded cushions over unified junctions"
+
+    def Scope "Materials" (
+        prepend references = @../materials/furniture/brown_sofa_material.usda@
+    )
+    {
+    }
+
+    def Cube "CornerBase" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (0.82, 0.82, 0.34)
+        double3 xformOp:translate = (0, 0, 0.23)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "LongBase" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (2.54, 0.82, 0.34)
+        double3 xformOp:translate = (1.27, 0, 0.23)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "ReturnBase" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (0.82, 3.01, 0.34)
+        double3 xformOp:translate = (0, -1.505, 0.23)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "LongSeatContinuous"
+    {
+        token visibility = "invisible"
+        token axis = "X"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 2.26
+        double radius = 0.14
+        double3 xformOp:scale = (1, 2.05, 0.62)
+        double3 xformOp:translate = (1.27, 0.06, 0.47)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "ReturnSeatContinuous"
+    {
+        token visibility = "invisible"
+        token axis = "Y"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 2.73
+        double radius = 0.14
+        double3 xformOp:scale = (2.05, 1, 0.62)
+        double3 xformOp:translate = (-0.06, -1.505, 0.47)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "LongBack" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (2.95, 0.16, 0.72)
+        double3 xformOp:translate = (1.065, -0.33, 0.63)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "ReturnBack" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeather>
+        double size = 1
+        double3 xformOp:scale = (0.16, 3.42, 0.72)
+        double3 xformOp:translate = (0.33, -1.30, 0.63)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "LongBackCushionContinuous"
+    {
+        token visibility = "invisible"
+        token axis = "X"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 2.65
+        double radius = 0.15
+        double3 xformOp:scale = (1, 0.72, 1.52)
+        double3 xformOp:translate = (1.065, -0.205, 0.68)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "ReturnBackCushionContinuous"
+    {
+        token visibility = "invisible"
+        token axis = "Y"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 3.12
+        double radius = 0.15
+        double3 xformOp:scale = (0.72, 1, 1.52)
+        double3 xformOp:translate = (0.205, -1.30, 0.68)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "SeatCornerBlend"
+    {
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double radius = 1
+        double3 xformOp:scale = (0.300, 0.300, 0.100)
+        double3 xformOp:translate = (0.080, -0.080, 0.470)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "BackCornerBlend"
+    {
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double radius = 1
+        double3 xformOp:scale = (0.165, 0.165, 0.230)
+        double3 xformOp:translate = (0.205, -0.205, 0.680)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Mesh "BaseUpholsteryUnified"
+    {
+        bool doubleSided = true
+        int[] faceVertexCounts = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [1, 0, 12, 2, 1, 12, 3, 2, 12, 4, 3, 12, 5, 4, 12, 6, 5, 12, 7, 6, 12, 8, 7, 12, 9, 8, 12, 10, 9, 12, 12, 11, 10, 25, 13, 14, 25, 14, 15, 25, 15, 16, 25, 16, 17, 25, 17, 18, 25, 18, 19, 25, 19, 20, 25, 20, 21, 25, 21, 22, 25, 22, 23, 23, 24, 25, 0, 1, 14, 13, 1, 2, 15, 14, 2, 3, 16, 15, 3, 4, 17, 16, 4, 5, 18, 17, 5, 6, 19, 18, 6, 7, 20, 19, 7, 8, 21, 20, 8, 9, 22, 21, 9, 10, 23, 22, 10, 11, 24, 23, 11, 12, 25, 24, 12, 0, 13, 25]
+        rel material:binding = </SofaCorner/Materials/BrownLeather>
+        point3f[] points = [
+            (-0.410, -3.010, 0.09), (0.410, -3.010, 0.09),
+            (0.410, -0.550, 0.09), (0.427, -0.496, 0.09),
+            (0.496, -0.427, 0.09), (0.550, -0.410, 0.09),
+            (2.540, -0.410, 0.09), (2.540, 0.410, 0.09),
+            (0.000, 0.410, 0.09), (-0.157, 0.379, 0.09),
+            (-0.290, 0.290, 0.09), (-0.379, 0.157, 0.09),
+            (-0.410, 0.000, 0.09),
+            (-0.410, -3.010, 0.38), (0.410, -3.010, 0.38),
+            (0.410, -0.550, 0.38), (0.427, -0.496, 0.38),
+            (0.496, -0.427, 0.38), (0.550, -0.410, 0.38),
+            (2.540, -0.410, 0.38), (2.540, 0.410, 0.38),
+            (0.000, 0.410, 0.38), (-0.157, 0.379, 0.38),
+            (-0.290, 0.290, 0.38), (-0.379, 0.157, 0.38),
+            (-0.410, 0.000, 0.38)
+        ]
+        uniform token subdivisionScheme = "none"
+    }
+
+    def Mesh "SeatCushionUnified"
+    {
+        bool doubleSided = true
+        int[] faceVertexCounts = [14, 14, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 0, 1, 15, 14, 1, 2, 16, 15, 2, 3, 17, 16, 3, 4, 18, 17, 4, 5, 19, 18, 5, 6, 20, 19, 6, 7, 21, 20, 7, 8, 22, 21, 8, 9, 23, 22, 9, 10, 24, 23, 10, 11, 25, 24, 11, 12, 26, 25, 12, 13, 27, 26, 13, 0, 14, 27]
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        point3f[] points = [
+            (-0.350, -3.010, 0.36), (0.230, -3.010, 0.36),
+            (0.230, -0.450, 0.36), (0.247, -0.366, 0.36),
+            (0.321, -0.294, 0.36), (0.405, -0.247, 0.36),
+            (0.450, -0.230, 0.36), (2.540, -0.230, 0.36),
+            (2.540, 0.350, 0.36), (0.000, 0.350, 0.36),
+            (-0.134, 0.323, 0.36), (-0.247, 0.247, 0.36),
+            (-0.323, 0.134, 0.36), (-0.350, 0.000, 0.36),
+            (-0.350, -3.010, 0.54), (0.230, -3.010, 0.54),
+            (0.230, -0.450, 0.54), (0.247, -0.366, 0.54),
+            (0.321, -0.294, 0.54), (0.405, -0.247, 0.54),
+            (0.450, -0.230, 0.54), (2.540, -0.230, 0.54),
+            (2.540, 0.350, 0.54), (0.000, 0.350, 0.54),
+            (-0.134, 0.323, 0.54), (-0.247, 0.247, 0.54),
+            (-0.323, 0.134, 0.54), (-0.350, 0.000, 0.54)
+        ]
+        double3 xformOp:scale = (1, 1, 1.6)
+        double3 xformOp:translate = (0, 0, -0.23)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        uniform token subdivisionScheme = "catmullClark"
+    }
+
+    def Mesh "BackCushionUnified"
+    {
+        bool doubleSided = true
+        int[] faceVertexCounts = [14, 14, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 0, 1, 15, 14, 1, 2, 16, 15, 2, 3, 17, 16, 3, 4, 18, 17, 4, 5, 19, 18, 5, 6, 20, 19, 6, 7, 21, 20, 7, 8, 22, 21, 8, 9, 23, 22, 9, 10, 24, 23, 10, 11, 25, 24, 11, 12, 26, 25, 12, 13, 27, 26, 13, 0, 14, 27]
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        point3f[] points = [
+            (0.250, -3.010, 0.46), (0.410, -3.010, 0.46),
+            (0.410, 0.000, 0.46), (0.379, -0.157, 0.46),
+            (0.290, -0.290, 0.46), (0.157, -0.379, 0.46),
+            (0.000, -0.410, 0.46), (2.540, -0.410, 0.46),
+            (2.540, -0.250, 0.46), (0.000, -0.250, 0.46),
+            (0.096, -0.231, 0.46), (0.177, -0.177, 0.46),
+            (0.231, -0.096, 0.46), (0.250, 0.000, 0.46),
+            (0.250, -3.010, 0.94), (0.410, -3.010, 0.94),
+            (0.410, 0.000, 0.94), (0.379, -0.157, 0.94),
+            (0.290, -0.290, 0.94), (0.157, -0.379, 0.94),
+            (0.000, -0.410, 0.94), (2.540, -0.410, 0.94),
+            (2.540, -0.250, 0.94), (0.000, -0.250, 0.94),
+            (0.096, -0.231, 0.94), (0.177, -0.177, 0.94),
+            (0.231, -0.096, 0.94), (0.250, 0.000, 0.94)
+        ]
+        double3 xformOp:scale = (1, 1, 1.25)
+        double3 xformOp:translate = (0, 0, -0.15)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        uniform token subdivisionScheme = "catmullClark"
+    }
+
+    def Capsule "LongSeatPlush"
+    {
+        token visibility = "invisible"
+        token axis = "X"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 2.20
+        double radius = 0.18
+        double3 xformOp:scale = (1, 1.55, 0.82)
+        double3 xformOp:translate = (1.29, 0.05, 0.50)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "ReturnSeatPlush"
+    {
+        token visibility = "invisible"
+        token axis = "Y"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 2.68
+        double radius = 0.18
+        double3 xformOp:scale = (1.55, 1, 0.82)
+        double3 xformOp:translate = (-0.05, -1.52, 0.50)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "SeatPlushJunction"
+    {
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double radius = 1
+        double3 xformOp:scale = (0.34, 0.34, 0.15)
+        double3 xformOp:translate = (0.08, -0.08, 0.50)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "LongBackPlush"
+    {
+        token visibility = "invisible"
+        token axis = "X"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 2.62
+        double radius = 0.18
+        double3 xformOp:scale = (1, 0.78, 1.62)
+        double3 xformOp:translate = (1.08, -0.20, 0.72)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Capsule "ReturnBackPlush"
+    {
+        token visibility = "invisible"
+        token axis = "Y"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double height = 3.08
+        double radius = 0.18
+        double3 xformOp:scale = (0.78, 1, 1.62)
+        double3 xformOp:translate = (0.20, -1.31, 0.72)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "BackPlushJunction"
+    {
+        token visibility = "invisible"
+        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        double radius = 1
+        double3 xformOp:scale = (0.22, 0.22, 0.30)
+        double3 xformOp:translate = (0.20, -0.20, 0.72)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "LongButton_01"
+    {
+        rel material:binding = </SofaCorner/Materials/BrownPiping>
+        double radius = 1
+        double3 xformOp:scale = (0.027, 0.018, 0.027)
+        double3 xformOp:translate = (0.43, -0.082, 0.69)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "LongButton_02"
+    {
+        rel material:binding = </SofaCorner/Materials/BrownPiping>
+        double radius = 1
+        double3 xformOp:scale = (0.027, 0.018, 0.027)
+        double3 xformOp:translate = (1.25, -0.082, 0.69)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Sphere "LongButton_03"
+    {
+        rel material:binding = </SofaCorner/Materials/BrownPiping>
+        double radius = 1
+        double3 xformOp:scale = (0.027, 0.018, 0.027)
+        double3 xformOp:translate = (2.07, -0.082, 0.69)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cylinder "CornerFoot"
+    {
+        token axis = "Z"
+        rel material:binding = </SofaCorner/Materials/BronzeFeet>
+        double height = 0.10
+        double radius = 0.035
+        double3 xformOp:translate = (-0.24, 0.22, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cylinder "LongEndFoot"
+    {
+        token axis = "Z"
+        rel material:binding = </SofaCorner/Materials/BronzeFeet>
+        double height = 0.10
+        double radius = 0.035
+        double3 xformOp:translate = (2.42, 0.22, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cylinder "ReturnEndFoot"
+    {
+        token axis = "Z"
+        rel material:binding = </SofaCorner/Materials/BronzeFeet>
+        double height = 0.10
+        double radius = 0.035
+        double3 xformOp:translate = (-0.22, -2.88, 0.05)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

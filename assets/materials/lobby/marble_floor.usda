@@ -1,0 +1,58 @@
+#usda 1.0
+(
+    defaultPrim = "MarbleFloor"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Material "MarbleFloor"
+{
+    custom string cbnu:finish = "smooth polished Bala White style granite"
+    custom string cbnu:pattern = "visible feldspar quartz crystals and charcoal mica flecks"
+    custom string cbnu:sourceStyle = "Bala White Granite"
+    custom double cbnu:textureRepeatMeters = 2.4
+    token outputs:surface.connect = </MarbleFloor/PreviewSurface.outputs:surface>
+
+    def Shader "PreviewSurface"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        float inputs:clearcoat = 0.26
+        float inputs:clearcoatRoughness = 0.14
+        color3f inputs:diffuseColor.connect = </MarbleFloor/GraniteAlbedo.outputs:rgb>
+        float inputs:metallic = 0
+        float inputs:opacity = 1
+        float inputs:roughness = 0.24
+        color3f inputs:specularColor = (0.42, 0.42, 0.42)
+        token outputs:surface
+    }
+
+    def Shader "GraniteAlbedo"
+    {
+        uniform token info:id = "UsdUVTexture"
+        asset inputs:file = @./textures/bala_white_granite_floor_pattern.png@
+        token inputs:sourceColorSpace = "sRGB"
+        float2 inputs:st.connect = </MarbleFloor/UVScale.outputs:result>
+        token inputs:wrapS = "repeat"
+        token inputs:wrapT = "repeat"
+        float3 outputs:rgb
+        float4 outputs:rgba
+    }
+
+    def Shader "UVScale"
+    {
+        uniform token info:id = "UsdTransform2d"
+        float2 inputs:in.connect = </MarbleFloor/UVReader.outputs:result>
+        float inputs:rotation = 0
+        float2 inputs:scale = (0.4166667, 0.4166667)
+        float2 inputs:translation = (0, 0)
+        float2 outputs:result
+    }
+
+    def Shader "UVReader"
+    {
+        uniform token info:id = "UsdPrimvarReader_float2"
+        float2 inputs:fallback = (0, 0)
+        token inputs:varname = "st"
+        float2 outputs:result
+    }
+}

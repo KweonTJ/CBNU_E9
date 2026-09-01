@@ -1,0 +1,78 @@
+#usda 1.0
+(
+    defaultPrim = "BrownSofaMaterials"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Scope "BrownSofaMaterials"
+{
+    custom string cbnu:finish = "soft matte brown upholstery"
+
+    def Material "BrownLeather"
+    {
+        token outputs:surface.connect = </BrownSofaMaterials/BrownLeather/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            float inputs:clearcoat = 0.035
+            float inputs:clearcoatRoughness = 0.58
+            color3f inputs:diffuseColor = (0.270, 0.115, 0.048)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.58
+            color3f inputs:specularColor = (0.24, 0.16, 0.11)
+            token outputs:surface
+        }
+    }
+
+    def Material "BrownLeatherHighlight"
+    {
+        token outputs:surface.connect = </BrownSofaMaterials/BrownLeatherHighlight/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            float inputs:clearcoat = 0.025
+            float inputs:clearcoatRoughness = 0.62
+            color3f inputs:diffuseColor = (0.390, 0.185, 0.082)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.64
+            color3f inputs:specularColor = (0.22, 0.14, 0.10)
+            token outputs:surface
+        }
+    }
+
+    def Material "BrownPiping"
+    {
+        token outputs:surface.connect = </BrownSofaMaterials/BrownPiping/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.105, 0.034, 0.012)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.52
+            color3f inputs:specularColor = (0.20, 0.12, 0.08)
+            token outputs:surface
+        }
+    }
+
+    def Material "BronzeFeet"
+    {
+        token outputs:surface.connect = </BrownSofaMaterials/BronzeFeet/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.12, 0.055, 0.022)
+            float inputs:metallic = 0.62
+            float inputs:opacity = 1
+            float inputs:roughness = 0.34
+            token outputs:surface
+        }
+    }
+}

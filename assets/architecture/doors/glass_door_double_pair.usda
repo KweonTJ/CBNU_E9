@@ -1,0 +1,36 @@
+#usda 1.0
+(
+    defaultPrim = "GlassDoorDoublePair"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "GlassDoorDoublePair" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom int cbnu:doubleDoorSetCount = 2
+    custom int cbnu:doorLeafCount = 4
+    custom double cbnu:gapBetweenSets = 0.44
+    custom string cbnu:doorStyle = "two side-by-side double glass door sets"
+    custom string cbnu:purpose = "decorative static four-leaf lobby entrance"
+
+    def Xform "DoubleDoorSet_01" (
+        prepend references = @./glass_door_double.usda@
+    )
+    {
+        custom int cbnu:setIndex = 1
+        double3 xformOp:translate = (-1.15, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Xform "DoubleDoorSet_02" (
+        prepend references = @./glass_door_double.usda@
+    )
+    {
+        custom int cbnu:setIndex = 2
+        double3 xformOp:translate = (1.15, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

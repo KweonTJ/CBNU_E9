@@ -1,0 +1,95 @@
+{
+  "sofas": [
+    {
+      "name": "Sofa_02",
+      "type": "straight",
+      "position": [35.0392, 10.2174, 0.0],
+      "yaw_deg": 270,
+      "length_scale": 1.11595,
+      "placement": "wall_attached",
+      "facing": "lobby",
+      "source_note": "east edge flush to the east lobby wall; restored after correcting the screenshot location"
+    },
+    {
+      "name": "Sofa_03",
+      "type": "straight",
+      "position": [17.7101, 0.4535, 0.0],
+      "yaw_deg": 180,
+      "length_scale": 1.4203,
+      "placement": "wall_attached",
+      "facing": "lobby",
+      "source_note": "south edge flush to the south wall; seat faces inward toward the lobby"
+    },
+    {
+      "name": "Sofa_05",
+      "type": "straight",
+      "position": [29.1159, 0.4535, 0.0],
+      "yaw_deg": 180,
+      "length_scale": 1.6087,
+      "placement": "wall_attached",
+      "facing": "lobby",
+      "source_note": "south edge flush to the south wall; seat faces inward toward the lobby"
+    },
+    {
+      "name": "Sofa_Corner_01",
+      "type": "corner",
+      "position": [30.3436, 6.5839, 0.0],
+      "yaw_deg": 0,
+      "placement": "wall_attached",
+      "facing": "lobby",
+      "source_note": "L-shaped sofa flush to both walls at the inner southeast lobby corner"
+    },
+    {
+      "name": "Sofa_U_Column_02",
+      "type": "u_column",
+      "column": "Column_02",
+      "placement": "column_attached",
+      "facing": "outward",
+      "source_note": "structural exception: attached around Column_02 on left, bottom and right"
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "ATM_01",
+      "type": "atm",
+      "position": [19.9275, 0.4535, 0.0],
+      "yaw_deg": 180,
+      "placement": "wall_attached",
+      "facing": "lobby",
+      "source_note": "replaces the former Sofa_04 at the same south-wall position"
+    },
+    {
+      "name": "Table_01",
+      "type": "lobby_table_filled",
+      "position": [17.7101, 1.74, 0.0],
+      "yaw_deg": 180,
+      "length_scale": 1.4203,
+      "placement": "freestanding",
+      "facing": "not_applicable",
+      "paired_with": "Sofa_03",
+      "source_note": "sofa-width table in front of Sofa_03 from the supplied reference view"
+    },
+    {
+      "name": "Table_02",
+      "type": "lobby_table_filled",
+      "position": [29.1159, 1.74, 0.0],
+      "yaw_deg": 180,
+      "length_scale": 1.6087,
+      "placement": "freestanding",
+      "facing": "not_applicable",
+      "paired_with": "Sofa_05",
+      "source_note": "sofa-width table in front of Sofa_05 from the supplied reference view"
+    },
+    {
+      "name": "Table_03",
+      "type": "lobby_table_filled",
+      "position": [16.4245, 6.3188, 0.0],
+      "yaw_deg": 90,
+      "length_scale": 0.8116,
+      "depth_scale": 0.602941,
+      "placement": "wall_attached",
+      "facing": "not_applicable",
+      "source_note": "replaces Sofa_01 between Door_Double_01 and Door_Double_02 with the same 1.6232 x 0.82 m footprint and a floor-to-apron filled lower body"
+    }
+  ]
+}

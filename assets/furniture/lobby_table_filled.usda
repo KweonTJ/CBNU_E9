@@ -1,0 +1,42 @@
+#usda 1.0
+(
+    defaultPrim = "LobbyTableFilled"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "LobbyTableFilled" (
+    kind = "component"
+    prepend references = @./lobby_table.usda@
+)
+{
+    custom bool cbnu:hasFilledLowerBody = true
+    custom string cbnu:furnitureType = "sofa-footprint lobby table with filled base"
+
+    def Material "FilledBaseWood"
+    {
+        token outputs:surface.connect = </LobbyTableFilled/FilledBaseWood/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.22, 0.09, 0.035)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.38
+            float inputs:clearcoat = 0.06
+            token outputs:surface
+        }
+    }
+
+    def Cube "FilledBase" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        rel material:binding = </LobbyTableFilled/FilledBaseWood>
+        bool physics:collisionEnabled = true
+        double size = 1
+        double3 xformOp:scale = (1.82, 1.20, 0.54)
+        double3 xformOp:translate = (0, 0, 0.27)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "name": "CBNU Haksan 1F Corridor Approximation",
+    "units": "meter",
+    "scale_basis": "69 image pixels = 2.0 m column side",
+    "note": "Approximate world reconstructed from evacuation diagram annotations. Corridor boundary snapped to exact orthogonal (90-degree) X/Y-aligned walls. Not survey-grade.",
+    "geometry_revision": "v2_orthogonal"
+  },
+  "world": {
+    "wall_height": 3.0,
+    "wall_thickness": 0.2,
+    "floor_thickness": 0.1
+  },
+  "corridor_polygon_xy": [
+    [
+      35.4492,
+      6.1739
+    ],
+    [
+      35.4492,
+      13.3044
+    ],
+    [
+      26.0724,
+      13.3044
+    ],
+    [
+      26.0724,
+      20.7246
+    ],
+    [
+      22.7392,
+      20.7246
+    ],
+    [
+      22.7392,
+      13.2028
+    ],
+    [
+      0.087,
+      13.2028
+    ],
+    [
+      0.087,
+      11.3478
+    ],
+    [
+      16.0145,
+      11.3478
+    ],
+    [
+      16.0145,
+      0.0435
+    ],
+    [
+      30.7536,
+      0.0435
+    ],
+    [
+      30.7536,
+      6.1739
+    ]
+  ],
+  "columns": [
+    {
+      "name": "Column_01",
+      "center": [
+        22.1739,
+        10.6812
+      ],
+      "size": [
+        2.0,
+        2.0,
+        3.0
+      ]
+    },
+    {
+      "name": "Column_02",
+      "center": [
+        31.1014,
+        10.6957
+      ],
+      "size": [
+        2.0,
+        2.0,
+        3.0
+      ]
+    }
+  ],
+  "sofa": {
+    "name": "Sofa_U_Column_02",
+    "column": "Column_02",
+    "outer_width": 3.6,
+    "outer_depth": 2.9,
+    "thickness": 0.55,
+    "height": 0.8,
+    "top_y_relative_to_column_center": 1.0
+  }
+}

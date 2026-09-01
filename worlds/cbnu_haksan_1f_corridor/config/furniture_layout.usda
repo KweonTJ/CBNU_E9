@@ -1,0 +1,143 @@
+#usda 1.0
+(
+    defaultPrim = "Furniture"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "Furniture"
+{
+    custom string cbnu:sourceConfig = "furniture.json"
+
+    def Xform "Sofa_02" (
+        prepend references = @../../../assets/furniture/sofa_straight.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "wall_attached"
+        custom string cbnu:facing = "lobby"
+        custom string cbnu:itemType = "straight"
+        custom string cbnu:sofaType = "straight"
+        double xformOp:rotateZ = 270
+        double3 xformOp:scale = (1.11595, 1, 1)
+        double3 xformOp:translate = (35.0392, 10.2174, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+    }
+
+    def Xform "Sofa_03" (
+        prepend references = @../../../assets/furniture/sofa_straight.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "wall_attached"
+        custom string cbnu:facing = "lobby"
+        custom string cbnu:itemType = "straight"
+        custom string cbnu:sofaType = "straight"
+        double xformOp:rotateZ = 180
+        double3 xformOp:scale = (1.4203, 1, 1)
+        double3 xformOp:translate = (17.7101, 0.4535, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+    }
+
+    def Xform "Sofa_05" (
+        prepend references = @../../../assets/furniture/sofa_straight.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "wall_attached"
+        custom string cbnu:facing = "lobby"
+        custom string cbnu:itemType = "straight"
+        custom string cbnu:sofaType = "straight"
+        double xformOp:rotateZ = 180
+        double3 xformOp:scale = (1.6087, 1, 1)
+        double3 xformOp:translate = (29.1159, 0.4535, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+    }
+
+    def Xform "Sofa_Corner_01" (
+        prepend references = @../../../assets/furniture/sofa_corner.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "wall_attached"
+        custom string cbnu:facing = "lobby"
+        custom string cbnu:itemType = "corner"
+        custom string cbnu:sofaType = "corner"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (30.3436, 6.5839, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "Sofa_U_Column_02" (
+        prepend references = @../../../assets/furniture/sofa_u_around_2m_column.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "column_attached"
+        custom string cbnu:facing = "outward"
+        custom string cbnu:itemType = "u_column"
+        custom string cbnu:sofaType = "u_column"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (31.1014, 10.6957, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "ATM_01" (
+        prepend references = @../../../assets/equipment/atm_machine.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "wall_attached"
+        custom string cbnu:facing = "lobby"
+        custom string cbnu:itemType = "atm"
+        custom string cbnu:semanticClass = "bank_atm"
+        double xformOp:rotateZ = 180
+        double3 xformOp:translate = (19.9275, 0.4535, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "Table_01" (
+        prepend references = @../../../assets/furniture/lobby_table_filled.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "freestanding"
+        custom string cbnu:facing = "not_applicable"
+        custom string cbnu:itemType = "lobby_table_filled"
+        custom string cbnu:semanticClass = "lobby_table"
+        double xformOp:rotateZ = 180
+        double3 xformOp:scale = (1.4203, 1, 1)
+        double3 xformOp:translate = (17.7101, 1.74, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+    }
+
+    def Xform "Table_02" (
+        prepend references = @../../../assets/furniture/lobby_table_filled.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "freestanding"
+        custom string cbnu:facing = "not_applicable"
+        custom string cbnu:itemType = "lobby_table_filled"
+        custom string cbnu:semanticClass = "lobby_table"
+        double xformOp:rotateZ = 180
+        double3 xformOp:scale = (1.6087, 1, 1)
+        double3 xformOp:translate = (29.1159, 1.74, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+    }
+
+    def Xform "Table_03" (
+        prepend references = @../../../assets/furniture/lobby_table_filled.usda@
+    )
+    {
+        custom string cbnu:placementSource = "furniture.json"
+        custom string cbnu:placement = "wall_attached"
+        custom string cbnu:facing = "not_applicable"
+        custom string cbnu:itemType = "lobby_table_filled"
+        custom string cbnu:semanticClass = "lobby_table"
+        double xformOp:rotateZ = 90
+        double3 xformOp:scale = (0.8116, 0.602941, 1)
+        double3 xformOp:translate = (16.4245, 6.3188, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
+    }
+}

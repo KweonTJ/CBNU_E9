@@ -1,0 +1,223 @@
+#usda 1.0
+(
+    defaultPrim = "GlassDoorDouble"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "GlassDoorDouble" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom int cbnu:doorLeafCount = 2
+    custom string cbnu:doorStyle = "two-leaf clear glass lobby entrance"
+    custom string cbnu:purpose = "decorative static corridor double glass door"
+
+    def Scope "Materials"
+    {
+        def Material "FrameMetal"
+        {
+            token outputs:surface.connect = </GlassDoorDouble/Materials/FrameMetal/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.42, 0.46, 0.49)
+                float inputs:metallic = 0.78
+                float inputs:roughness = 0.24
+                token outputs:surface
+            }
+        }
+
+        def Material "ClearGlass"
+        {
+            token outputs:surface.connect = </GlassDoorDouble/Materials/ClearGlass/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.62, 0.86, 0.92)
+                float inputs:ior = 1.45
+                float inputs:metallic = 0
+                float inputs:opacity = 0.16
+                float inputs:opacityThreshold = 0
+                float inputs:roughness = 0.08
+                token outputs:surface
+            }
+        }
+
+        def Material "HandleMetal"
+        {
+            token outputs:surface.connect = </GlassDoorDouble/Materials/HandleMetal/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.55, 0.58, 0.60)
+                float inputs:metallic = 0.90
+                float inputs:roughness = 0.18
+                token outputs:surface
+            }
+        }
+    }
+
+    def Xform "Frame"
+    {
+        def Cube "LeftJamb"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.08, 0.10, 2.20)
+            double3 xformOp:translate = (-0.89, 0, 1.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "RightJamb"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.08, 0.10, 2.20)
+            double3 xformOp:translate = (0.89, 0, 1.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "Header"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (1.86, 0.10, 0.10)
+            double3 xformOp:translate = (0, 0, 2.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "CenterStop"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.035, 0.07, 2.10)
+            double3 xformOp:translate = (0, 0.01, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "LeftDoor"
+    {
+        custom string cbnu:leafSide = "left"
+
+        def Cube "GlassPanel"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/ClearGlass>
+            double size = 1
+            double3 xformOp:scale = (0.67, 0.012, 1.76)
+            double3 xformOp:translate = (-0.435, 0, 1.11)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "OuterStile"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.09, 0.055, 2.10)
+            double3 xformOp:translate = (-0.815, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "InnerStile"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.09, 0.055, 2.10)
+            double3 xformOp:translate = (-0.055, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "TopRail"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 0.09)
+            double3 xformOp:translate = (-0.435, 0, 2.055)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "BottomRail"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 0.18)
+            double3 xformOp:translate = (-0.435, 0, 0.09)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "MidRail"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 0.055)
+            double3 xformOp:translate = (-0.435, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cylinder "PullHandle"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/HandleMetal>
+            uniform token axis = "Z"
+            double height = 0.48
+            double radius = 0.018
+            double3 xformOp:translate = (-0.14, -0.075, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Xform "RightDoor"
+    {
+        custom string cbnu:leafSide = "right"
+
+        def Cube "GlassPanel"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/ClearGlass>
+            double size = 1
+            double3 xformOp:scale = (0.67, 0.012, 1.76)
+            double3 xformOp:translate = (0.435, 0, 1.11)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "OuterStile"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.09, 0.055, 2.10)
+            double3 xformOp:translate = (0.815, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "InnerStile"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.09, 0.055, 2.10)
+            double3 xformOp:translate = (0.055, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "TopRail"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 0.09)
+            double3 xformOp:translate = (0.435, 0, 2.055)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "BottomRail"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 0.18)
+            double3 xformOp:translate = (0.435, 0, 0.09)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "MidRail"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/FrameMetal>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 0.055)
+            double3 xformOp:translate = (0.435, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cylinder "PullHandle"
+        {
+            rel material:binding = </GlassDoorDouble/Materials/HandleMetal>
+            uniform token axis = "Z"
+            double height = 0.48
+            double radius = 0.018
+            double3 xformOp:translate = (0.14, -0.075, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}

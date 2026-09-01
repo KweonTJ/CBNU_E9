@@ -1,0 +1,193 @@
+#usda 1.0
+(
+    defaultPrim = "WoodDoorDouble"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "WoodDoorDouble" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom int cbnu:doorLeafCount = 2
+    custom string cbnu:purpose = "decorative static corridor double door"
+
+    def Scope "Materials"
+    {
+        def Material "Wood"
+        {
+            token outputs:surface.connect = </WoodDoorDouble/Materials/Wood/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.34, 0.12, 0.035)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.38
+                token outputs:surface
+            }
+        }
+
+        def Material "WoodAccent"
+        {
+            token outputs:surface.connect = </WoodDoorDouble/Materials/WoodAccent/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.46, 0.205, 0.06)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.42
+                token outputs:surface
+            }
+        }
+
+        def Material "DarkWood"
+        {
+            token outputs:surface.connect = </WoodDoorDouble/Materials/DarkWood/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.19, 0.052, 0.012)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.44
+                token outputs:surface
+            }
+        }
+
+        def Material "HandleMetal"
+        {
+            token outputs:surface.connect = </WoodDoorDouble/Materials/HandleMetal/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.42, 0.27, 0.07)
+                float inputs:metallic = 0.75
+                float inputs:roughness = 0.28
+                token outputs:surface
+            }
+        }
+    }
+
+    def Xform "Frame"
+    {
+        def Cube "LeftJamb"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/DarkWood>
+            double size = 1
+            double3 xformOp:scale = (0.08, 0.10, 2.20)
+            double3 xformOp:translate = (-0.89, 0, 1.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightJamb"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/DarkWood>
+            double size = 1
+            double3 xformOp:scale = (0.08, 0.10, 2.20)
+            double3 xformOp:translate = (0.89, 0, 1.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "Header"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/DarkWood>
+            double size = 1
+            double3 xformOp:scale = (1.86, 0.10, 0.10)
+            double3 xformOp:translate = (0, 0, 2.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "CenterStop"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/DarkWood>
+            double size = 1
+            double3 xformOp:scale = (0.025, 0.065, 2.10)
+            double3 xformOp:translate = (0, 0.012, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "LeftDoor"
+    {
+        custom string cbnu:leafSide = "left"
+
+        def Cube "Slab"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/Wood>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.045, 2.10)
+            double3 xformOp:translate = (-0.435, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "UpperPanel"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/WoodAccent>
+            double size = 1
+            double3 xformOp:scale = (0.57, 0.018, 0.62)
+            double3 xformOp:translate = (-0.435, -0.031, 1.49)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LowerPanel"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/WoodAccent>
+            double size = 1
+            double3 xformOp:scale = (0.57, 0.018, 0.54)
+            double3 xformOp:translate = (-0.435, -0.031, 0.63)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Sphere "Handle"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/HandleMetal>
+            double radius = 0.04
+            double3 xformOp:translate = (-0.10, -0.072, 1.02)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Xform "RightDoor"
+    {
+        custom string cbnu:leafSide = "right"
+
+        def Cube "Slab"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/Wood>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.045, 2.10)
+            double3 xformOp:translate = (0.435, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "UpperPanel"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/WoodAccent>
+            double size = 1
+            double3 xformOp:scale = (0.57, 0.018, 0.62)
+            double3 xformOp:translate = (0.435, -0.031, 1.49)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LowerPanel"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/WoodAccent>
+            double size = 1
+            double3 xformOp:scale = (0.57, 0.018, 0.54)
+            double3 xformOp:translate = (0.435, -0.031, 0.63)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Sphere "Handle"
+        {
+            rel material:binding = </WoodDoorDouble/Materials/HandleMetal>
+            double radius = 0.04
+            double3 xformOp:translate = (0.10, -0.072, 1.02)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}

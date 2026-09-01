@@ -1,0 +1,300 @@
+#usda 1.0
+(
+    defaultPrim = "ATM"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "ATM" (
+    kind = "component"
+)
+{
+    custom string cbnu:equipmentType = "indoor bank ATM"
+    custom string cbnu:frontDirection = "local -Y"
+    custom bool cbnu:isStatic = true
+
+    def Scope "Materials"
+    {
+        def Material "ATMBody"
+        {
+            token outputs:surface.connect = </ATM/Materials/ATMBody/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.16, 0.18, 0.20)
+                float inputs:metallic = 0.12
+                float inputs:roughness = 0.34
+                token outputs:surface
+            }
+        }
+
+        def Material "ATMTrim"
+        {
+            token outputs:surface.connect = </ATM/Materials/ATMTrim/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.55, 0.58, 0.61)
+                float inputs:metallic = 0.32
+                float inputs:roughness = 0.28
+                token outputs:surface
+            }
+        }
+
+        def Material "BankBlue"
+        {
+            token outputs:surface.connect = </ATM/Materials/BankBlue/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.025, 0.18, 0.42)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.30
+                token outputs:surface
+            }
+        }
+
+        def Material "ScreenGlow"
+        {
+            token outputs:surface.connect = </ATM/Materials/ScreenGlow/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.025, 0.15, 0.22)
+                color3f inputs:emissiveColor = (0.04, 0.34, 0.48)
+                float inputs:roughness = 0.18
+                token outputs:surface
+            }
+        }
+
+        def Material "SlotBlack"
+        {
+            token outputs:surface.connect = </ATM/Materials/SlotBlack/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.018, 0.020, 0.024)
+                float inputs:roughness = 0.48
+                token outputs:surface
+            }
+        }
+
+        def Material "ButtonLight"
+        {
+            token outputs:surface.connect = </ATM/Materials/ButtonLight/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.72, 0.75, 0.78)
+                float inputs:metallic = 0.18
+                float inputs:roughness = 0.32
+                token outputs:surface
+            }
+        }
+    }
+
+    def Cube "CollisionBody" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:collisionEnabled = true
+        token purpose = "guide"
+        token visibility = "invisible"
+        double size = 1
+        double3 xformOp:scale = (0.90, 0.58, 1.76)
+        double3 xformOp:translate = (0, 0, 0.88)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "MainBody"
+    {
+        rel material:binding = </ATM/Materials/ATMBody>
+        double size = 1
+        double3 xformOp:scale = (0.86, 0.54, 1.70)
+        double3 xformOp:translate = (0, 0, 0.85)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "BaseKick"
+    {
+        rel material:binding = </ATM/Materials/SlotBlack>
+        double size = 1
+        double3 xformOp:scale = (0.90, 0.58, 0.16)
+        double3 xformOp:translate = (0, 0, 0.08)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "UpperCanopy"
+    {
+        rel material:binding = </ATM/Materials/ATMTrim>
+        double size = 1
+        double3 xformOp:scale = (0.82, 0.20, 0.34)
+        double3 xformOp:translate = (0, -0.25, 1.50)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "BankHeader"
+    {
+        rel material:binding = </ATM/Materials/BankBlue>
+        double size = 1
+        double3 xformOp:scale = (0.72, 0.05, 0.20)
+        double3 xformOp:translate = (0, -0.375, 1.56)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "ScreenBezel"
+    {
+        rel material:binding = </ATM/Materials/SlotBlack>
+        double size = 1
+        double xformOp:rotateX = -8
+        double3 xformOp:scale = (0.60, 0.055, 0.42)
+        double3 xformOp:translate = (0, -0.305, 1.18)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX", "xformOp:scale"]
+    }
+
+    def Cube "Screen"
+    {
+        rel material:binding = </ATM/Materials/ScreenGlow>
+        double size = 1
+        double xformOp:rotateX = -8
+        double3 xformOp:scale = (0.50, 0.020, 0.31)
+        double3 xformOp:translate = (0, -0.340, 1.18)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX", "xformOp:scale"]
+    }
+
+    def Cube "ControlShelf"
+    {
+        rel material:binding = </ATM/Materials/ATMTrim>
+        double size = 1
+        double3 xformOp:scale = (0.68, 0.28, 0.12)
+        double3 xformOp:translate = (0, -0.32, 0.91)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "KeypadPanel"
+    {
+        rel material:binding = </ATM/Materials/SlotBlack>
+        double size = 1
+        double3 xformOp:scale = (0.24, 0.035, 0.19)
+        double3 xformOp:translate = (-0.14, -0.474, 0.91)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "CardSlot"
+    {
+        rel material:binding = </ATM/Materials/BankBlue>
+        double size = 1
+        double3 xformOp:scale = (0.19, 0.035, 0.055)
+        double3 xformOp:translate = (0.22, -0.474, 0.96)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "ReceiptSlot"
+    {
+        rel material:binding = </ATM/Materials/SlotBlack>
+        double size = 1
+        double3 xformOp:scale = (0.18, 0.035, 0.035)
+        double3 xformOp:translate = (0.22, -0.474, 0.86)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "CashBezel"
+    {
+        rel material:binding = </ATM/Materials/ATMTrim>
+        double size = 1
+        double3 xformOp:scale = (0.52, 0.055, 0.20)
+        double3 xformOp:translate = (0, -0.305, 0.61)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "CashSlot"
+    {
+        rel material:binding = </ATM/Materials/SlotBlack>
+        double size = 1
+        double3 xformOp:scale = (0.38, 0.035, 0.070)
+        double3 xformOp:translate = (0, -0.350, 0.62)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "AccessPanel"
+    {
+        rel material:binding = </ATM/Materials/ATMTrim>
+        double size = 1
+        double3 xformOp:scale = (0.56, 0.035, 0.30)
+        double3 xformOp:translate = (0, -0.292, 0.30)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "Key_1"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.195, -0.501, 0.965)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_2"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.140, -0.501, 0.965)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_3"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.085, -0.501, 0.965)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_4"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.195, -0.501, 0.915)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_5"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.140, -0.501, 0.915)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_6"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.085, -0.501, 0.915)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_7"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.195, -0.501, 0.865)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_8"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.140, -0.501, 0.865)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+    def Cube "Key_9"
+    {
+        rel material:binding = </ATM/Materials/ButtonLight>
+        double size = 1
+        double3 xformOp:scale = (0.045, 0.020, 0.032)
+        double3 xformOp:translate = (-0.085, -0.501, 0.865)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}
