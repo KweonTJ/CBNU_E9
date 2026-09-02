@@ -63,6 +63,13 @@ def Xform "World"
 
     def Xform "Environment"
     {
+        def Xform "ExteriorSidewalkPavers" (
+            prepend references = @../../assets/architecture/exterior/exterior_sidewalk_pavers.usda@
+        )
+        {
+            custom string cbnu:layoutRevision = "2026-09-02-transparent-glass-exterior-pavers-v1"
+        }
+
         def Mesh "Floor" (
             prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
         )
@@ -105,7 +112,7 @@ def Xform "World"
             prepend references = @../../assets/architecture/windows/front_entrance_glass_walls.usda@
         )
         {
-            custom string cbnu:layoutRevision = "2026-09-01-full-height-glass-both-sides-v1"
+            custom string cbnu:layoutRevision = "2026-09-02-clear-glass-closed-perimeter-exterior-pavers-v3"
             double3 xformOp:translate = (23.5, 0.17, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
@@ -348,7 +355,7 @@ def Xform "World"
         prepend references = @config/doors_layout.usda@
     )
     {
-        custom string cbnu:layoutRevision = "2026-09-01-two-double-glass-sets-gap-v3"
+        custom string cbnu:layoutRevision = "2026-09-02-double-glass-full-infill-v4"
     }
 
     def Xform "SpawnPoints"

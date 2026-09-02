@@ -12,6 +12,8 @@ def Xform "GlassDoorDouble" (
     custom bool cbnu:collisionEnabled = false
     custom int cbnu:doorLeafCount = 2
     custom string cbnu:doorStyle = "two-leaf clear glass lobby entrance"
+    custom string cbnu:glassFinish = "clear architectural glass"
+    custom bool cbnu:leafGlassFullyInfilled = true
     custom string cbnu:purpose = "decorative static corridor double glass door"
 
     def Scope "Materials"
@@ -103,8 +105,8 @@ def Xform "GlassDoorDouble" (
         {
             rel material:binding = </GlassDoorDouble/Materials/ClearGlass>
             double size = 1
-            double3 xformOp:scale = (0.67, 0.012, 1.76)
-            double3 xformOp:translate = (-0.435, 0, 1.11)
+            double3 xformOp:scale = (0.67, 0.012, 1.83)
+            double3 xformOp:translate = (-0.435, 0, 1.095)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
         def Cube "OuterStile"
@@ -166,8 +168,8 @@ def Xform "GlassDoorDouble" (
         {
             rel material:binding = </GlassDoorDouble/Materials/ClearGlass>
             double size = 1
-            double3 xformOp:scale = (0.67, 0.012, 1.76)
-            double3 xformOp:translate = (0.435, 0, 1.11)
+            double3 xformOp:scale = (0.67, 0.012, 1.83)
+            double3 xformOp:translate = (0.435, 0, 1.095)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
         def Cube "OuterStile"

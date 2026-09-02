@@ -1,0 +1,52 @@
+#usda 1.0
+(
+    defaultPrim = "ExteriorSidewalkPavers"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "ExteriorSidewalkPavers" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom string cbnu:purpose = "opaque exterior pavement masking the viewport grid beyond transparent glazing"
+    custom double cbnu:surfaceHeight = 0.01
+
+    def Scope "Materials"
+    {
+        def Material "SidewalkPavers" (
+            prepend references = @../../materials/exterior/sidewalk_pavers.usda@
+        )
+        {
+        }
+    }
+
+    def Mesh "SouthEntrancePavement" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        custom double2 cbnu:size = (65.0, 25.0435)
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        rel material:binding = </ExteriorSidewalkPavers/Materials/SidewalkPavers>
+        point3f[] points = [(-10, -25, 0.01), (55, -25, 0.01), (55, 0.0435, 0.01), (-10, 0.0435, 0.01)]
+        texCoord2f[] primvars:st = [(-10, -25), (55, -25), (55, 0.0435), (-10, 0.0435)]
+        uniform token primvars:st:interpolation = "vertex"
+        uniform token subdivisionScheme = "none"
+    }
+
+    def Mesh "NorthExitPavement" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        custom double2 cbnu:size = (65.0, 24.2754)
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        rel material:binding = </ExteriorSidewalkPavers/Materials/SidewalkPavers>
+        point3f[] points = [(-10, 20.7246, 0.01), (55, 20.7246, 0.01), (55, 45, 0.01), (-10, 45, 0.01)]
+        texCoord2f[] primvars:st = [(-10, 20.7246), (55, 20.7246), (55, 45), (-10, 45)]
+        uniform token primvars:st:interpolation = "vertex"
+        uniform token subdivisionScheme = "none"
+    }
+}

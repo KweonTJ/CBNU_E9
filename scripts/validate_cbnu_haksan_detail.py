@@ -46,6 +46,11 @@ DISPLAY_WALL_ASSET = ROOT / "assets/architecture/digital_display_wall/digital_di
 DISPLAY_PANEL_ASSET = ROOT / "assets/architecture/digital_display_wall/digital_display_panel.usda"
 DISPLAY_WALL_DARK_MATERIAL = ROOT / "assets/materials/display_wall/display_wall_dark.usda"
 DISPLAY_SCREEN_MATERIAL = ROOT / "assets/materials/display_wall/display_screen.usda"
+EXTERIOR_PAVEMENT_ASSET = ROOT / "assets/architecture/exterior/exterior_sidewalk_pavers.usda"
+SIDEWALK_MATERIAL = ROOT / "assets/materials/exterior/sidewalk_pavers.usda"
+SIDEWALK_TEXTURE = ROOT / "assets/materials/exterior/textures/campus_sidewalk_pavers_basecolor.png"
+SIDEWALK_NORMAL_TEXTURE = ROOT / "assets/materials/exterior/textures/campus_sidewalk_pavers_normal.png"
+SIDEWALK_ROUGHNESS_TEXTURE = ROOT / "assets/materials/exterior/textures/campus_sidewalk_pavers_roughness.png"
 
 
 def require(condition: bool, message: str) -> None:
@@ -357,13 +362,22 @@ def validate_front_glass_walls() -> None:
 
     glass_text = FRONT_GLASS_WALL_ASSET.read_text(encoding="utf-8")
     require('custom int cbnu:fullHeightGlassPanelCount = 2' in glass_text, "two full-height glass panels are required")
+    require('custom bool cbnu:perimeterGapsClosed = true' in glass_text, "front glazing perimeter closure flag missing")
     require('custom double2 cbnu:eachGlassPanelSize = (4.85, 2.82)' in glass_text, "full-height glass panel size mismatch")
     require('def Xform "LeftFullHeightGlass"' in glass_text, "left full-height glass panel missing")
     require('def Xform "RightFullHeightGlass"' in glass_text, "right full-height glass panel missing")
     require(glass_text.count('def Cube "GlassPanel"') == 2, "exactly two full-height glass panes are required")
-    require('float inputs:opacity = 0.13' in glass_text, "full-height glass transparency missing")
+    require('custom string cbnu:glassFinish = "clear architectural glass"' in glass_text, "full-height clear glass metadata missing")
+    require('color3f inputs:diffuseColor = (0.48, 0.73, 0.78)' in glass_text, "full-height clear glass tint mismatch")
+    require('float inputs:opacity = 0.13' in glass_text, "full-height clear glass opacity missing")
+    require('float inputs:roughness = 0.08' in glass_text, "full-height clear glass roughness missing")
     require('float inputs:opacityThreshold = 0' in glass_text, "full-height glass blend threshold missing")
     require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative glass must not add collision")
+    require('double3 xformOp:scale = (0.2355, 0.060, 3.0)' in prim_block(glass_text, "OuterFrame"), "left wall/glass perimeter gap remains")
+    require('double3 xformOp:translate = (-7.26775, 0, 1.5)' in prim_block(glass_text, "OuterFrame"), "left outer frame closure pose mismatch")
+    require(glass_text.count('double3 xformOp:scale = (0.22, 0.060, 3.0)') == 2, "door-side perimeter gaps remain")
+    require('double3 xformOp:translate = (-2.19, 0, 1.5)' in glass_text, "left door-side closure pose mismatch")
+    require('double3 xformOp:translate = (2.19, 0, 1.5)' in glass_text, "right door-side closure pose mismatch")
 
 
 def validate_west_corridor_end_wall() -> None:
@@ -397,8 +411,57 @@ def validate_north_corridor_end_glass_wall() -> None:
     glass_text = NORTH_CORRIDOR_END_GLASS_WALL_ASSET.read_text(encoding="utf-8")
     require('custom double2 cbnu:glassPanelSize = (3.1332, 2.82)' in glass_text, "north corridor glass size mismatch")
     require(glass_text.count('def Cube "GlassPanel"') == 1, "north corridor must use one full-height glass pane")
-    require('float inputs:opacity = 0.13' in glass_text, "north corridor glass transparency missing")
+    require('custom string cbnu:glassFinish = "clear architectural glass"' in glass_text, "north corridor clear glass metadata missing")
+    require('color3f inputs:diffuseColor = (0.48, 0.73, 0.78)' in glass_text, "north corridor clear glass tint mismatch")
+    require('float inputs:opacity = 0.13' in glass_text, "north corridor clear glass opacity missing")
+    require('float inputs:roughness = 0.08' in glass_text, "north corridor clear glass roughness missing")
     require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative north glass must not add collision")
+
+
+def validate_exterior_sidewalk_pavers() -> None:
+    world_text = WORLD.read_text(encoding="utf-8")
+    require('def Xform "ExteriorSidewalkPavers"' in world_text, "exterior sidewalk prim missing")
+    require(
+        'prepend references = @../../assets/architecture/exterior/exterior_sidewalk_pavers.usda@' in world_text,
+        "exterior sidewalk relative reference missing",
+    )
+
+    pavement_text = EXTERIOR_PAVEMENT_ASSET.read_text(encoding="utf-8")
+    require('custom bool cbnu:collisionEnabled = false' in pavement_text, "exterior pavement must remain visual-only")
+    require('custom double cbnu:surfaceHeight = 0.01' in pavement_text, "pavement must sit above the viewport grid")
+    require('prepend references = @../../materials/exterior/sidewalk_pavers.usda@' in pavement_text, "sidewalk material reference missing")
+    require(set(re.findall(r'def Mesh "([^"]+)"', pavement_text)) == {"SouthEntrancePavement", "NorthExitPavement"}, "exterior pavement mesh set mismatch")
+    require("PhysicsCollisionAPI" not in pavement_text, "exterior visual pavement must not add collision")
+    for mesh_name in ("SouthEntrancePavement", "NorthExitPavement"):
+        validate_mesh_topology(pavement_text, mesh_name)
+        points = mesh_points(pavement_text, mesh_name)
+        require(len(points) == 4 and all(abs(point[2] - 0.01) < 1e-9 for point in points), f"pavement height mismatch: {mesh_name}")
+        require('rel material:binding = </ExteriorSidewalkPavers/Materials/SidewalkPavers>' in prim_block(pavement_text, mesh_name), f"paver material binding missing: {mesh_name}")
+        require('uniform token primvars:st:interpolation = "vertex"' in prim_block(pavement_text, mesh_name), f"paver UV interpolation missing: {mesh_name}")
+    south_points = mesh_points(pavement_text, "SouthEntrancePavement")
+    require(min(point[0] for point in south_points) <= -10 and max(point[0] for point in south_points) >= 55, "south pavement does not cover the expanded entrance plaza")
+    require(min(point[1] for point in south_points) <= -25 and max(point[1] for point in south_points) >= 0.0435, "south pavement depth coverage mismatch")
+    north_points = mesh_points(pavement_text, "NorthExitPavement")
+    require(min(point[0] for point in north_points) <= -10 and max(point[0] for point in north_points) >= 55, "north pavement width coverage mismatch")
+    require(min(point[1] for point in north_points) <= 20.7246 and max(point[1] for point in north_points) >= 45, "north pavement depth coverage mismatch")
+
+    require(SIDEWALK_TEXTURE.exists(), "sidewalk paver texture missing")
+    require(png_size(SIDEWALK_TEXTURE) == (1254, 1254), "unexpected sidewalk texture size")
+    require(SIDEWALK_NORMAL_TEXTURE.exists(), "sidewalk paver normal texture missing")
+    require(png_size(SIDEWALK_NORMAL_TEXTURE) == (1254, 1254), "unexpected sidewalk normal texture size")
+    require(SIDEWALK_ROUGHNESS_TEXTURE.exists(), "sidewalk paver roughness texture missing")
+    require(png_size(SIDEWALK_ROUGHNESS_TEXTURE) == (1254, 1254), "unexpected sidewalk roughness texture size")
+    material_text = SIDEWALK_MATERIAL.read_text(encoding="utf-8")
+    require('custom string cbnu:finish = "matte outdoor concrete sidewalk pavers"' in material_text, "sidewalk material finish metadata missing")
+    require('asset inputs:file = @./textures/campus_sidewalk_pavers_basecolor.png@' in material_text, "sidewalk texture reference missing")
+    require('float inputs:opacity = 1' in material_text, "sidewalk must be opaque enough to hide the viewport grid")
+    require('custom string cbnu:pattern = "reference-matched pale-gray rectangular running-bond paving blocks"' in material_text, "sidewalk reference style metadata missing")
+    require('float inputs:roughness.connect = </SidewalkPavers/PaverRoughness.outputs:r>' in material_text, "sidewalk roughness binding missing")
+    require('normal3f inputs:normal.connect = </SidewalkPavers/PaverNormal.outputs:rgb>' in material_text, "sidewalk normal binding missing")
+    require('asset inputs:file = @./textures/campus_sidewalk_pavers_normal.png@' in material_text, "sidewalk normal texture reference missing")
+    require('asset inputs:file = @./textures/campus_sidewalk_pavers_roughness.png@' in material_text, "sidewalk roughness texture reference missing")
+    require('token inputs:sourceColorSpace = "raw"' in prim_block(material_text, "PaverNormal"), "sidewalk normal map must use raw color space")
+    require('float2 inputs:scale = (0.5, 0.5)' in material_text, "sidewalk texture repeat mismatch")
 
 
 def validate_doors() -> Counter[str]:
@@ -418,17 +481,29 @@ def validate_doors() -> Counter[str]:
     require('custom int cbnu:doorLeafCount = 2' in glass, "glass door leaf count missing")
     require('def Xform "LeftDoor"' in glass and 'def Xform "RightDoor"' in glass, "glass door must contain two leaves")
     require(glass.count('def Cube "GlassPanel"') == 2, "glass door must contain two glass panels")
-    require('float inputs:opacity = 0.16' in glass, "glass door transparency missing")
+    require('custom string cbnu:glassFinish = "clear architectural glass"' in glass, "glass door clear finish metadata missing")
+    require('custom bool cbnu:leafGlassFullyInfilled = true' in glass, "door leaf glass infill flag missing")
+    require('float inputs:opacity = 0.16' in glass, "glass door clear opacity missing")
+    require('float inputs:roughness = 0.08' in glass, "glass door clear roughness missing")
     require('float inputs:opacityThreshold = 0' in glass, "glass blend threshold missing")
     require(glass.count('def Cube "MidRail"') == 2, "glass door visual mid rails missing")
+    require(glass.count('double3 xformOp:scale = (0.67, 0.012, 1.83)') == 2, "door leaf glass does not fill rail opening")
+    require('double3 xformOp:translate = (-0.435, 0, 1.095)' in glass, "left leaf glass infill pose mismatch")
+    require('double3 xformOp:translate = (0.435, 0, 1.095)' in glass, "right leaf glass infill pose mismatch")
     pair = (ROOT / "assets/architecture/doors/glass_door_double_pair.usda").read_text(encoding="utf-8")
     require('custom int cbnu:doubleDoorSetCount = 2' in pair, "two double-glass sets are required")
+    require('custom string cbnu:glassFinish = "clear architectural glass"' in pair, "paired glass clear finish metadata missing")
+    require('float inputs:opacity = 0.16' in pair, "central glass clear opacity missing")
+    require('float inputs:roughness = 0.08' in pair, "central glass clear roughness missing")
     require('custom int cbnu:doorLeafCount = 4' in pair, "double-glass pair must contain four leaves")
     require('custom double cbnu:gapBetweenSets = 0.44' in pair, "double-glass set gap mismatch")
     require('custom bool cbnu:centralGlassInfill = true' in pair, "central fixed glass infill flag missing")
-    require('custom double cbnu:centralGlassInfillWidth = 0.42' in pair, "central fixed glass infill width mismatch")
+    require('custom double cbnu:centralGlassInfillWidth = 0.44' in pair, "central fixed glass infill width mismatch")
+    require('custom bool cbnu:perimeterGapsClosed = true' in pair, "entrance glass closure flag missing")
+    require('custom bool cbnu:centralGlassMeetsTransom = true' in pair, "central glass/transom closure flag missing")
     require('def Xform "CentralGlassInfill"' in pair, "central fixed glass infill prim missing")
-    require('double3 xformOp:scale = (0.42, 0.012, 2.10)' in pair, "central fixed glass panel size mismatch")
+    require('double3 xformOp:scale = (0.44, 0.012, 2.22)' in pair, "central fixed glass panel does not meet transom")
+    require('double3 xformOp:translate = (0, 0, 1.11)' in pair, "central fixed glass vertical pose mismatch")
     require('custom bool cbnu:upperGlassTransom = true' in pair, "upper glass transom flag missing")
     require('custom double2 cbnu:upperGlassTransomSize = (4.16, 0.72)' in pair, "upper glass transom size metadata mismatch")
     require('def Xform "UpperGlassTransom"' in pair, "upper glass transom prim missing")
@@ -751,6 +826,7 @@ def main() -> None:
     validate_front_glass_walls()
     validate_west_corridor_end_wall()
     validate_north_corridor_end_glass_wall()
+    validate_exterior_sidewalk_pavers()
     door_counts = validate_doors()
     type_counts, placement_counts, facing_counts, fixture_counts = validate_sofas()
     front_display_count, side_display_count = validate_architecture()
@@ -762,7 +838,7 @@ def main() -> None:
     print(
         f"doors: single wood={door_counts['single']}, double wood={door_counts['double']}, "
         f"double glass sets={2 * door_counts['double_glass_pair']} "
-        "(four transparent leaves + one central fixed glass panel)"
+        "(four clear leaves + one central clear fixed glass panel)"
     )
     print(
         "sofas: total=" + str(sum(type_counts.values())) + ", "
@@ -785,9 +861,10 @@ def main() -> None:
         f"ceiling lights: standard panels={ceiling_light_counts['panel']}, "
         f"large central panel={ceiling_light_counts['large_panel']} (6.0 x 2.4 m)"
     )
-    print("front entrance glazing: two 4.85 x 2.82 m full-height panels; Wall_10 collider unchanged")
+    print("front entrance glazing: two 4.85 x 2.82 m clear panels (opacity=0.13, roughness=0.08); Wall_10 collider unchanged")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision; three wood doors realigned to wall faces")
-    print("north corridor end glazing: one 3.1332 x 2.82 m full-height panel; Wall_04 collider unchanged")
+    print("north corridor end glazing: one 3.1332 x 2.82 m clear panel (opacity=0.13, roughness=0.08); Wall_04 collider unchanged")
+    print("exterior pavement: south 65.0 x 25.0435 m + north 65.0 x 24.2754 m opaque pale-gray sidewalk paver plazas at z=0.01 m; albedo + normal + roughness textures")
     print(
         f"digital display wall: floating 0.85 m above floor; compact 1.22 m charcoal L body, depth=0.30 m, without white header; "
         f"left/side={side_display_count} on 4.5 m, right/front={front_display_count} on 2.5 m; "

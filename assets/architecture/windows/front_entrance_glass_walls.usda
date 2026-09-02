@@ -11,6 +11,9 @@ def Xform "FrontEntranceGlassWalls" (
 {
     custom bool cbnu:collisionEnabled = false
     custom int cbnu:fullHeightGlassPanelCount = 2
+    custom string cbnu:glassFinish = "clear architectural glass"
+    custom bool cbnu:perimeterGapsClosed = true
+    custom string cbnu:perimeterJoinPolicy = "frames continuously meet side walls and entrance pillars"
     custom string cbnu:placement = "both sides of the south double-glass entrance"
     custom double cbnu:doorOpeningWidth = 4.6
     custom double2 cbnu:eachGlassPanelSize = (4.85, 2.82)
@@ -63,8 +66,8 @@ def Xform "FrontEntranceGlassWalls" (
         {
             rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
             double size = 1
-            double3 xformOp:scale = (0.10, 0.060, 3.0)
-            double3 xformOp:translate = (-7.20, 0, 1.5)
+            double3 xformOp:scale = (0.2355, 0.060, 3.0)
+            double3 xformOp:translate = (-7.26775, 0, 1.5)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
 
@@ -72,8 +75,8 @@ def Xform "FrontEntranceGlassWalls" (
         {
             rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
             double size = 1
-            double3 xformOp:scale = (0.10, 0.060, 3.0)
-            double3 xformOp:translate = (-2.25, 0, 1.5)
+            double3 xformOp:scale = (0.22, 0.060, 3.0)
+            double3 xformOp:translate = (-2.19, 0, 1.5)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
 
@@ -113,8 +116,8 @@ def Xform "FrontEntranceGlassWalls" (
         {
             rel material:binding = </FrontEntranceGlassWalls/FrameMaterial>
             double size = 1
-            double3 xformOp:scale = (0.10, 0.060, 3.0)
-            double3 xformOp:translate = (2.25, 0, 1.5)
+            double3 xformOp:scale = (0.22, 0.060, 3.0)
+            double3 xformOp:translate = (2.19, 0, 1.5)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
 

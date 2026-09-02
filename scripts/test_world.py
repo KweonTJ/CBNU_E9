@@ -28,6 +28,8 @@ REQUIRED_PRIMS = {
     "/World/Environment/FrontEntranceGlassWalls/LeftFullHeightGlass/GlassPanel": "Cube",
     "/World/Environment/FrontEntranceGlassWalls/RightFullHeightGlass/GlassPanel": "Cube",
     "/World/Environment/NorthCorridorEndGlassWall/GlassPanel": "Cube",
+    "/World/Environment/ExteriorSidewalkPavers/SouthEntrancePavement": "Mesh",
+    "/World/Environment/ExteriorSidewalkPavers/NorthExitPavement": "Mesh",
     "/World/Columns/Entrance_Pillar_ATM_Side/Body": "Cube",
     "/World/Columns/Entrance_Pillar_Opposite/Body": "Cube",
     "/World/Columns/Column_01/Body": "Cube",
@@ -125,15 +127,16 @@ def main() -> None:
     print(f"CBNU Haksan composed Stage: PASS (USD {Usd.GetVersion()})")
     print(f"verified composed prims: {len(REQUIRED_PRIMS)}")
     print("ATM geometry: loaded=2")
-    print("front double-glass sets: loaded=2, transparent leaves=4")
+    print("front double-glass sets: loaded=2, fully infilled clear leaves=4")
     print("lobby tables: loaded=3; all use filled lower bodies")
     print("ceiling: loaded; standard panels=12 at 8000; large central panel=1 at 12000 (6.0 x 2.4 m)")
-    print("front entrance glazing: loaded=2 full-height panels; original Wall_10 collider retained")
+    print("front entrance glazing: loaded=2 clear full-height panels; original Wall_10 collider retained")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision")
-    print("north corridor end glazing: loaded=1 full-height panel; original Wall_04 collider retained")
+    print("north corridor end glazing: loaded=1 clear full-height panel; original Wall_04 collider retained")
+    print("exterior pavement: loaded=2 expanded opaque pale-gray sidewalk-paver plazas; south=65.0 x 25.0435 m, north=65.0 x 24.2754 m; albedo + normal + roughness textures")
     print("entrance side pillars: loaded=2; mirrored 1.0425 x 1.0 x 3.0 m bodies projecting into lobby")
-    print("front entrance center gap: filled with one fixed 0.42 m clear-glass panel")
-    print("front entrance upper gap: filled to ceiling with one 4.16 x 0.72 m glass transom")
+    print("front entrance joins: wall/glass, pillar/glass and leaf/rail borders closed; center gap filled by one 0.44 m clear panel meeting the transom")
+    print("front entrance upper gap: filled to ceiling with one 4.16 x 0.72 m clear glass transom")
     print("main columns: loaded=3; each body=1.2 x 1.2 x 3.0 m")
     print("digital display wall: loaded=1; no white header; floor clearance=0.85 m; compact charcoal background=1.22 m; depth=0.30 m; left=4.5 m/5 screens; right=2.5 m/3 screens; panel=0.62 x 0.98 m; bezel=0.02 m")
     print("digital display wall collision: loaded=2 invisible box helpers")

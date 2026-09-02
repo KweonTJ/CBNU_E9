@@ -32,8 +32,9 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 | Ceiling | warm white 무광 천장, collision 유지 |
 | Ceiling light | 일반 LED panel 12개, 중앙 대형 panel 1개 (`6.0 × 2.4m`) |
 | Wood door | single 3개, double 4개 |
-| Glass entrance | 양개 유리문 2세트, 투명 문짝 총 4개 |
-| Glass wall | 정면 출입문 좌우 2장 + 북쪽 끝 1장 |
+| Glass entrance | 투명 양개 유리문 2세트, 문짝 총 4개 |
+| Glass wall | 투명 통유리: 정면 출입문 좌우 2장 + 북쪽 끝 1장 |
+| Exterior pavement | 외부 그리드를 가리는 대형 보도블럭 광장 2개, albedo·normal texture 적용 |
 | Sofa | straight 3개, corner 1개, Column 2 U형 1개 |
 | Table | 하부가 채워진 목재 책상 3개 |
 | Equipment | 은행 ATM 2개 |
@@ -139,7 +140,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - Column 2 U형은 좌·하·우를 감싸고 위쪽은 열림
 - U형 안쪽 면은 Column 2에 `clearance = 0`으로 접촉
 
-Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_column.usda`는 기존 reference 호환을 위해 유지하지만, 실제 기준 폭은 `1.5m`다.
+Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_column.usda`는 기존 reference 호환을 위해 유지하지만, 실제 기준 폭은 `1.2m`다.
 
 ### 정면 유리 출입구
 
@@ -147,13 +148,16 @@ Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_colu
 - 양개문 2세트: `assets/architecture/doors/glass_door_double_pair.usda`
 - 세트 수: 2
 - 문짝 수: 4
-- 두 세트 사이 간격: `0.44m`, 중앙 `0.42m` 고정 유리로 채움
+- 두 세트 사이 간격: `0.44m`, 중앙 `0.44 × 2.22m` 고정 유리로 transom까지 틈 없이 채움
+- 각 문짝 유리: `0.67 × 1.83m`, 하단·상단 rail 사이를 틈 없이 채움
 - 문 header와 천장 사이: `4.16 × 0.72m` 고정 유리 transom과 상·하부 rail로 마감
-- 유리 opacity: `0.16`
+- 유리 마감: clear architectural glass
+- 유리 opacity / roughness: `0.16 / 0.08`
 - 문 collision: disabled
 - 문 좌우 통유리: `assets/architecture/windows/front_entrance_glass_walls.usda`
 - 통유리 크기: 좌우 각 `4.85 × 2.82m`
-- 통유리 opacity: `0.13`
+- 통유리 opacity / roughness: `0.13 / 0.08`
+- 정문 왼쪽 외벽–통유리와 양쪽 기둥–통유리 접합부는 확장 frame으로 연속 마감
 - 얇은 dark metal 외곽 frame만 사용하고 중간 mullion은 두지 않음
 - 출입구 좌우 기둥: `assets/structural/entrance_side_pillar.usda`
 - 기둥 크기: 각각 `1.0425 × 1.0 × 3.0m`
@@ -180,10 +184,23 @@ Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_colu
 - Asset: `assets/architecture/windows/north_corridor_end_glass_wall.usda`
 - 위치: 기존 `Wall_04` 자리
 - 유리 크기: `3.1332 × 2.82m`
-- 유리 opacity: `0.13`
+- 유리 opacity / roughness: `0.13 / 0.08`
 - 유리 collision: disabled
 
 기존 `Wall_04`는 치수 `3.3332 × 0.20 × 3.0m`와 collision을 유지한다. 불투명 표면만 숨기고 단일 통유리 패널로 시각을 대체했다.
+
+### 외부 보도블럭 광장
+
+- Asset: `assets/architecture/exterior/exterior_sidewalk_pavers.usda`
+- Material: `assets/materials/exterior/sidewalk_pavers.usda`
+- 남쪽 정문 광장: `65.0 × 25.0435m`
+- 북쪽 출구 광장: `65.0 × 24.2754m`
+- 표면 높이: `z=0.01m`로 viewport grid보다 위에 배치
+- Material: 불투명도 `1.0`, roughness `0.88`, `2.0m` texture repeat
+- Texture: 첨부 이미지 기반 회색 보도블럭 base color, tangent-space normal map과 roughness map
+- Collision: disabled; 현재는 유리 밖 배경을 구성하는 시각용 geometry
+
+두 광장은 투명 유리 너머의 기본 viewport grid를 불투명 바닥으로 가린다. 첨부 이미지처럼 밝은 회색 장방형 블럭과 얇은 줄눈을 사용한다. normal map에는 줄눈 함몰과 콘크리트 미세 요철을, roughness map에는 블럭별 거칠기 편차를 넣어 조명 방향에 따라 보도블럭 질감이 드러난다.
 
 ### 코너형 디지털 전시벽
 
@@ -225,6 +242,8 @@ assets/
 │   ├── digital_display_wall/
 │   │   ├── digital_display_panel.usda
 │   │   └── digital_display_wall_corner.usda
+│   ├── exterior/
+│   │   └── exterior_sidewalk_pavers.usda
 │   └── windows/
 │       ├── corridor_end_glass_wall.usda
 │       ├── front_entrance_glass_walls.usda
@@ -243,6 +262,12 @@ assets/
 │   │   ├── display_screen.usda
 │   │   └── display_wall_dark.usda
 │   ├── furniture/brown_sofa_material.usda
+│   ├── exterior/
+│   │   ├── sidewalk_pavers.usda
+│   │   └── textures/
+│   │       ├── campus_sidewalk_pavers_basecolor.png
+│   │       ├── campus_sidewalk_pavers_normal.png
+│   │       └── campus_sidewalk_pavers_roughness.png
 │   └── lobby/
 │       ├── ceiling_white.usda
 │       ├── marble_floor.usda
@@ -331,12 +356,13 @@ assets/architecture/windows/front_entrance_glass_walls.usda
 assets/architecture/windows/north_corridor_end_glass_wall.usda
 ```
 
-- 투명도: `GlassMaterial/PreviewSurface.inputs:opacity`
+- 투명도: `GlassMaterial/PreviewSurface.inputs:opacity` (`0.13`)
+- 표면 거칠기: `GlassMaterial/PreviewSurface.inputs:roughness` (`0.08`)
 - 좌우 유리 크기: 각 `GlassPanel.xformOp:scale`
 - 프레임 굵기: `OuterFrame`, `DoorSideFrame`, `TopFrame`, `BottomFrame`의 scale
 - 전체 위치: 메인 world의 `/World/Environment/FrontEntranceGlassWalls.xformOp:translate`
 
-통유리의 투명도를 유지하려면 `opacityThreshold = 0`을 유지한다. 기존 `Wall_10`은 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
+현재 통유리는 맑은 투명 마감이다. 외부 그리드는 유리를 불투명하게 만드는 대신 `/World/Environment/ExteriorSidewalkPavers`가 가린다. 투명 blend를 유지하려면 `opacityThreshold = 0`을 유지한다. 기존 `Wall_10`은 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
 
 서쪽 복도 끝은 통유리가 아니라 메인 world의 `/World/Environment/Walls/Wall_07` 불투명 벽이다. 폭을 바꿀 때는 `geometry.json`의 `west_corridor`, Floor/Ceiling polygon, `Wall_05`–`Wall_09`와 서쪽 복도 문 위치를 함께 맞춘다.
 
@@ -387,6 +413,8 @@ worlds/cbnu_haksan_1f_corridor/config/architecture.json
   "yaw_deg": 0,
   "front_length": 2.5,
   "side_length": 4.5,
+  "height": 1.22,
+  "depth": 0.30,
   "front_display_count": 3,
   "side_display_count": 5,
   "display_width": 0.62,
@@ -554,6 +582,8 @@ python3 scripts/validate_cbnu_haksan_detail.py
 - 정면 좌우 통유리 2장과 기존 `Wall_10` collider
 - 폭 `1.73m`인 서쪽 복도와 불투명 `Wall_07` collider
 - 북쪽 복도 끝 통유리 1장과 기존 `Wall_04` collider
+- 활성 통유리·유리문의 clear glass 값과 정문 접합부 연속성
+- 남쪽·북쪽 외부 보도블럭 Mesh, 불투명 material과 albedo·normal·roughness texture binding
 - `1.2 × 1.2 × 3.0m` 메인 기둥 3개, 동일 X 간격과 `-Y 0.30m` 이동
 - 바닥에서 `0.85m` 띄운 높이 `1.22m`의 watertight L자 전시벽, 긴 왼쪽 5개·짧은 오른쪽 3개 display
 - 동일한 `0.62 × 0.98m` recessed display 8개와 `0.02m` 얇은 bezel
@@ -572,9 +602,9 @@ python3 scripts/validate_cbnu_haksan_detail.py
 
 ```text
 CBNU Haksan detailed lobby validation: PASS
-USD references: 63 relative and resolved
+USD references: 68 relative and resolved
 CBNU Haksan composed Stage: PASS (USD 24.05)
-verified composed prims: 47
+verified composed prims: 49
 preview: 2250 × 1425
 architecture preview: 2250 × 1425
 ```

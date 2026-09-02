@@ -10,6 +10,7 @@ def Xform "NorthCorridorEndGlassWall" (
 )
 {
     custom bool cbnu:collisionEnabled = false
+    custom string cbnu:glassFinish = "clear architectural glass"
     custom string cbnu:placement = "north end of the vertical corridor"
     custom double2 cbnu:glassPanelSize = (3.1332, 2.82)
 

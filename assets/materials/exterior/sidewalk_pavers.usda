@@ -1,0 +1,80 @@
+#usda 1.0
+(
+    defaultPrim = "SidewalkPavers"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Material "SidewalkPavers"
+{
+    custom string cbnu:finish = "matte outdoor concrete sidewalk pavers"
+    custom string cbnu:pattern = "reference-matched pale-gray rectangular running-bond paving blocks"
+    custom string cbnu:textureSet = "base color plus tangent-space normal plus roughness"
+    custom double cbnu:textureRepeatMeters = 2.0
+    token outputs:surface.connect = </SidewalkPavers/PreviewSurface.outputs:surface>
+
+    def Shader "PreviewSurface"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        color3f inputs:diffuseColor.connect = </SidewalkPavers/PaverAlbedo.outputs:rgb>
+        float inputs:metallic = 0
+        normal3f inputs:normal.connect = </SidewalkPavers/PaverNormal.outputs:rgb>
+        float inputs:opacity = 1
+        float inputs:roughness.connect = </SidewalkPavers/PaverRoughness.outputs:r>
+        token outputs:surface
+    }
+
+    def Shader "PaverNormal"
+    {
+        uniform token info:id = "UsdUVTexture"
+        float4 inputs:bias = (-1, -1, -1, 0)
+        asset inputs:file = @./textures/campus_sidewalk_pavers_normal.png@
+        float4 inputs:scale = (2, 2, 2, 1)
+        token inputs:sourceColorSpace = "raw"
+        float2 inputs:st.connect = </SidewalkPavers/UVScale.outputs:result>
+        token inputs:wrapS = "repeat"
+        token inputs:wrapT = "repeat"
+        float3 outputs:rgb
+    }
+
+    def Shader "PaverAlbedo"
+    {
+        uniform token info:id = "UsdUVTexture"
+        asset inputs:file = @./textures/campus_sidewalk_pavers_basecolor.png@
+        token inputs:sourceColorSpace = "sRGB"
+        float2 inputs:st.connect = </SidewalkPavers/UVScale.outputs:result>
+        token inputs:wrapS = "repeat"
+        token inputs:wrapT = "repeat"
+        float3 outputs:rgb
+        float4 outputs:rgba
+    }
+
+    def Shader "PaverRoughness"
+    {
+        uniform token info:id = "UsdUVTexture"
+        asset inputs:file = @./textures/campus_sidewalk_pavers_roughness.png@
+        token inputs:sourceColorSpace = "raw"
+        float2 inputs:st.connect = </SidewalkPavers/UVScale.outputs:result>
+        token inputs:wrapS = "repeat"
+        token inputs:wrapT = "repeat"
+        float outputs:r
+    }
+
+    def Shader "UVScale"
+    {
+        uniform token info:id = "UsdTransform2d"
+        float2 inputs:in.connect = </SidewalkPavers/UVReader.outputs:result>
+        float inputs:rotation = 0
+        float2 inputs:scale = (0.5, 0.5)
+        float2 inputs:translation = (0, 0)
+        float2 outputs:result
+    }
+
+    def Shader "UVReader"
+    {
+        uniform token info:id = "UsdPrimvarReader_float2"
+        float2 inputs:fallback = (0, 0)
+        token inputs:varname = "st"
+        float2 outputs:result
+    }
+}

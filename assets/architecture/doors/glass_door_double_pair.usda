@@ -14,10 +14,13 @@ def Xform "GlassDoorDoublePair" (
     custom int cbnu:doorLeafCount = 4
     custom double cbnu:gapBetweenSets = 0.44
     custom bool cbnu:centralGlassInfill = true
-    custom double cbnu:centralGlassInfillWidth = 0.42
+    custom double cbnu:centralGlassInfillWidth = 0.44
+    custom bool cbnu:perimeterGapsClosed = true
+    custom bool cbnu:centralGlassMeetsTransom = true
     custom bool cbnu:upperGlassTransom = true
     custom double2 cbnu:upperGlassTransomSize = (4.16, 0.72)
-    custom string cbnu:doorStyle = "two side-by-side double glass door sets"
+    custom string cbnu:doorStyle = "two side-by-side clear double glass door sets"
+    custom string cbnu:glassFinish = "clear architectural glass"
     custom string cbnu:purpose = "decorative static four-leaf lobby entrance"
 
     def Material "CentralClearGlass"
@@ -77,15 +80,15 @@ def Xform "GlassDoorDoublePair" (
         {
             rel material:binding = </GlassDoorDoublePair/CentralClearGlass>
             double size = 1
-            double3 xformOp:scale = (0.42, 0.012, 2.10)
-            double3 xformOp:translate = (0, 0, 1.05)
+            double3 xformOp:scale = (0.44, 0.012, 2.22)
+            double3 xformOp:translate = (0, 0, 1.11)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
     }
 
     def Xform "UpperGlassTransom"
     {
-        custom string cbnu:purpose = "fixed glass closing the space from the door headers to the ceiling"
+        custom string cbnu:purpose = "fixed clear glass closing the space from the door headers to the ceiling"
 
         def Cube "GlassPanel"
         {
