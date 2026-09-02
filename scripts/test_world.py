@@ -133,7 +133,7 @@ def main() -> None:
     print("front entrance glazing: loaded=2 clear full-height panels; original Wall_10 collider retained")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision")
     print("north corridor end glazing: loaded=1 clear full-height panel; original Wall_04 collider retained")
-    print("exterior pavement: loaded=2 expanded opaque pale-gray sidewalk-paver plazas; south=65.0 x 25.0435 m, north=65.0 x 24.2754 m; albedo + normal + roughness textures")
+    print("exterior pavement: loaded=2 oversized watertight opaque sidewalk-paver slabs; south=200.0 x 100.0435 m, north=200.0 x 79.2754 m; top z=0.05 m")
     print("entrance side pillars: loaded=2; mirrored 1.0425 x 1.0 x 3.0 m bodies projecting into lobby")
     print("front entrance joins: wall/glass, pillar/glass and leaf/rail borders closed; center gap filled by one 0.44 m clear panel meeting the transom")
     print("front entrance upper gap: filled to ceiling with one 4.16 x 0.72 m clear glass transom")

@@ -67,7 +67,7 @@ def Xform "World"
             prepend references = @../../assets/architecture/exterior/exterior_sidewalk_pavers.usda@
         )
         {
-            custom string cbnu:layoutRevision = "2026-09-02-transparent-glass-exterior-pavers-v1"
+            custom string cbnu:layoutRevision = "2026-09-02-transparent-glass-raised-solid-pavers-v3"
         }
 
         def Mesh "Floor" (

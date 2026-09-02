@@ -193,14 +193,14 @@ Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_colu
 
 - Asset: `assets/architecture/exterior/exterior_sidewalk_pavers.usda`
 - Material: `assets/materials/exterior/sidewalk_pavers.usda`
-- 남쪽 정문 광장: `65.0 × 25.0435m`
-- 북쪽 출구 광장: `65.0 × 24.2754m`
-- 표면 높이: `z=0.01m`로 viewport grid보다 위에 배치
+- 남쪽 정문 광장: `200.0 × 100.0435m`
+- 북쪽 출구 광장: `200.0 × 79.2754m`
+- 표면 높이: `z=0.05m`, 하단 `z=-0.12m`인 폐쇄형 불투명 슬래브
 - Material: 불투명도 `1.0`, roughness `0.88`, `2.0m` texture repeat
 - Texture: 첨부 이미지 기반 회색 보도블럭 base color, tangent-space normal map과 roughness map
 - Collision: disabled; 현재는 유리 밖 배경을 구성하는 시각용 geometry
 
-두 광장은 투명 유리 너머의 기본 viewport grid를 불투명 바닥으로 가린다. 첨부 이미지처럼 밝은 회색 장방형 블럭과 얇은 줄눈을 사용한다. normal map에는 줄눈 함몰과 콘크리트 미세 요철을, roughness map에는 블럭별 거칠기 편차를 넣어 조명 방향에 따라 보도블럭 질감이 드러난다.
+두 광장은 투명 유리 너머 카메라 시야 전체를 덮도록 건물보다 훨씬 크게 확장했다. 단일 윗면 대신 옆면과 아랫면까지 닫힌 watertight slab으로 만들어 기본 지면이 경계·낮은 시야각·깊이 정밀도 문제로 드러나지 않게 했다. 첨부 이미지처럼 밝은 회색 장방형 블럭과 얇은 줄눈을 사용한다. normal map에는 줄눈 함몰과 콘크리트 미세 요철을, roughness map에는 블럭별 거칠기 편차를 넣어 조명 방향에 따라 보도블럭 질감이 드러난다.
 
 ### 코너형 디지털 전시벽
 
@@ -362,7 +362,7 @@ assets/architecture/windows/north_corridor_end_glass_wall.usda
 - 프레임 굵기: `OuterFrame`, `DoorSideFrame`, `TopFrame`, `BottomFrame`의 scale
 - 전체 위치: 메인 world의 `/World/Environment/FrontEntranceGlassWalls.xformOp:translate`
 
-현재 통유리는 맑은 투명 마감이다. 외부 그리드는 유리를 불투명하게 만드는 대신 `/World/Environment/ExteriorSidewalkPavers`가 가린다. 투명 blend를 유지하려면 `opacityThreshold = 0`을 유지한다. 기존 `Wall_10`은 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
+현재 통유리는 맑은 투명 마감이다. 외부 지면은 유리를 불투명하게 만드는 대신 `/World/Environment/ExteriorSidewalkPavers`의 대형 폐쇄형 slab이 채운다. 투명 blend를 유지하려면 `opacityThreshold = 0`을 유지한다. 기존 `Wall_10`은 collision용이므로 삭제하거나 scale을 바꾸지 않는다.
 
 서쪽 복도 끝은 통유리가 아니라 메인 world의 `/World/Environment/Walls/Wall_07` 불투명 벽이다. 폭을 바꿀 때는 `geometry.json`의 `west_corridor`, Floor/Ceiling polygon, `Wall_05`–`Wall_09`와 서쪽 복도 문 위치를 함께 맞춘다.
 

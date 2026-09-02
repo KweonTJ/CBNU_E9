@@ -10,8 +10,9 @@ def Xform "ExteriorSidewalkPavers" (
 )
 {
     custom bool cbnu:collisionEnabled = false
-    custom string cbnu:purpose = "opaque exterior pavement masking the viewport grid beyond transparent glazing"
-    custom double cbnu:surfaceHeight = 0.01
+    custom string cbnu:purpose = "oversized opaque exterior pavement slab blocking the default ground grid beyond transparent glazing"
+    custom double cbnu:surfaceHeight = 0.05
+    custom double cbnu:slabBottom = -0.12
 
     def Scope "Materials"
     {
@@ -26,27 +27,31 @@ def Xform "ExteriorSidewalkPavers" (
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        custom double2 cbnu:size = (65.0, 25.0435)
-        int[] faceVertexCounts = [4]
-        int[] faceVertexIndices = [0, 1, 2, 3]
+        custom double2 cbnu:size = (200.0, 100.0435)
+        int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [0, 1, 2, 3, 7, 6, 5, 4, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 3, 7, 4, 0]
         rel material:binding = </ExteriorSidewalkPavers/Materials/SidewalkPavers>
-        point3f[] points = [(-10, -25, 0.01), (55, -25, 0.01), (55, 0.0435, 0.01), (-10, 0.0435, 0.01)]
-        texCoord2f[] primvars:st = [(-10, -25), (55, -25), (55, 0.0435), (-10, 0.0435)]
+        point3f[] points = [(-80, -100, 0.05), (120, -100, 0.05), (120, 0.0435, 0.05), (-80, 0.0435, 0.05), (-80, -100, -0.12), (120, -100, -0.12), (120, 0.0435, -0.12), (-80, 0.0435, -0.12)]
+        texCoord2f[] primvars:st = [(-80, -100), (120, -100), (120, 0.0435), (-80, 0.0435), (-80, -100), (120, -100), (120, 0.0435), (-80, 0.0435)]
         uniform token primvars:st:interpolation = "vertex"
+        token purpose = "render"
         uniform token subdivisionScheme = "none"
+        token visibility = "inherited"
     }
 
     def Mesh "NorthExitPavement" (
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        custom double2 cbnu:size = (65.0, 24.2754)
-        int[] faceVertexCounts = [4]
-        int[] faceVertexIndices = [0, 1, 2, 3]
+        custom double2 cbnu:size = (200.0, 79.2754)
+        int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [0, 1, 2, 3, 7, 6, 5, 4, 0, 4, 5, 1, 1, 5, 6, 2, 2, 6, 7, 3, 3, 7, 4, 0]
         rel material:binding = </ExteriorSidewalkPavers/Materials/SidewalkPavers>
-        point3f[] points = [(-10, 20.7246, 0.01), (55, 20.7246, 0.01), (55, 45, 0.01), (-10, 45, 0.01)]
-        texCoord2f[] primvars:st = [(-10, 20.7246), (55, 20.7246), (55, 45), (-10, 45)]
+        point3f[] points = [(-80, 20.7246, 0.05), (120, 20.7246, 0.05), (120, 100, 0.05), (-80, 100, 0.05), (-80, 20.7246, -0.12), (120, 20.7246, -0.12), (120, 100, -0.12), (-80, 100, -0.12)]
+        texCoord2f[] primvars:st = [(-80, 20.7246), (120, 20.7246), (120, 100), (-80, 100), (-80, 20.7246), (120, 20.7246), (120, 100), (-80, 100)]
         uniform token primvars:st:interpolation = "vertex"
+        token purpose = "render"
         uniform token subdivisionScheme = "none"
+        token visibility = "inherited"
     }
 }

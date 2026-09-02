@@ -428,22 +428,26 @@ def validate_exterior_sidewalk_pavers() -> None:
 
     pavement_text = EXTERIOR_PAVEMENT_ASSET.read_text(encoding="utf-8")
     require('custom bool cbnu:collisionEnabled = false' in pavement_text, "exterior pavement must remain visual-only")
-    require('custom double cbnu:surfaceHeight = 0.01' in pavement_text, "pavement must sit above the viewport grid")
+    require('custom double cbnu:surfaceHeight = 0.05' in pavement_text, "pavement surface height mismatch")
+    require('custom double cbnu:slabBottom = -0.12' in pavement_text, "pavement slab bottom mismatch")
     require('prepend references = @../../materials/exterior/sidewalk_pavers.usda@' in pavement_text, "sidewalk material reference missing")
     require(set(re.findall(r'def Mesh "([^"]+)"', pavement_text)) == {"SouthEntrancePavement", "NorthExitPavement"}, "exterior pavement mesh set mismatch")
     require("PhysicsCollisionAPI" not in pavement_text, "exterior visual pavement must not add collision")
     for mesh_name in ("SouthEntrancePavement", "NorthExitPavement"):
         validate_mesh_topology(pavement_text, mesh_name)
         points = mesh_points(pavement_text, mesh_name)
-        require(len(points) == 4 and all(abs(point[2] - 0.01) < 1e-9 for point in points), f"pavement height mismatch: {mesh_name}")
+        require(len(points) == 8, f"pavement must be a closed slab: {mesh_name}")
+        require({point[2] for point in points} == {0.05, -0.12}, f"pavement height mismatch: {mesh_name}")
+        validate_watertight_mesh(pavement_text, mesh_name)
         require('rel material:binding = </ExteriorSidewalkPavers/Materials/SidewalkPavers>' in prim_block(pavement_text, mesh_name), f"paver material binding missing: {mesh_name}")
         require('uniform token primvars:st:interpolation = "vertex"' in prim_block(pavement_text, mesh_name), f"paver UV interpolation missing: {mesh_name}")
+        require('token purpose = "render"' in prim_block(pavement_text, mesh_name), f"pavement render purpose missing: {mesh_name}")
     south_points = mesh_points(pavement_text, "SouthEntrancePavement")
-    require(min(point[0] for point in south_points) <= -10 and max(point[0] for point in south_points) >= 55, "south pavement does not cover the expanded entrance plaza")
-    require(min(point[1] for point in south_points) <= -25 and max(point[1] for point in south_points) >= 0.0435, "south pavement depth coverage mismatch")
+    require(min(point[0] for point in south_points) <= -80 and max(point[0] for point in south_points) >= 120, "south pavement does not cover the expanded entrance plaza")
+    require(min(point[1] for point in south_points) <= -100 and max(point[1] for point in south_points) >= 0.0435, "south pavement depth coverage mismatch")
     north_points = mesh_points(pavement_text, "NorthExitPavement")
-    require(min(point[0] for point in north_points) <= -10 and max(point[0] for point in north_points) >= 55, "north pavement width coverage mismatch")
-    require(min(point[1] for point in north_points) <= 20.7246 and max(point[1] for point in north_points) >= 45, "north pavement depth coverage mismatch")
+    require(min(point[0] for point in north_points) <= -80 and max(point[0] for point in north_points) >= 120, "north pavement width coverage mismatch")
+    require(min(point[1] for point in north_points) <= 20.7246 and max(point[1] for point in north_points) >= 100, "north pavement depth coverage mismatch")
 
     require(SIDEWALK_TEXTURE.exists(), "sidewalk paver texture missing")
     require(png_size(SIDEWALK_TEXTURE) == (1254, 1254), "unexpected sidewalk texture size")
@@ -462,8 +466,6 @@ def validate_exterior_sidewalk_pavers() -> None:
     require('asset inputs:file = @./textures/campus_sidewalk_pavers_roughness.png@' in material_text, "sidewalk roughness texture reference missing")
     require('token inputs:sourceColorSpace = "raw"' in prim_block(material_text, "PaverNormal"), "sidewalk normal map must use raw color space")
     require('float2 inputs:scale = (0.5, 0.5)' in material_text, "sidewalk texture repeat mismatch")
-
-
 def validate_doors() -> Counter[str]:
     doors = json.loads(DOORS.read_text(encoding="utf-8"))["doors"]
     counts = Counter(item["type"] for item in doors)
@@ -864,7 +866,7 @@ def main() -> None:
     print("front entrance glazing: two 4.85 x 2.82 m clear panels (opacity=0.13, roughness=0.08); Wall_10 collider unchanged")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision; three wood doors realigned to wall faces")
     print("north corridor end glazing: one 3.1332 x 2.82 m clear panel (opacity=0.13, roughness=0.08); Wall_04 collider unchanged")
-    print("exterior pavement: south 65.0 x 25.0435 m + north 65.0 x 24.2754 m opaque pale-gray sidewalk paver plazas at z=0.01 m; albedo + normal + roughness textures")
+    print("exterior pavement: south 200.0 x 100.0435 m + north 200.0 x 79.2754 m watertight opaque sidewalk-paver slabs; top z=0.05 m, bottom z=-0.12 m")
     print(
         f"digital display wall: floating 0.85 m above floor; compact 1.22 m charcoal L body, depth=0.30 m, without white header; "
         f"left/side={side_display_count} on 4.5 m, right/front={front_display_count} on 2.5 m; "
