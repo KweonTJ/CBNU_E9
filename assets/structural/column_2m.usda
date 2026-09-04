@@ -27,7 +27,7 @@ def Xform "Column"
     }
 
     def Cube "Body" (
-        prepend apiSchemas = ["PhysicsCollisionAPI"]
+        prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
     )
     {
         double size = 1

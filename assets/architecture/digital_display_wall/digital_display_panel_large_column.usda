@@ -1,0 +1,105 @@
+#usda 1.0
+(
+    defaultPrim = "ColumnDisplay"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "ColumnDisplay" (
+    kind = "component"
+)
+{
+    custom string cbnu:construction = "large single recessed screen mounted on the existing column collider"
+    custom double cbnu:depth = 0.04
+    custom string cbnu:facing = "local -Y"
+    custom double cbnu:height = 1.45
+    custom bool cbnu:ownCollision = false
+    custom double cbnu:screenRecessFromBezelFront = 0.009
+    custom double cbnu:width = 1.0
+
+    def Scope "Materials"
+    {
+        def Scope "ScreenMaterials" (
+            prepend references = @../../materials/display_wall/display_screen.usda@
+        )
+        {
+        }
+
+        def Material "DarkWall" (
+            prepend references = @../../materials/display_wall/display_wall_dark.usda@
+        )
+        {
+        }
+
+        def Material "BezelBlack"
+        {
+            token outputs:surface.connect = </ColumnDisplay/Materials/BezelBlack/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.006, 0.008, 0.011)
+                float inputs:metallic = 0.18
+                float inputs:roughness = 0.30
+                token outputs:surface
+            }
+        }
+    }
+
+    def Cube "Backing"
+    {
+        rel material:binding = </ColumnDisplay/Materials/DarkWall>
+        double size = 1
+        double3 xformOp:scale = (1.0, 0.04, 1.45)
+        double3 xformOp:translate = (0, -0.02, 0.725)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Xform "Bezel"
+    {
+        def Cube "LeftRail"
+        {
+            rel material:binding = </ColumnDisplay/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (0.04, 0.02, 1.37)
+            double3 xformOp:translate = (-0.48, -0.045, 0.725)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightRail"
+        {
+            rel material:binding = </ColumnDisplay/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (0.04, 0.02, 1.37)
+            double3 xformOp:translate = (0.48, -0.045, 0.725)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "BottomRail"
+        {
+            rel material:binding = </ColumnDisplay/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (1.0, 0.02, 0.04)
+            double3 xformOp:translate = (0, -0.045, 0.02)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "TopRail"
+        {
+            rel material:binding = </ColumnDisplay/Materials/BezelBlack>
+            double size = 1
+            double3 xformOp:scale = (1.0, 0.02, 0.04)
+            double3 xformOp:translate = (0, -0.045, 1.43)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Cube "Screen"
+    {
+        rel material:binding = </ColumnDisplay/Materials/ScreenMaterials/ScreenBlue>
+        double size = 1
+        double3 xformOp:scale = (0.92, 0.006, 1.37)
+        double3 xformOp:translate = (0, -0.043, 0.725)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

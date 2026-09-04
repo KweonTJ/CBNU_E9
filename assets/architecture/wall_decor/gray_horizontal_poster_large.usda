@@ -1,0 +1,46 @@
+#usda 1.0
+(
+    defaultPrim = "GrayHorizontalPosterLarge"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "GrayHorizontalPosterLarge" (
+    kind = "component"
+)
+{
+    custom string cbnu:decorType = "one-piece large horizontal gray wall poster"
+    custom double cbnu:width = 4.5
+    custom double cbnu:height = 1.22
+    custom double cbnu:depth = 0.15
+    custom string cbnu:facing = "local -Y"
+    custom bool cbnu:emissive = false
+    custom bool cbnu:hasBezel = false
+    custom bool cbnu:hasScreen = false
+    custom bool cbnu:ownCollision = false
+    custom int cbnu:visiblePieceCount = 1
+
+    def Material "GrayPoster"
+    {
+        token outputs:surface.connect = </GrayHorizontalPosterLarge/GrayPoster/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.34, 0.36, 0.38)
+            float inputs:metallic = 0
+            float inputs:opacity = 1
+            float inputs:roughness = 0.78
+            token outputs:surface
+        }
+    }
+
+    def Cube "PosterSlab"
+    {
+        rel material:binding = </GrayHorizontalPosterLarge/GrayPoster>
+        double size = 1
+        double3 xformOp:scale = (4.5, 0.15, 1.22)
+        double3 xformOp:translate = (0, 0, 0.61)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

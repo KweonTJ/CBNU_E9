@@ -1,0 +1,191 @@
+#usda 1.0
+(
+    defaultPrim = "StainlessElevatorDoor"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "StainlessElevatorDoor" (
+    kind = "component"
+)
+{
+    custom string cbnu:architectureType = "operational elevator entrance"
+    custom bool cbnu:collisionEnabled = false
+    custom string cbnu:doorMotion = "center opening"
+    custom string cbnu:doorState = "closed"
+    custom double cbnu:doorWidth = 1.45
+    custom double cbnu:doorHeight = 2.3
+    custom double cbnu:doorDepth = 0.08
+    custom string cbnu:facing = "local -Y"
+    custom bool cbnu:operational = true
+    custom string cbnu:surface = "brushed stainless steel"
+
+    def Scope "Materials"
+    {
+        def Material "BrushedSteel"
+        {
+            token outputs:surface.connect = </StainlessElevatorDoor/Materials/BrushedSteel/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.38, 0.41, 0.44)
+                float inputs:metallic = 0.84
+                float inputs:roughness = 0.28
+                color3f inputs:specularColor = (0.58, 0.62, 0.66)
+                token outputs:surface
+            }
+        }
+
+        def Material "FrameSteel"
+        {
+            token outputs:surface.connect = </StainlessElevatorDoor/Materials/FrameSteel/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.18, 0.20, 0.22)
+                float inputs:metallic = 0.9
+                float inputs:roughness = 0.22
+                token outputs:surface
+            }
+        }
+
+        def Material "DarkRecess"
+        {
+            token outputs:surface.connect = </StainlessElevatorDoor/Materials/DarkRecess/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.025, 0.03, 0.035)
+                float inputs:metallic = 0.2
+                float inputs:roughness = 0.52
+                token outputs:surface
+            }
+        }
+
+        def Material "IndicatorAmber"
+        {
+            token outputs:surface.connect = </StainlessElevatorDoor/Materials/IndicatorAmber/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.72, 0.30, 0.035)
+                color3f inputs:emissiveColor = (1.0, 0.38, 0.025)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.3
+                token outputs:surface
+            }
+        }
+    }
+
+    def Cube "DoorRecess"
+    {
+        rel material:binding = </StainlessElevatorDoor/Materials/DarkRecess>
+        double size = 1
+        double3 xformOp:scale = (1.47, 0.035, 2.32)
+        double3 xformOp:translate = (0, 0.018, 1.16)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Xform "Frame"
+    {
+        def Cube "LeftJamb"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/FrameSteel>
+            double size = 1
+            double3 xformOp:scale = (0.11, 0.12, 2.42)
+            double3 xformOp:translate = (-0.78, -0.03, 1.21)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightJamb"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/FrameSteel>
+            double size = 1
+            double3 xformOp:scale = (0.11, 0.12, 2.42)
+            double3 xformOp:translate = (0.78, -0.03, 1.21)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "Header"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/FrameSteel>
+            double size = 1
+            double3 xformOp:scale = (1.67, 0.12, 0.12)
+            double3 xformOp:translate = (0, -0.03, 2.36)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "DoorPanels"
+    {
+        def Cube "LeftLeaf"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/BrushedSteel>
+            double size = 1
+            double3 xformOp:scale = (0.715, 0.06, 2.30)
+            double3 xformOp:translate = (-0.3625, -0.03, 1.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightLeaf"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/BrushedSteel>
+            double size = 1
+            double3 xformOp:scale = (0.715, 0.06, 2.30)
+            double3 xformOp:translate = (0.3625, -0.03, 1.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "CenterSeam"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/DarkRecess>
+            double size = 1
+            double3 xformOp:scale = (0.01, 0.008, 2.30)
+            double3 xformOp:translate = (0, -0.064, 1.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LeftKickPlate"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/FrameSteel>
+            double size = 1
+            double3 xformOp:scale = (0.66, 0.008, 0.16)
+            double3 xformOp:translate = (-0.3625, -0.065, 0.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightKickPlate"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/FrameSteel>
+            double size = 1
+            double3 xformOp:scale = (0.66, 0.008, 0.16)
+            double3 xformOp:translate = (0.3625, -0.065, 0.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "StatusIndicator"
+    {
+        def Cube "Housing"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/FrameSteel>
+            double size = 1
+            double3 xformOp:scale = (0.34, 0.07, 0.15)
+            double3 xformOp:translate = (0, -0.035, 2.52)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LitDisplay"
+        {
+            rel material:binding = </StainlessElevatorDoor/Materials/IndicatorAmber>
+            double size = 1
+            double3 xformOp:scale = (0.20, 0.008, 0.055)
+            double3 xformOp:translate = (0, -0.074, 2.52)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+}

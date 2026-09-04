@@ -13,7 +13,7 @@ def Xform "Architecture"
         prepend references = @../../../assets/architecture/digital_display_wall/digital_display_wall_corner.usda@
     )
     {
-        custom string cbnu:assetType = "digital_display_wall_corner"
+        custom string cbnu:assetVariant = "corner"
         custom double cbnu:frontLength = 2.5
         custom double cbnu:sideLength = 4.5
         custom double cbnu:displayWidth = 0.62
@@ -23,6 +23,86 @@ def Xform "Architecture"
         custom int cbnu:sideDisplayCount = 5
         double xformOp:rotateZ = 0
         double3 xformOp:translate = (25.9724, 13.2044, 0.85)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "ColumnDisplay_01" (
+        prepend references = @../../../assets/architecture/digital_display_wall/digital_display_panel_large_column.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "large_column"
+        custom string cbnu:referencePrim = "Column_03"
+        custom string cbnu:facing = "-Y_toward_main_entrance"
+        custom double cbnu:width = 1
+        custom double cbnu:height = 1.45
+        custom double cbnu:depth = 0.04
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (26.43765, 9.78845, 0.7)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "GrayPoster_01" (
+        prepend references = @../../../assets/architecture/wall_decor/gray_horizontal_poster.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "gray_horizontal"
+        custom string cbnu:referenceWall = "Wall_11"
+        custom string cbnu:referenceDoor = "Door_Single_04"
+        custom string cbnu:facing = "-X_into_lobby"
+        custom double cbnu:width = 2.2
+        custom double cbnu:height = 1
+        custom double cbnu:depth = 0.025
+        double xformOp:rotateZ = 270
+        double3 xformOp:translate = (30.62, 5, 1.05)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "GrayPoster_02" (
+        prepend references = @../../../assets/architecture/wall_decor/gray_horizontal_poster_large.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "gray_horizontal_large"
+        custom string cbnu:referenceWall = "Wall_06"
+        custom string cbnu:facing = "-Y_into_lobby"
+        custom double cbnu:width = 4.5
+        custom double cbnu:height = 1.22
+        custom double cbnu:depth = 0.15
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (20.5892, 13.0403, 0.85)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "ElevatorDoor_01" (
+        prepend references = @../../../assets/architecture/elevators/stainless_elevator_door.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "stainless_center_opening"
+        custom string cbnu:referenceWall = "Wall_05"
+        custom string cbnu:facing = "+X_into_north_corridor"
+        custom string cbnu:serviceState = "operational"
+        custom string cbnu:doorState = "closed"
+        custom double cbnu:width = 1.45
+        custom double cbnu:height = 2.3
+        custom double cbnu:depth = 0.08
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (22.8392, 15.2, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "ElevatorDoor_02" (
+        prepend references = @../../../assets/architecture/elevators/stainless_elevator_door.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "stainless_center_opening"
+        custom string cbnu:referenceWall = "Wall_05"
+        custom string cbnu:facing = "+X_into_north_corridor"
+        custom string cbnu:serviceState = "operational"
+        custom string cbnu:doorState = "closed"
+        custom double cbnu:width = 1.45
+        custom double cbnu:height = 2.3
+        custom double cbnu:depth = 0.08
+        double xformOp:rotateZ = 90
+        double3 xformOp:translate = (22.8392, 19, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 }

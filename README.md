@@ -2,7 +2,7 @@
 
 충북대학교 학연산공동기술연구원 1층 피난안내도를 기준으로 만든 Isaac Sim 근사 월드다.
 
-실측 복제가 아니라 현재 직각 복도 비율을 유지한 시각적 근사다. 현재 버전은 로비 바닥·문·소파·책상·ATM에 더해, 실내 천장·조명·정면 통유리 벽과 코너형 디지털 전시벽까지 포함한다.
+실측 복제가 아니라 현재 직각 복도 비율을 유지한 시각적 근사다. 현재 버전은 로비 바닥·문·소파·책상·ATM에 더해, 실내 천장·조명·정면 통유리 벽, 코너형 디지털 전시벽, 회색 통형 포스터 2개, 가운데 기둥 대형 화면과 두 구역의 동적 택배 박스 장애물을 포함한다.
 
 ![CBNU 학연산 1층 상세 평면도](worlds/cbnu_haksan_1f_corridor/preview_top_view_detailed.png)
 
@@ -30,17 +30,19 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 | --- | --- |
 | Floor | Bala White 스타일 polished granite |
 | Ceiling | warm white 무광 천장, collision 유지 |
-| Ceiling light | 일반 LED panel 12개, 중앙 대형 panel 1개 (`6.0 × 2.4m`) |
-| Wood door | single 3개, double 4개 |
+| Wall / Column | 옅은 포스터보다 어둡고 진회색 통형 포스터보다 밝은 중성 회색 무광 마감 |
+| Ceiling light | 일반 LED panel 15개, 중앙 대형 panel 1개 (`6.0 × 2.4m`) |
+| Wood door | single 4개, double 4개 |
 | Glass entrance | 투명 양개 유리문 2세트, 문짝 총 4개 |
 | Glass wall | 투명 통유리: 정면 출입문 좌우 2장 + 북쪽 끝 1장 |
 | Exterior pavement | 외부 그리드를 가리는 대형 보도블럭 광장 2개, albedo·normal texture 적용 |
 | Sofa | straight 3개, corner 1개, Column 2 U형 1개 |
 | Table | 하부가 채워진 목재 책상 3개 |
 | Equipment | 은행 ATM 2개 |
-| Architecture detail | 바닥에서 0.85m 띄운 compact L자 전시벽 1개, 긴 왼쪽 5개 + 짧은 오른쪽 3개 display |
+| Architecture detail | 기존 L자 전시벽 `왼쪽 5 + 오른쪽 3`, 반대 코너 `4.5 × 1.22m` 회색 통형 포스터, `Column_03` 정문 방향 대형 화면 1장, `Wall_11` 회색 포스터 1장 |
 | Entrance pillar | ATM–문 사이 1개 + 문 반대편 대칭 1개 |
-| Raw obstacle Cube | 없음 |
+| Dynamic obstacle | `Table_03` 앞 9개 + 정문 안쪽 4개, 서로 다른 크기 총 13개 |
+| Raw obstacle Cube | 없음 (`/World/Obstacles` 미사용) |
 
 ### 책상 크기
 
@@ -51,6 +53,28 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 | `Table_03` | `1.6232 × 0.82m` | 서쪽 두 문 사이의 기존 `Sofa_01` 대체 |
 
 세 책상 모두 `lobby_table_filled.usda`를 사용하며 상판 아래가 바닥부터 apron까지 채워져 있다.
+
+정문으로 들어왔을 때 바로 보이는 오른쪽 벽 `Wall_11`에는 `Door_Single_04`를 `(30.62, 3.14695)`, yaw `270°`로 배치했다. 이 구간의 `Sofa_Corner_01` 벽 쪽 return은 `3.01m`에서 `2.71m`로 `0.30m` 줄였으며, 문틀과 `Table_02`·코너 소파 사이에는 각각 약 `0.197m`의 여유를 둔다. 동쪽의 `Sofa_02`는 기존 위치 `(35.0392, 10.2174)`와 폭 `2.2319m`로 유지한다.
+
+문을 로비에서 바라봤을 때 왼쪽 벽에는 밝은 회색 `GrayPoster_01`을 배치했다. 크기는 `2.2 × 1.0m`, pose는 `(30.62, 5.0, 1.05)`, yaw `270°`이며 상단 `z=2.05m`를 유지한 채 하단만 늘렸다. 문틀과 가로 방향으로 약 `0.223m`, 벽 끝과 약 `0.074m`, 소파 등받이 상단과 세로 방향으로 약 `0.125m` 여유가 있다.
+
+### 동적 택배 박스 장애물
+
+모든 박스의 `W × D × H` 조합은 서로 다르며 다음 두 구역으로 나뉜다.
+
+| 구역 | 수량·적층 | 배치 기준 |
+| --- | --- | --- |
+| 서쪽 `Table_03` 앞 | 9개, 5-3-1의 3단 | 책상 전면과 약 `0.60m` 간격 |
+| 남쪽 정문 안쪽 오른편 | 4개, 바닥 3개 + 2단 1개 | 중앙/왼쪽 통행선 `x ≤ 24.4m`와 `Spawn_South` 보존 |
+
+- 기준 책상: 서쪽 `Door_Double_01/02` 사이의 `Table_03`
+- 배치 방향: 책상 전면인 동쪽 `+X`, 책상 면과 최소 약 `0.60m` 간격
+- 전체 수량: `13개`, 최고 높이: `1.20m`, 총 질량: `36.2kg`
+- 물리: 각 상자 root에 `PhysicsRigidBodyAPI`·`PhysicsMassAPI`, 본체에 `PhysicsCollisionAPI` 적용
+- 초기 상태: 적층 안정성을 위해 sleep 상태로 시작하며 로봇이나 다른 물체와 접촉하면 동적 강체로 반응
+- 외관: kraft cardboard 3색, 상단·전면 포장 테이프와 상단 배송 라벨
+
+배치와 물성의 기준값은 `worlds/cbnu_haksan_1f_corridor/config/dynamic_obstacles.json`에 있고, 생성된 USD layer는 `config/dynamic_obstacles_layout.usda`다.
 
 ## Stage 구조
 
@@ -63,7 +87,7 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 │   ├── Floor
 │   ├── Ceiling
 │   ├── CeilingLights
-│   │   ├── CeilingLight_01 ... CeilingLight_12
+│   │   ├── CeilingLight_01 ... CeilingLight_15
 │   │   └── CeilingLight_Central_Large
 │   ├── FrontEntranceGlassWalls
 │   │   ├── LeftFullHeightGlass
@@ -77,11 +101,16 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 │   ├── Entrance_Pillar_ATM_Side
 │   └── Entrance_Pillar_Opposite
 ├── Architecture
-│   └── DigitalDisplayWall_01
-│       ├── MainBody
-│       ├── FrontSection / right (Display_01 ... Display_03)
-│       ├── SideSection / left (Display_04 ... Display_08)
-│       └── Collision
+│   ├── DigitalDisplayWall_01
+│   │   ├── FrontSection / right (Display_01 ... Display_03)
+│   │   └── SideSection / left (Display_04 ... Display_08)
+│   ├── ColumnDisplay_01
+│   │   └── Screen
+│   ├── GrayPoster_01
+│   ├── GrayPoster_02
+│   │   └── PosterSlab
+│   ├── ElevatorDoor_01
+│   └── ElevatorDoor_02
 ├── Furniture
 │   ├── Sofa_02
 │   ├── Sofa_03
@@ -93,11 +122,14 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 │   ├── Table_01
 │   ├── Table_02
 │   └── Table_03
+├── DynamicObstacles
+│   ├── Looks
+│   └── ParcelBox_01 ... ParcelBox_13
 ├── Doors
 └── SpawnPoints
 ```
 
-`/World/Obstacles`는 사용하지 않는다.
+기존 raw `/World/Obstacles`는 사용하지 않는다. 동적 장애물은 의미가 분명한 `/World/DynamicObstacles` 아래에 둔다.
 
 ## 주요 시각 요소
 
@@ -107,14 +139,14 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - 천장 아래 면 높이: `3.0m`
 - 천장 두께: `0.10m`
 - 천장 XY footprint: 기존 복도 polygon과 동일
-- 일반 매입형 LED panel: 12개
+- 일반 매입형 LED panel: 15개
 - 중앙 대형 조명: `6.0 × 2.4m`, 위치 `(25.0, 8.5, 2.95)`
 - 일반 조명 RectLight intensity: `8000`
 - 대형 조명 RectLight intensity: `12000`, normalize `false`
 - DomeLight intensity: `1600`
 - 천장 collision: enabled
 
-일반 조명과 중앙 대형 조명은 asset을 분리했다. 중앙 조명의 크기와 밝기를 바꿔도 나머지 12개 조명에는 영향이 없다.
+일반 조명과 중앙 대형 조명은 asset을 분리했다. 중앙 조명의 크기와 밝기를 바꿔도 나머지 15개 조명에는 영향이 없다.
 
 ### 화강암 바닥
 
@@ -126,6 +158,14 @@ worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda
 - 기존 Floor point, face topology와 collision은 유지
 
 파일명은 기존 호환성을 위해 `marble_floor.usda`를 유지하지만 현재 표현은 대리석이 아니라 Bala White 계열 화강암이다.
+
+### 벽·기둥 색상
+
+- Material: `assets/materials/lobby/wall_column_light_gray.usda`
+- 색상: `(0.56, 0.57, 0.56)`의 중성 회색
+- Roughness: `0.68`
+- 적용 대상: 벽 12개, 메인 기둥 3개, 정문 양옆 기둥 2개
+- 바닥은 기존 Bala White, 천장은 기존 `CeilingWhite` 재질을 유지
 
 ### 소파
 
@@ -202,7 +242,7 @@ Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_colu
 
 두 광장은 투명 유리 너머 카메라 시야 전체를 덮도록 건물보다 훨씬 크게 확장했다. 단일 윗면 대신 옆면과 아랫면까지 닫힌 watertight slab으로 만들어 기본 지면이 경계·낮은 시야각·깊이 정밀도 문제로 드러나지 않게 했다. 첨부 이미지처럼 밝은 회색 장방형 블럭과 얇은 줄눈을 사용한다. normal map에는 줄눈 함몰과 콘크리트 미세 요철을, roughness map에는 블럭별 거칠기 편차를 넣어 조명 방향에 따라 보도블럭 질감이 드러난다.
 
-### 코너형 디지털 전시벽
+### 디지털 전시벽과 가운데 기둥 화면
 
 - Asset: `assets/architecture/digital_display_wall/digital_display_wall_corner.usda`
 - 공용 display component: `assets/architecture/digital_display_wall/digital_display_panel.usda`
@@ -215,6 +255,35 @@ Column asset과 U형 asset의 파일명 `column_2m.usda`, `sofa_u_around_2m_colu
 - display 검정 bezel 폭: `0.02m`, 외곽 section trim: `0.04m`
 - 배치: 북동쪽 로비/복도 분기 코너의 `Wall_02`·`Wall_03` 안쪽 면
 - 위치/yaw: `(25.9724, 13.2044, 0.85)`, `0°`
+
+반대편 서쪽 코너에 있던 `DigitalDisplayWall_02`는 화면 구조를 완전히 제거하고 `GrayPoster_02`로 교체했다.
+
+- Asset: `assets/architecture/wall_decor/gray_horizontal_poster_large.usda`
+- 배치: 반대 코너의 `Wall_06` 안쪽 면
+- 위치/yaw: `(20.5892, 13.0403, 0.85)`, `0°`
+- 크기: `4.5 × 1.22 × 0.15m` (이전 `0.075m` 대비 두께 2배)
+- 구조: 회색 `PosterSlab` Cube 1개만 사용
+- 제거 요소: screen, bezel, emissive material, charcoal body, 분할 panel, collision helper
+- 색상: 전체 `(0.34, 0.36, 0.38)` 진한 회색
+- 확장 방향: 기존 오른쪽 끝을 유지하고 왼쪽으로 길이 확장
+
+통형 포스터의 오른쪽 코너를 돌아 들어가는 북측 복도 `Wall_05`에는 운영 중인 엘리베이터를 나타내는 철문 2개를 배치했다.
+
+- Asset: `assets/architecture/elevators/stainless_elevator_door.usda`
+- 위치: `(22.8392, 15.2, 0.0)`, `(22.8392, 19.0, 0.0)`
+- 방향: `yaw=90°`, 북측 복도 `+X` 방향
+- 문 크기: 각 `1.45 × 2.30 × 0.08m`
+- 구조: 중앙개폐식 스테인리스 패널 2장, 금속 프레임, 점등 상태 표시기
+- 상태: operational, closed
+- collision: 별도 collider 없이 기존 `Wall_05` collider 사용
+
+가운데 `Column_03`의 정문 방향 면에는 대형 화면 1장을 배치했다.
+
+- Asset: `assets/architecture/digital_display_wall/digital_display_panel_large_column.usda`
+- 위치/yaw: `(26.43765, 9.78845, 0.70)`, `0°`
+- 화면 외곽: `1.0 × 1.45m`, 상단 높이 `2.15m`
+- 방향: 정문 방향 `-Y`
+- 깊이: `0.04m`; 별도 collider 없이 기존 Column collider 사용
 
 흰색 header와 sign bar는 제거했다. 남은 차콜 본체는 하나의 watertight L-footprint Mesh이며, 화면 주변 검정 배경의 위·아래 여백을 줄였다. 전면·측면 body를 겹친 박스로 만들지 않아 코너의 중복 면과 z-fighting을 피했다. 각 display는 얇은 검정 4면 bezel과 bezel 전면보다 `0.009m` 들어간 저발광 screen으로 구성한다.
 
@@ -241,9 +310,15 @@ assets/
 │   │   └── wood_door_single.usda
 │   ├── digital_display_wall/
 │   │   ├── digital_display_panel.usda
+│   │   ├── digital_display_panel_large_column.usda
 │   │   └── digital_display_wall_corner.usda
 │   ├── exterior/
 │   │   └── exterior_sidewalk_pavers.usda
+│   ├── elevators/
+│   │   └── stainless_elevator_door.usda
+│   ├── wall_decor/
+│   │   ├── gray_horizontal_poster.usda
+│   │   └── gray_horizontal_poster_large.usda
 │   └── windows/
 │       ├── corridor_end_glass_wall.usda
 │       ├── front_entrance_glass_walls.usda
@@ -271,6 +346,7 @@ assets/
 │   └── lobby/
 │       ├── ceiling_white.usda
 │       ├── marble_floor.usda
+│       ├── wall_column_light_gray.usda
 │       └── textures/
 └── structural/
     ├── column_2m.usda
@@ -285,6 +361,8 @@ worlds/cbnu_haksan_1f_corridor/
 │   ├── ceiling_layout.usda
 │   ├── furniture.json
 │   ├── furniture_layout.usda
+│   ├── dynamic_obstacles.json
+│   ├── dynamic_obstacles_layout.usda
 │   ├── architecture.json
 │   ├── architecture_layout.usda
 │   └── geometry.json
@@ -429,7 +507,7 @@ worlds/cbnu_haksan_1f_corridor/config/architecture.json
 python3 scripts/update_cbnu_haksan_architecture.py
 ```
 
-`architecture_layout.usda`는 생성 결과이므로 직접 수정하지 않는다. 현재 asset은 왼쪽 `4.5m`·오른쪽 `2.5m` footprint에 맞춰 제작되어 있으므로 길이를 실제로 바꿀 때는 config만 수정하지 말고 `digital_display_wall_corner.usda`의 L자 Mesh·frame·display 위치·collision도 함께 맞춘다. 모든 display는 공용 `digital_display_panel.usda`를 scale 없이 reference해 동일 크기를 유지한다.
+`architecture_layout.usda`는 생성 결과이므로 직접 수정하지 않는다. 디지털 전시벽은 왼쪽 `4.5m`·오른쪽 `2.5m`의 기존 asset 하나만 남아 있고, 8개 화면은 공용 `digital_display_panel.usda`를 사용한다. 반대편은 더 이상 디스플레이가 아니며 `wall_posters`의 `GrayPoster_02` 단일 슬랩으로 관리한다. 북측 복도의 두 철문은 `elevator_doors`에서 관리한다.
 
 재질은 다음 파일로 분리돼 있다.
 
@@ -489,6 +567,24 @@ python3 scripts/update_cbnu_haksan_furniture.py
 ```
 
 `furniture_layout.usda`는 생성 결과이므로 위치를 바꿀 때 직접 수정하지 않는다.
+
+### 동적 택배 박스 위치·크기 수정
+
+수정 파일:
+
+```text
+worlds/cbnu_haksan_1f_corridor/config/dynamic_obstacles.json
+```
+
+`groups`는 `Table_03`, `Door_Double_05`에 대응하는 두 배치 구역을 정의한다. 각 상자는 `group`, `position`, `size`, `yaw_deg`, `mass_kg`, `stack_level`, `support`, `material_variant`를 가진다. `position.z`는 상자 중심 높이이며, 바닥 상자는 높이의 절반, 적층 상자는 같은 group의 받침 상자 윗면과 정확히 맞아야 한다. 지원 material은 `kraft_light`, `kraft_medium`, `kraft_dark`다.
+
+수정 후 layout을 다시 만든다.
+
+```bash
+python3 scripts/update_cbnu_haksan_dynamic_obstacles.py
+```
+
+`dynamic_obstacles_layout.usda`는 생성 결과이므로 직접 수정하지 않는다.
 
 ### 문 위치·종류 수정
 
@@ -566,6 +662,7 @@ cd ~/Isaac_Worlds
 
 python3 scripts/update_cbnu_haksan_doors.py
 python3 scripts/update_cbnu_haksan_furniture.py
+python3 scripts/update_cbnu_haksan_dynamic_obstacles.py
 python3 scripts/update_cbnu_haksan_ceiling.py
 python3 scripts/update_cbnu_haksan_architecture.py
 MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_preview.py
@@ -578,22 +675,30 @@ python3 scripts/validate_cbnu_haksan_detail.py
 - 직각 벽 12개와 Column pose
 - Floor/Wall collision
 - 천장 footprint, 높이, 두께와 collision
-- 일반 천장 조명 12개와 중앙 대형 조명 1개
+- 일반 천장 조명 15개와 중앙 대형 조명 1개
 - 정면 좌우 통유리 2장과 기존 `Wall_10` collider
 - 폭 `1.73m`인 서쪽 복도와 불투명 `Wall_07` collider
 - 북쪽 복도 끝 통유리 1장과 기존 `Wall_04` collider
 - 활성 통유리·유리문의 clear glass 값과 정문 접합부 연속성
 - 남쪽·북쪽 외부 보도블럭 Mesh, 불투명 material과 albedo·normal·roughness texture binding
 - `1.2 × 1.2 × 3.0m` 메인 기둥 3개, 동일 X 간격과 `-Y 0.30m` 이동
-- 바닥에서 `0.85m` 띄운 높이 `1.22m`의 watertight L자 전시벽, 긴 왼쪽 5개·짧은 오른쪽 3개 display
-- 동일한 `0.62 × 0.98m` recessed display 8개와 `0.02m` 얇은 bezel
-- 전시벽 render/collision 분리와 invisible collision helper 2개
+- 기존 코너 전시벽의 왼쪽 5개·오른쪽 3개 display
+- 기존 전시벽의 `0.62 × 0.98m` 화면 8개와 render/collision 분리
+- 반대 코너 화면 구조 완전 제거와 `4.5 × 1.22 × 0.15m` 비발광 진회색 `PosterSlab` 1개
+- `Wall_05`의 운영 상태 스테인리스 엘리베이터 철문 2개와 기존 wall collider 재사용
+- 기존 전시벽의 invisible collision helper 2개와 두 회색 포스터의 collider 부재
+- `Column_03` 정문 방향의 `1.0 × 1.45m` 대형 화면 1장
+- `Wall_11`의 `2.2 × 1.0m` 밝은 회색 포스터, 문 왼쪽·소파 위쪽 여유와 무충돌 구성
 - ATM–문 사이와 문 반대편의 동일 크기 대칭 기둥 2개
 - Bala White texture, UV와 material binding
-- 문 유형과 실제 leaf 수
+- 벽 12개·메인 기둥 3개·입구 기둥 2개의 중성 회색 material binding, 옅은 포스터·진회색 통형 포스터와의 명도 분리 및 기존 흰색 천장 유지
+- 목재문 `single 4개 + double 4개`와 유리문 실제 leaf 수
+- 정문 오른쪽 `Wall_11`의 `Table_02`–`Door_Single_04`–축소된 코너 소파 return 비중첩 배치와 양쪽 약 `0.197m` 여유
 - 소파 유형, 방향과 Column 2 접촉
 - ATM 2개와 책상 asset load
 - 세 책상의 filled lower body
+- `Table_03` 전면 9개와 정문 안쪽 4개의 배치·간격·적층 접촉
+- 각 택배 박스의 rigid body, mass, non-kinematic 상태와 단일 box collider
 - raw Obstacle Cube 부재
 - 모든 USD reference의 상대경로와 대상 파일
 - 실제 USD runtime에서 nested reference composition
@@ -602,9 +707,9 @@ python3 scripts/validate_cbnu_haksan_detail.py
 
 ```text
 CBNU Haksan detailed lobby validation: PASS
-USD references: 68 relative and resolved
+USD references: 76 relative and resolved
 CBNU Haksan composed Stage: PASS (USD 24.05)
-verified composed prims: 49
+verified composed prims: 62
 preview: 2250 × 1425
 architecture preview: 2250 × 1425
 ```

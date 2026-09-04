@@ -86,6 +86,17 @@ def Xform "Doors"
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 
+    def Xform "Door_Single_04" (
+        prepend references = @../../../assets/architecture/doors/wood_door_single.usda@
+    )
+    {
+        custom string cbnu:doorType = "single"
+        custom string cbnu:placementSource = "doors.json"
+        double xformOp:rotateZ = 270
+        double3 xformOp:translate = (30.62, 3.14695, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
     def Xform "Door_Double_05" (
         prepend references = @../../../assets/architecture/doors/glass_door_double_pair.usda@
     )

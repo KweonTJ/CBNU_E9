@@ -1,0 +1,165 @@
+{
+  "groups": [
+    {
+      "name": "ParcelPile_Table_03",
+      "reference_prim": "Table_03",
+      "placement": "in_front_of_table",
+      "front_direction": "+X",
+      "minimum_clearance_m": 0.6,
+      "description": "mixed-size dynamic parcel pile in front of the west-wall table between Door_Double_01 and Door_Double_02"
+    },
+    {
+      "name": "ParcelCluster_MainEntrance",
+      "reference_prim": "Door_Double_05",
+      "placement": "inside_main_entrance_right",
+      "clear_path_x_max": 24.4,
+      "description": "small dynamic parcel cluster inside the right side of the main south entrance, clear of Spawn_South"
+    }
+  ],
+  "starts_asleep": true,
+  "boxes": [
+    {
+      "name": "ParcelBox_01",
+      "group": "ParcelPile_Table_03",
+      "position": [17.81, 5.75, 0.22],
+      "size": [0.72, 0.58, 0.44],
+      "yaw_deg": -3,
+      "mass_kg": 3.2,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_medium"
+    },
+    {
+      "name": "ParcelBox_02",
+      "group": "ParcelPile_Table_03",
+      "position": [17.85, 6.42, 0.26],
+      "size": [0.78, 0.62, 0.52],
+      "yaw_deg": 2,
+      "mass_kg": 5.0,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_light"
+    },
+    {
+      "name": "ParcelBox_03",
+      "group": "ParcelPile_Table_03",
+      "position": [17.78, 7.03, 0.19],
+      "size": [0.64, 0.52, 0.38],
+      "yaw_deg": -4,
+      "mass_kg": 2.2,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_dark"
+    },
+    {
+      "name": "ParcelBox_04",
+      "group": "ParcelPile_Table_03",
+      "position": [18.56, 5.78, 0.23],
+      "size": [0.66, 0.56, 0.46],
+      "yaw_deg": 4,
+      "mass_kg": 3.8,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_light"
+    },
+    {
+      "name": "ParcelBox_05",
+      "group": "ParcelPile_Table_03",
+      "position": [18.74, 6.48, 0.29],
+      "size": [0.84, 0.64, 0.58],
+      "yaw_deg": -3,
+      "mass_kg": 6.8,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_medium"
+    },
+    {
+      "name": "ParcelBox_06",
+      "group": "ParcelPile_Table_03",
+      "position": [17.81, 5.75, 0.58],
+      "size": [0.5, 0.4, 0.28],
+      "yaw_deg": 3,
+      "mass_kg": 1.4,
+      "stack_level": 2,
+      "support": "ParcelBox_01",
+      "material_variant": "kraft_dark"
+    },
+    {
+      "name": "ParcelBox_07",
+      "group": "ParcelPile_Table_03",
+      "position": [17.85, 6.42, 0.68],
+      "size": [0.6, 0.44, 0.32],
+      "yaw_deg": -2,
+      "mass_kg": 2.0,
+      "stack_level": 2,
+      "support": "ParcelBox_02",
+      "material_variant": "kraft_medium"
+    },
+    {
+      "name": "ParcelBox_08",
+      "group": "ParcelPile_Table_03",
+      "position": [18.74, 6.48, 0.76],
+      "size": [0.66, 0.48, 0.36],
+      "yaw_deg": 4,
+      "mass_kg": 3.1,
+      "stack_level": 2,
+      "support": "ParcelBox_05",
+      "material_variant": "kraft_light"
+    },
+    {
+      "name": "ParcelBox_09",
+      "group": "ParcelPile_Table_03",
+      "position": [18.74, 6.48, 1.07],
+      "size": [0.46, 0.34, 0.26],
+      "yaw_deg": -5,
+      "mass_kg": 1.1,
+      "stack_level": 3,
+      "support": "ParcelBox_08",
+      "material_variant": "kraft_dark"
+    },
+    {
+      "name": "ParcelBox_10",
+      "group": "ParcelCluster_MainEntrance",
+      "position": [24.9, 1.2, 0.2],
+      "size": [0.62, 0.48, 0.4],
+      "yaw_deg": -4,
+      "mass_kg": 2.3,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_light"
+    },
+    {
+      "name": "ParcelBox_11",
+      "group": "ParcelCluster_MainEntrance",
+      "position": [25.55, 1.36, 0.17],
+      "size": [0.5, 0.58, 0.34],
+      "yaw_deg": 3,
+      "mass_kg": 1.7,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_medium"
+    },
+    {
+      "name": "ParcelBox_12",
+      "group": "ParcelCluster_MainEntrance",
+      "position": [24.78, 1.75, 0.19],
+      "size": [0.7, 0.46, 0.38],
+      "yaw_deg": 2,
+      "mass_kg": 2.6,
+      "stack_level": 1,
+      "support": "floor",
+      "material_variant": "kraft_dark"
+    },
+    {
+      "name": "ParcelBox_13",
+      "group": "ParcelCluster_MainEntrance",
+      "position": [24.9, 1.2, 0.54],
+      "size": [0.44, 0.34, 0.28],
+      "yaw_deg": 4,
+      "mass_kg": 1.0,
+      "stack_level": 2,
+      "support": "ParcelBox_10",
+      "material_variant": "kraft_medium"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+#usda 1.0
+(
+    defaultPrim = "GrayHorizontalPoster"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "GrayHorizontalPoster" (
+    kind = "component"
+)
+{
+    custom string cbnu:decorType = "long horizontal gray wall poster"
+    custom double cbnu:width = 2.2
+    custom double cbnu:height = 1.0
+    custom double cbnu:depth = 0.025
+    custom string cbnu:facing = "local -Y"
+    custom bool cbnu:ownCollision = false
+
+    def Scope "Materials"
+    {
+        def Material "GrayBorder"
+        {
+            token outputs:surface.connect = </GrayHorizontalPoster/Materials/GrayBorder/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.48, 0.50, 0.52)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.62
+                token outputs:surface
+            }
+        }
+
+        def Material "GrayPrint"
+        {
+            token outputs:surface.connect = </GrayHorizontalPoster/Materials/GrayPrint/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.70, 0.72, 0.74)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.78
+                token outputs:surface
+            }
+        }
+    }
+
+    def Cube "Backing"
+    {
+        rel material:binding = </GrayHorizontalPoster/Materials/GrayBorder>
+        double size = 1
+        double3 xformOp:scale = (2.2, 0.025, 1.0)
+        double3 xformOp:translate = (0, 0, 0.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "PosterFace"
+    {
+        rel material:binding = </GrayHorizontalPoster/Materials/GrayPrint>
+        double size = 1
+        double3 xformOp:scale = (2.12, 0.006, 0.92)
+        double3 xformOp:translate = (0, -0.0155, 0.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

@@ -11,7 +11,7 @@
     "large_panel_intensity": 12000,
     "large_panel_normalize": false,
     "dome_intensity": 1600,
-    "revision_note": "bright indoor lobby profile after GUI darkness review"
+    "revision_note": "bright indoor lobby profile with three additional standard panels"
   },
   "lights": [
     {"name": "CeilingLight_01", "position": [4.0, 12.25, 2.96], "yaw_deg": 0},
@@ -26,6 +26,9 @@
     {"name": "CeilingLight_10", "position": [29.0, 3.0, 2.96], "yaw_deg": 90},
     {"name": "CeilingLight_11", "position": [32.8, 8.0, 2.96], "yaw_deg": 90},
     {"name": "CeilingLight_12", "position": [32.8, 12.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_13", "position": [19.0, 12.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_14", "position": [28.8, 12.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_15", "position": [29.0, 6.0, 2.96], "yaw_deg": 90},
     {
       "name": "CeilingLight_Central_Large",
       "type": "large_panel",

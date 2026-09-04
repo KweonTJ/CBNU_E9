@@ -7,6 +7,7 @@
   "digital_display_walls": [
     {
       "name": "DigitalDisplayWall_01",
+      "asset_variant": "corner",
       "position": [25.9724, 13.2044, 0.85],
       "yaw_deg": 0,
       "front_length": 2.5,
@@ -22,6 +23,82 @@
       "mount_clearance": 0.85,
       "placement": "wall_attached_corner",
       "source_note": "wall-mounted above the floor on the empty inner faces of Wall_02 and Wall_03; left/side section has five displays and right/front section has three"
+    }
+  ],
+  "column_displays": [
+    {
+      "name": "ColumnDisplay_01",
+      "asset_variant": "large_column",
+      "reference_prim": "Column_03",
+      "position": [26.43765, 9.78845, 0.7],
+      "yaw_deg": 0,
+      "width": 1.0,
+      "height": 1.45,
+      "depth": 0.04,
+      "facing": "-Y_toward_main_entrance",
+      "placement": "mounted_on_column_south_face",
+      "source_note": "one large display centered within the 1.2 m wide Column_03 face toward the main south entrance"
+    }
+  ],
+  "wall_posters": [
+    {
+      "name": "GrayPoster_01",
+      "asset_variant": "gray_horizontal",
+      "reference_wall": "Wall_11",
+      "reference_door": "Door_Single_04",
+      "position": [30.62, 5.0, 1.05],
+      "yaw_deg": 270,
+      "width": 2.2,
+      "height": 1.0,
+      "depth": 0.025,
+      "facing": "-X_into_lobby",
+      "placement": "left_of_door_above_corner_sofa",
+      "source_note": "long horizontal light-gray poster on Wall_11, to the viewer's left of Door_Single_04 and above the shortened return of Sofa_Corner_01; top remains at 2.05 m while the bottom extends downward"
+    },
+    {
+      "name": "GrayPoster_02",
+      "asset_variant": "gray_horizontal_large",
+      "reference_wall": "Wall_06",
+      "position": [20.5892, 13.0403, 0.85],
+      "yaw_deg": 0,
+      "width": 4.5,
+      "height": 1.22,
+      "depth": 0.15,
+      "facing": "-Y_into_lobby",
+      "placement": "opposite_corner_left_wall_extended_one_piece",
+      "source_note": "replaces DigitalDisplayWall_02 with one non-emissive dark-gray poster slab at twice its previous depth; no screen, bezel, split panels or separate collision helper"
+    }
+  ],
+  "elevator_doors": [
+    {
+      "name": "ElevatorDoor_01",
+      "asset_variant": "stainless_center_opening",
+      "reference_wall": "Wall_05",
+      "position": [22.8392, 15.2, 0.0],
+      "yaw_deg": 90,
+      "width": 1.45,
+      "height": 2.3,
+      "depth": 0.08,
+      "facing": "+X_into_north_corridor",
+      "service_state": "operational",
+      "door_state": "closed",
+      "placement": "west_wall_first_elevator_bay",
+      "source_note": "first operating stainless-steel elevator door on the empty Wall_05 face after turning right from GrayPoster_02"
+    },
+    {
+      "name": "ElevatorDoor_02",
+      "asset_variant": "stainless_center_opening",
+      "reference_wall": "Wall_05",
+      "position": [22.8392, 19.0, 0.0],
+      "yaw_deg": 90,
+      "width": 1.45,
+      "height": 2.3,
+      "depth": 0.08,
+      "facing": "+X_into_north_corridor",
+      "service_state": "operational",
+      "door_state": "closed",
+      "placement": "west_wall_second_elevator_bay",
+      "source_note": "second operating stainless-steel elevator door on Wall_05, aligned with the second north-corridor ceiling light"
     }
   ]
 }

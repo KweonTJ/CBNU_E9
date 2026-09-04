@@ -59,6 +59,12 @@ def Xform "World"
         )
         {
         }
+
+        def Material "WallColumnLightGray" (
+            prepend references = @../../assets/materials/lobby/wall_column_light_gray.usda@
+        )
+        {
+        }
     }
 
     def Xform "Environment"
@@ -105,7 +111,7 @@ def Xform "World"
             prepend references = @config/ceiling_layout.usda@
         )
         {
-            custom string cbnu:layoutRevision = "2026-09-01-indoor-ceiling-lights-v1"
+            custom string cbnu:layoutRevision = "2026-09-04-main-lobby-three-panel-addition-v2"
         }
 
         def Xform "FrontEntranceGlassWalls" (
@@ -126,8 +132,15 @@ def Xform "World"
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 
-        def Xform "Walls"
+        def Xform "Walls" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
         {
+            custom string cbnu:surfaceFinish = "medium neutral gray between the light and dark-gray posters"
+            rel material:binding = </World/Looks/WallColumnLightGray> (
+                bindMaterialAs = "strongerThanDescendants"
+            )
+
             def Cube "Wall_01" (
                 prepend apiSchemas = ["PhysicsCollisionAPI"]
             )
@@ -290,8 +303,15 @@ def Xform "World"
         }
     }
 
-    def Xform "Columns"
+    def Xform "Columns" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
     {
+        custom string cbnu:surfaceFinish = "medium neutral gray between the light and dark-gray posters"
+        rel material:binding = </World/Looks/WallColumnLightGray> (
+            bindMaterialAs = "strongerThanDescendants"
+        )
+
         def Xform "Column_01" (
             prepend references = @../../assets/structural/column_2m.usda@
         )
@@ -341,21 +361,28 @@ def Xform "World"
         prepend references = @config/architecture_layout.usda@
     )
     {
-        custom string cbnu:layoutRevision = "2026-09-01-digital-display-wall-v1"
+        custom string cbnu:layoutRevision = "2026-09-04-wall05-elevators-dark-double-depth-poster-v10"
     }
 
     def Xform "Furniture" (
         prepend references = @config/furniture_layout.usda@
     )
     {
-        custom string cbnu:layoutRevision = "2026-09-01-all-tables-filled-base-v6"
+        custom string cbnu:layoutRevision = "2026-09-04-short-corner-return-right-wall-door-v8"
+    }
+
+    def Xform "DynamicObstacles" (
+        prepend references = @config/dynamic_obstacles_layout.usda@
+    )
+    {
+        custom string cbnu:layoutRevision = "2026-09-04-table-entrance-parcels-v6"
     }
 
     def Xform "Doors" (
         prepend references = @config/doors_layout.usda@
     )
     {
-        custom string cbnu:layoutRevision = "2026-09-02-double-glass-full-infill-v4"
+        custom string cbnu:layoutRevision = "2026-09-04-right-wall-single-door-v6"
     }
 
     def Xform "SpawnPoints"

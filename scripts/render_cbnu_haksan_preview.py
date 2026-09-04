@@ -24,6 +24,7 @@ DOORS_PATH = WORLD_DIR / "config/doors.json"
 FURNITURE_PATH = WORLD_DIR / "config/furniture.json"
 CEILING_PATH = WORLD_DIR / "config/ceiling.json"
 ARCHITECTURE_PATH = WORLD_DIR / "config/architecture.json"
+DYNAMIC_OBSTACLES_PATH = WORLD_DIR / "config/dynamic_obstacles.json"
 OUTPUT_PATH = WORLD_DIR / "preview_top_view_detailed.png"
 ARCHITECTURE_OUTPUT_PATH = WORLD_DIR / "preview_architecture_detail.png"
 GRANITE_TEXTURE_PATH = ROOT / "assets/materials/lobby/textures/bala_white_granite_floor_pattern.png"
@@ -149,10 +150,17 @@ def main() -> None:
     furniture = json.loads(FURNITURE_PATH.read_text(encoding="utf-8"))
     ceiling = json.loads(CEILING_PATH.read_text(encoding="utf-8"))
     architecture = json.loads(ARCHITECTURE_PATH.read_text(encoding="utf-8"))
+    dynamic_obstacles = json.loads(
+        DYNAMIC_OBSTACLES_PATH.read_text(encoding="utf-8")
+    )
     sofas = furniture["sofas"]
     fixtures = furniture.get("fixtures", [])
     ceiling_lights = ceiling["lights"]
     display_walls = architecture["digital_display_walls"]
+    column_displays = architecture.get("column_displays", [])
+    wall_posters = architecture.get("wall_posters", [])
+    elevator_doors = architecture.get("elevator_doors", [])
+    parcel_boxes = dynamic_obstacles["boxes"]
     polygon = np.asarray(geometry["corridor_polygon_xy"], dtype=float)
 
     fig, axis = plt.subplots(figsize=(15, 9.5))
@@ -253,8 +261,8 @@ def main() -> None:
             center,
             float(column["size"][0]),
             float(column["size"][1]),
-            facecolor="#a9c9dd",
-            edgecolor="#42677b",
+            facecolor="#8f918f",
+            edgecolor="#6f6d67",
             linewidth=1.5,
             zorder=4,
         )
@@ -267,8 +275,8 @@ def main() -> None:
             center,
             float(pillar["size"][0]),
             float(pillar["size"][1]),
-            facecolor="#777a76",
-            edgecolor="#333532",
+            facecolor="#8f918f",
+            edgecolor="#6f6d67",
             linewidth=1.1,
             zorder=7,
         )
@@ -557,9 +565,54 @@ def main() -> None:
                       color="white", fontsize=6.2, fontweight="bold",
                       ha="center", va="center", zorder=10)
 
+    parcel_colors = {
+        "kraft_light": "#b87837",
+        "kraft_medium": "#8f4f20",
+        "kraft_dark": "#653313",
+    }
+    for parcel in sorted(parcel_boxes, key=lambda item: int(item["stack_level"])):
+        x, y, _ = parcel["position"]
+        width, depth, _ = parcel["size"]
+        yaw_deg = float(parcel["yaw_deg"])
+        level = int(parcel["stack_level"])
+        center = (float(x), float(y))
+        add_centered_rectangle(
+            axis,
+            center,
+            float(width),
+            float(depth),
+            facecolor=parcel_colors[parcel["material_variant"]],
+            edgecolor="#42200d",
+            linewidth=1.0 + 0.25 * level,
+            angle_deg=yaw_deg,
+            zorder=10 + level,
+        )
+        add_centered_rectangle(
+            axis,
+            center,
+            min(0.11, float(width) * 0.22),
+            float(depth) + 0.01,
+            facecolor="#c8a35e",
+            edgecolor="#8f6f32",
+            linewidth=0.35,
+            angle_deg=yaw_deg,
+            zorder=11 + level,
+        )
+        axis.text(
+            *center,
+            parcel["name"].replace("ParcelBox_", "P"),
+            color="white",
+            fontsize=5.4,
+            fontweight="bold",
+            ha="center",
+            va="center",
+            zorder=12 + level,
+        )
+
     for display_wall in display_walls:
         origin = tuple(float(value) for value in display_wall["position"][:2])
         yaw_deg = float(display_wall["yaw_deg"])
+        asset_variant = str(display_wall.get("asset_variant", "corner"))
         front_length = float(display_wall["front_length"])
         side_length = float(display_wall["side_length"])
         depth = float(display_wall["depth"])
@@ -582,7 +635,12 @@ def main() -> None:
             zorder=9,
         )
 
-        front_centers = np.linspace(0.31, front_length - depth - 0.41, int(display_wall["front_display_count"]))
+        front_count = int(display_wall["front_display_count"])
+        front_centers = (
+            np.linspace(0.31, front_length - depth - 0.41, front_count)
+            if front_count > 0
+            else []
+        )
         for index, local_x in enumerate(front_centers, start=1):
             screen_center = transform_local_point(origin, (float(local_x), -depth - 0.04), yaw_deg)
             add_centered_rectangle(
@@ -599,7 +657,9 @@ def main() -> None:
             axis.text(*screen_center, f"F{index}", color="white", fontsize=5.5,
                       ha="center", va="center", zorder=11)
 
-        side_centers = np.linspace(0.57, side_length - depth - 0.57, int(display_wall["side_display_count"]))
+        side_count = int(display_wall["side_display_count"])
+        side_end = side_length - depth - 0.57
+        side_centers = np.linspace(0.57, side_end, side_count) if side_count > 0 else []
         for offset, local_y in enumerate(side_centers, start=1):
             screen_center = transform_local_point(origin, (-depth - 0.04, float(local_y)), yaw_deg)
             add_centered_rectangle(
@@ -616,14 +676,25 @@ def main() -> None:
             axis.text(*screen_center, f"S{offset}", color="white", fontsize=5.5,
                       ha="center", va="center", zorder=11)
 
-        front_arrow_start = transform_local_point(origin, (front_length * 0.5 - depth, -depth - 0.12), yaw_deg)
-        front_arrow_end = transform_local_point(origin, (front_length * 0.5 - depth, -depth - 0.82), yaw_deg)
-        side_arrow_start = transform_local_point(origin, (-depth - 0.12, side_length * 0.5 - depth), yaw_deg)
-        side_arrow_end = transform_local_point(origin, (-depth - 0.82, side_length * 0.5 - depth), yaw_deg)
-        for start, end, label in (
-            (front_arrow_start, front_arrow_end, f"RIGHT ×{display_wall['front_display_count']}"),
-            (side_arrow_start, side_arrow_end, f"LEFT ×{display_wall['side_display_count']}"),
-        ):
+        section_arrows = []
+        if front_count > 0:
+            section_arrows.append(
+                (
+                    transform_local_point(origin, (front_length * 0.5 - depth, -depth - 0.12), yaw_deg),
+                    transform_local_point(origin, (front_length * 0.5 - depth, -depth - 0.82), yaw_deg),
+                    f"RIGHT ×{front_count}",
+                )
+            )
+        if side_count > 0:
+            side_midpoint = side_length * 0.5 - depth
+            section_arrows.append(
+                (
+                    transform_local_point(origin, (-depth - 0.12, side_midpoint), yaw_deg),
+                    transform_local_point(origin, (-depth - 0.82, side_midpoint), yaw_deg),
+                    f"LEFT ×{side_count}",
+                )
+            )
+        for start, end, label in section_arrows:
             axis.annotate(
                 label,
                 xy=end,
@@ -635,6 +706,118 @@ def main() -> None:
                 arrowprops={"arrowstyle": "->", "color": "#7c2caa", "lw": 1.8},
                 zorder=12,
             )
+
+    for column_display in column_displays:
+        origin = tuple(float(value) for value in column_display["position"][:2])
+        yaw_deg = float(column_display["yaw_deg"])
+        width = float(column_display["width"])
+        depth = float(column_display["depth"])
+        body_center = transform_local_point(origin, (0, -depth / 2), yaw_deg)
+        add_centered_rectangle(
+            axis,
+            body_center,
+            width,
+            depth,
+            facecolor="#174a64",
+            edgecolor="#03121c",
+            linewidth=1.4,
+            angle_deg=yaw_deg,
+            zorder=11,
+        )
+        axis.text(
+            *body_center,
+            "BIG",
+            color="white",
+            fontsize=5.5,
+            fontweight="bold",
+            ha="center",
+            va="center",
+            zorder=12,
+        )
+        facing_end = transform_local_point(origin, (0, -0.65), yaw_deg)
+        axis.annotate(
+            "ENTRANCE",
+            xy=facing_end,
+            xytext=origin,
+            color="#0a7898",
+            fontsize=6,
+            fontweight="bold",
+            ha="center",
+            arrowprops={"arrowstyle": "->", "color": "#0a7898", "lw": 1.5},
+            zorder=12,
+        )
+
+    for poster in wall_posters:
+        origin = tuple(float(value) for value in poster["position"][:2])
+        yaw_deg = float(poster["yaw_deg"])
+        width = float(poster["width"])
+        depth = float(poster["depth"])
+        is_large_dark_poster = poster.get("asset_variant") == "gray_horizontal_large"
+        body_center = transform_local_point(origin, (0, -depth / 2), yaw_deg)
+        add_centered_rectangle(
+            axis,
+            body_center,
+            width,
+            depth,
+            facecolor="#575c61" if is_large_dark_poster else "#b3b8bd",
+            edgecolor="#2f3336" if is_large_dark_poster else "#7a7f84",
+            linewidth=1.4,
+            angle_deg=yaw_deg,
+            zorder=11,
+        )
+        label_center = transform_local_point(origin, (0, -0.22), yaw_deg)
+        axis.text(
+            *label_center,
+            "DARK GRAY POSTER" if is_large_dark_poster else "GRAY POSTER",
+            color="white" if is_large_dark_poster else "#4d5155",
+            fontsize=6,
+            fontweight="bold",
+            ha="center",
+            va="center",
+            rotation=yaw_deg,
+            zorder=12,
+        )
+
+    for index, elevator_door in enumerate(elevator_doors, start=1):
+        origin = tuple(float(value) for value in elevator_door["position"][:2])
+        yaw_deg = float(elevator_door["yaw_deg"])
+        width = float(elevator_door["width"])
+        depth = float(elevator_door["depth"])
+        body_center = transform_local_point(origin, (0, -depth / 2), yaw_deg)
+        add_centered_rectangle(
+            axis,
+            body_center,
+            width + 0.22,
+            depth + 0.04,
+            facecolor="#454a4e",
+            edgecolor="#171a1c",
+            linewidth=1.5,
+            angle_deg=yaw_deg,
+            zorder=10,
+        )
+        add_centered_rectangle(
+            axis,
+            body_center,
+            width,
+            depth,
+            facecolor="#9ca4aa",
+            edgecolor="#30363a",
+            linewidth=1.0,
+            angle_deg=yaw_deg,
+            zorder=11,
+        )
+        label_center = transform_local_point(origin, (0, -0.28), yaw_deg)
+        axis.text(
+            *label_center,
+            f"ELEV {index}",
+            color="#24282b",
+            fontsize=5.8,
+            fontweight="bold",
+            ha="center",
+            va="center",
+            rotation=yaw_deg,
+            zorder=12,
+        )
 
     single_index = 0
     double_index = 0
@@ -731,15 +914,20 @@ def main() -> None:
         patches.Patch(facecolor="#fff7cf", edgecolor="#c8ad64", label="Recessed ceiling LED panel"),
         patches.Patch(facecolor="#fff2ad", edgecolor="#d39b28", linewidth=2, label="Large central ceiling light"),
         patches.Patch(facecolor="#8ed7e5", edgecolor="#1f6978", label="Full-height entrance glass wall"),
-        patches.Patch(facecolor="#a9c9dd", edgecolor="#42677b", label="1.2 m column"),
-        patches.Patch(facecolor="#777a76", edgecolor="#333532", label="Entrance side pillar"),
+        patches.Patch(facecolor="#8f918f", edgecolor="#4f514f", label="Medium gray 1.2 m column"),
+        patches.Patch(facecolor="#8f918f", edgecolor="#4f514f", label="Medium gray entrance pillar"),
         patches.Patch(facecolor="#7b4528", edgecolor="#4b2614", label="Straight armless sofa"),
         patches.Patch(facecolor="#9b5c35", edgecolor="#4b2614", label="Single armless sofa"),
         patches.Patch(facecolor="#6d3b22", edgecolor="#3b1d0f", label="Continuous L sofa"),
         patches.Patch(facecolor="#754126", edgecolor="#3d1f10", label="Cushioned open-top U sofa"),
         patches.Patch(facecolor="#63351d", edgecolor="#28160d", label="Sofa-width lobby table"),
+        patches.Patch(facecolor="#8f4f20", edgecolor="#42200d", label="Dynamic mixed-size parcel pile"),
         patches.Patch(facecolor="#252b31", edgecolor="#0a7898", label="Bank ATM"),
-        patches.Patch(facecolor="#323941", edgecolor="#080b0e", label="Compact floating display wall (z=0.85 m, left 5 + right 3)"),
+        patches.Patch(facecolor="#323941", edgecolor="#080b0e", label="Compact floating display wall (L5+R3)"),
+        patches.Patch(facecolor="#174a64", edgecolor="#03121c", label="Large Column 3 display facing entrance"),
+        patches.Patch(facecolor="#b3b8bd", edgecolor="#7a7f84", label="Long horizontal light-gray wall poster"),
+        patches.Patch(facecolor="#575c61", edgecolor="#2f3336", label="One-piece dark-gray wall poster"),
+        patches.Patch(facecolor="#9ca4aa", edgecolor="#30363a", label="Operational stainless-steel elevator door"),
         patches.Patch(facecolor="#7b4528", edgecolor="#4b2614", hatch="///", label="WA: wall attached"),
         patches.Patch(facecolor="#754126", edgecolor="#3d1f10", hatch="xx", label="CA: Column 2 attached"),
         Line2D([0], [0], color="#8b2515", marker=">", label="Seat faces wall"),
@@ -749,7 +937,7 @@ def main() -> None:
         patches.Patch(facecolor="#77b8c8", edgecolor="#163b48", linewidth=2, label="Double glass door"),
     ]
     axis.legend(handles=legend_handles, loc="lower left", framealpha=0.95)
-    axis.set_title("CBNU Haksan 1F Corridor — Indoor Lobby with Digital Display Wall")
+    axis.set_title("CBNU Haksan 1F Corridor — Indoor Lobby with Dynamic Parcel Obstacles")
     axis.set_xlabel("X [m]")
     axis.set_ylabel("Y [m]")
     axis.set_xlim(-1, 36.5)
@@ -764,7 +952,9 @@ def main() -> None:
         f"wrote {OUTPUT_PATH} "
         f"({single_index} single doors, {double_index} double doors including {glass_index} glass, "
         f"{len(sofas)} sofas, {len(fixtures)} fixtures, {len(ceiling_lights)} ceiling lights, "
-        f"{len(display_walls)} digital display wall)\n"
+        f"{len(display_walls)} digital display walls, {len(column_displays)} column display, "
+        f"{len(wall_posters)} wall poster, {len(elevator_doors)} elevator doors, "
+        f"{len(parcel_boxes)} dynamic parcel boxes)\n"
         f"wrote {ARCHITECTURE_OUTPUT_PATH}"
     )
 

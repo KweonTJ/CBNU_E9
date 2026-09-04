@@ -29,7 +29,9 @@ def Xform "EntranceSidePillar" (
         }
     }
 
-    def Cube "Body"
+    def Cube "Body" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
     {
         rel material:binding = </EntranceSidePillar/StoneCladding>
         double size = 1
