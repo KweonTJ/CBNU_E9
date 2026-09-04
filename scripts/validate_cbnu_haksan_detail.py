@@ -57,6 +57,8 @@ GRAY_POSTER_ASSET = ROOT / "assets/architecture/wall_decor/gray_horizontal_poste
 GRAY_POSTER_LARGE_ASSET = ROOT / "assets/architecture/wall_decor/gray_horizontal_poster_large.usda"
 ELEVATOR_DOOR_ASSET = ROOT / "assets/architecture/elevators/stainless_elevator_door.usda"
 EAST_WHITE_DOUBLE_DOOR_ASSET = ROOT / "assets/architecture/doors/white_door_double_wood_portal.usda"
+CENTRAL_DOUBLE_DOOR_PORTAL_ASSET = ROOT / "assets/architecture/doors/wood_door_double_portal.usda"
+CENTRAL_SINGLE_DOOR_PORTAL_ASSET = ROOT / "assets/architecture/doors/wood_door_single_portal.usda"
 DISPLAY_WALL_DARK_MATERIAL = ROOT / "assets/materials/display_wall/display_wall_dark.usda"
 DISPLAY_SCREEN_MATERIAL = ROOT / "assets/materials/display_wall/display_screen.usda"
 DISPLAY_WORDMARK_ASSET = ROOT / "assets/architecture/digital_display_wall/institute_wordmark_mesh.usda"
@@ -767,10 +769,21 @@ def validate_doors() -> Counter[str]:
     )
     require(
         all(
-            doors_by_name[name].get("asset_variant") is None
+            doors_by_name[name].get("asset_variant") == "wood_double_portal"
             for name in ("Door_Double_01", "Door_Double_02")
         ),
-        "west double doors must retain the standard wood variant",
+        "central double doors must use the matching wood-portal variant",
+    )
+    require(
+        doors_by_name["Door_Single_04"].get("asset_variant") == "wood_single_portal",
+        "central single door must use the matching wood-portal variant",
+    )
+    require(
+        all(
+            doors_by_name[name].get("asset_variant") is None
+            for name in ("Door_Single_01", "Door_Single_02", "Door_Single_03")
+        ),
+        "narrow-corridor single doors must remain undecorated",
     )
     single = (ROOT / "assets/architecture/doors/wood_door_single.usda").read_text(encoding="utf-8")
     double = (ROOT / "assets/architecture/doors/wood_door_double.usda").read_text(encoding="utf-8")
@@ -780,14 +793,42 @@ def validate_doors() -> Counter[str]:
     east_double = EAST_WHITE_DOUBLE_DOOR_ASSET.read_text(encoding="utf-8")
     require('custom string cbnu:doorLeafFinish = "warm white opaque double door"' in east_double, "east door white finish metadata missing")
     require('custom string cbnu:portalSurround = "three-sided honey-brown wood portal"' in east_double, "east door wood portal metadata missing")
-    require('custom double3 cbnu:portalOuterSize = (2.22, 0.20, 2.55)' in east_double, "east door portal size mismatch")
+    require('custom string cbnu:portalFit = "zero margin to leaf perimeter"' in east_double, "east door zero-margin portal metadata missing")
+    require('custom double cbnu:perimeterGap = 0' in east_double, "east door portal gap must be zero")
+    require('custom double3 cbnu:portalOuterSize = (2.08, 0.20, 2.28)' in east_double, "east door portal size mismatch")
     require(east_double.count('rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteDoor>') == 2, "east door leaf white-material bindings mismatch")
     require('(0.91, 0.92, 0.89)' in east_double, "east double-door white color mismatch")
     require('(0.52, 0.27, 0.09)' in east_double, "east double-door portal wood color mismatch")
     for portal_part in ("LeftPortalJamb", "RightPortalJamb", "PortalHeader"):
         require(f'def Cube "{portal_part}"' in east_double, f"east door wood portal part missing: {portal_part}")
+    require('double3 xformOp:translate = (-0.95, 0, 1.14)' in east_double, "east door left portal jamb is not flush to the leaf")
+    require('double3 xformOp:translate = (0.95, 0, 1.14)' in east_double, "east door right portal jamb is not flush to the leaf")
+    require('double3 xformOp:translate = (0, 0, 2.19)' in east_double, "east door portal header is not flush to the leaf top")
+    require(all(name not in east_double for name in ('"LeftInnerTrim"', '"RightInnerTrim"', '"InnerHeaderTrim"')), "east door inset-margin trim remains")
     require(east_double.count('def Cylinder "PullHandle"') == 2, "east double-door pull handles mismatch")
     require("PhysicsCollisionAPI" not in east_double, "east decorative door overlay must reuse Wall_01 collision")
+    for asset_path, base_reference, expected_width in (
+        (CENTRAL_DOUBLE_DOOR_PORTAL_ASSET, "wood_door_double.usda", 2.08),
+        (CENTRAL_SINGLE_DOOR_PORTAL_ASSET, "wood_door_single.usda", 1.26),
+    ):
+        require(asset_path.exists(), f"central wood-portal asset missing: {asset_path.name}")
+        portal = asset_path.read_text(encoding="utf-8")
+        require(f"prepend references = @./{base_reference}@" in portal, f"base door reference missing: {asset_path.name}")
+        require('custom string cbnu:portalSurround = "three-sided honey-brown wood portal matching east doors"' in portal, f"matching wood-portal metadata missing: {asset_path.name}")
+        require('custom string cbnu:portalFit = "zero margin to leaf perimeter"' in portal, f"zero-margin portal metadata missing: {asset_path.name}")
+        require('custom double cbnu:perimeterGap = 0' in portal, f"portal gap must be zero: {asset_path.name}")
+        require(f"custom double3 cbnu:portalOuterSize = ({expected_width:.2f}, 0.20, 2.28)" in portal, f"wood-portal size mismatch: {asset_path.name}")
+        for part in ("LeftPortalJamb", "RightPortalJamb", "PortalHeader"):
+            require(portal.count(f'def Cube "{part}"') == 1, f"simple U-portal part missing: {asset_path.name}: {part}")
+        for removed_part in ("LeftPilaster", "RightPilaster", "LeftRosette", "RightRosette", "CrownBase", "CrownTop", "CenterOrnament"):
+            require(f'"{removed_part}"' not in portal, f"ornate door decoration remains: {asset_path.name}: {removed_part}")
+        require(all(name not in portal for name in ('"LeftInnerTrim"', '"RightInnerTrim"', '"InnerHeaderTrim"')), f"portal inset-margin trim remains: {asset_path.name}")
+        leaf_half_width = 0.86 if expected_width == 2.08 else 0.45
+        jamb_center = 0.95 if expected_width == 2.08 else 0.54
+        require(abs((jamb_center - 0.18 / 2) - leaf_half_width) < 1e-9, f"portal side gap is not zero: {asset_path.name}")
+        require(abs((2.19 - 0.18 / 2) - 2.10) < 1e-9, f"portal top gap is not zero: {asset_path.name}")
+        require('(0.52, 0.27, 0.09)' in portal and '(0.66, 0.38, 0.14)' in portal, f"central/east portal wood colors do not match: {asset_path.name}")
+        require("PhysicsCollisionAPI" not in portal, f"wood portal unexpectedly adds collision: {asset_path.name}")
     glass = (ROOT / "assets/architecture/doors/glass_door_double.usda").read_text(encoding="utf-8")
     require('custom int cbnu:doorLeafCount = 2' in glass, "glass door leaf count missing")
     require('def Xform "LeftDoor"' in glass and 'def Xform "RightDoor"' in glass, "glass door must contain two leaves")
@@ -841,7 +882,17 @@ def validate_doors() -> Counter[str]:
         require(f"double3 xformOp:translate = (35.32, {expected_y}, 0)" in block, f"east door layout pose mismatch: {name}")
         require("double xformOp:rotateZ = 90" in block, f"east door layout yaw mismatch: {name}")
     require(layout.count("white_door_double_wood_portal.usda@") == 2, "east white double-door reference count mismatch")
-    require(layout.count("wood_door_double.usda@") == 2, "standard wood double-door reference count mismatch")
+    require(layout.count("wood_door_double_portal.usda@") == 2, "central double-door portal reference count mismatch")
+    require(layout.count("wood_door_single_portal.usda@") == 1, "central single-door portal reference count mismatch")
+    require(layout.count("wood_door_double.usda@") == 0, "undecorated central double-door reference remains")
+    require(layout.count("wood_door_single.usda@") == 3, "narrow-corridor single-door reference count changed")
+    require(layout.count('custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"') == 5, "zero-margin portal layout metadata count mismatch")
+    for name, variant in (
+        ("Door_Double_01", "wood_double_portal"),
+        ("Door_Double_02", "wood_double_portal"),
+        ("Door_Single_04", "wood_single_portal"),
+    ):
+        require(f'custom string cbnu:assetVariant = "{variant}"' in prim_block(layout, name), f"central door layout portal variant missing: {name}")
     glass_block = prim_block(layout, "Door_Double_05")
     require("glass_door_double_pair.usda" in layout and 'cbnu:doorType = "double_glass_pair"' in glass_block, "front double-glass pair reference missing")
     return counts
@@ -1893,11 +1944,12 @@ def main() -> None:
     print("CBNU Haksan detailed lobby validation: PASS")
     print(
         f"doors: single wood={door_counts['single']}, double total={door_counts['double']} "
-        "(standard wood=2, east white+wood portal=2), "
+        "(brown wood+portal=2, east white+wood portal=2), "
         f"double glass sets={2 * door_counts['double_glass_pair']} "
         "(four clear leaves + one central clear fixed glass panel)"
     )
-    print("east double-door finish: Door_Double_03/04 use warm-white leaves with three-sided honey-brown wood portals; west double doors remain brown wood")
+    print("east double-door finish: Door_Double_03/04 use warm-white leaves with zero-margin three-sided honey-brown wood portals")
+    print("portal fit: all five portal doors have 0 m side/top gaps; jamb inner faces meet leaf edges and header bottoms start at z=2.10 m")
     print(
         "sofas: total=" + str(sum(type_counts.values())) + ", "
         + ", ".join(f"{key}={type_counts[key]}" for key in ("straight", "corner", "u_column"))

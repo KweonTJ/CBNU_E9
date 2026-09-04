@@ -21,6 +21,13 @@ DOOR_REFERENCES = {
 }
 DOOR_VARIANT_REFERENCES = {
     "white_wood_portal": "../../../assets/architecture/doors/white_door_double_wood_portal.usda",
+    "wood_double_portal": "../../../assets/architecture/doors/wood_door_double_portal.usda",
+    "wood_single_portal": "../../../assets/architecture/doors/wood_door_single_portal.usda",
+}
+DOOR_VARIANT_TYPES = {
+    "white_wood_portal": "double",
+    "wood_double_portal": "double",
+    "wood_single_portal": "single",
 }
 USD_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -55,8 +62,15 @@ def load_doors(path: Path) -> list[dict[str, object]]:
         asset_variant = door.get("asset_variant")
         if asset_variant is not None and asset_variant not in DOOR_VARIANT_REFERENCES:
             raise ValueError(f"{name} has unsupported asset_variant: {asset_variant}")
-        if asset_variant == "white_wood_portal" and door_type != "double":
-            raise ValueError(f"{name}.white_wood_portal requires type=double")
+        if asset_variant is not None and door_type != DOOR_VARIANT_TYPES[str(asset_variant)]:
+            raise ValueError(
+                f"{name}.{asset_variant} requires type={DOOR_VARIANT_TYPES[str(asset_variant)]}"
+            )
+        portal_fit = door.get("portal_fit")
+        if asset_variant is not None and portal_fit != "zero_margin_to_leaf_perimeter":
+            raise ValueError(f"{name}.portal_fit must be zero_margin_to_leaf_perimeter")
+        if asset_variant is None and portal_fit is not None:
+            raise ValueError(f"{name}.portal_fit requires a portal asset_variant")
 
         if not isinstance(position, list) or len(position) != 3:
             raise ValueError(f"{name}.position must be [x, y, z]")
@@ -105,6 +119,11 @@ def render_layout(doors: list[dict[str, object]]) -> str:
                 *(
                     [f'        custom string cbnu:assetVariant = "{asset_variant}"']
                     if asset_variant is not None
+                    else []
+                ),
+                *(
+                    [f'        custom string cbnu:portalFit = "{door["portal_fit"]}"']
+                    if door.get("portal_fit") is not None
                     else []
                 ),
                 '        custom string cbnu:placementSource = "doors.json"',

@@ -121,6 +121,11 @@ REQUIRED_PRIMS = {
     "/World/Doors/Door_Double_03/WoodPortal/PortalHeader": "Cube",
     "/World/Doors/Door_Double_04/RightDoor/Slab": "Cube",
     "/World/Doors/Door_Double_04/WoodPortal/PortalHeader": "Cube",
+    "/World/Doors/Door_Double_01/WoodPortal/LeftPortalJamb": "Cube",
+    "/World/Doors/Door_Double_01/WoodPortal/PortalHeader": "Cube",
+    "/World/Doors/Door_Double_02/WoodPortal/RightPortalJamb": "Cube",
+    "/World/Doors/Door_Single_04/WoodPortal/RightPortalJamb": "Cube",
+    "/World/Doors/Door_Single_04/WoodPortal/PortalHeader": "Cube",
     "/World/Doors/Door_Single_04/DoorLeaf/Slab": "Cube",
 }
 
@@ -560,6 +565,46 @@ def main() -> None:
     if float(entrance_right_door.GetAttribute("xformOp:rotateZ").Get()) != 270.0:
         raise AssertionError("Door_Single_04 orientation mismatch on Wall_11")
 
+    central_decorated_doors = {
+        "Door_Double_01": ("wood_double_portal", 2.08, (16.14, 8.9, 0.0), 90.0),
+        "Door_Double_02": ("wood_double_portal", 2.08, (16.14, 3.8, 0.0), 90.0),
+        "Door_Single_04": ("wood_single_portal", 1.26, (30.62, 3.14695, 0.0), 270.0),
+    }
+    for door_name, (variant, outer_width, expected_translate, expected_yaw) in central_decorated_doors.items():
+        door = stage.GetPrimAtPath(f"/World/Doors/{door_name}")
+        if door.GetAttribute("cbnu:assetVariant").Get() != variant:
+            raise AssertionError(f"central door decoration variant mismatch: {door_name}")
+        if tuple(door.GetAttribute("xformOp:translate").Get()) != expected_translate:
+            raise AssertionError(f"central decorated-door pose mismatch: {door_name}")
+        if float(door.GetAttribute("xformOp:rotateZ").Get()) != expected_yaw:
+            raise AssertionError(f"central decorated-door yaw mismatch: {door_name}")
+        outer_size = tuple(door.GetAttribute("cbnu:portalOuterSize").Get())
+        if outer_size != (outer_width, 0.2, 2.28):
+            raise AssertionError(f"central door portal size mismatch: {door_name}: {outer_size}")
+        if door.GetAttribute("cbnu:portalFit").Get() != "zero_margin_to_leaf_perimeter":
+            raise AssertionError(f"central door portal fit metadata mismatch: {door_name}")
+        left_jamb = stage.GetPrimAtPath(f"/World/Doors/{door_name}/WoodPortal/LeftPortalJamb")
+        portal_header = stage.GetPrimAtPath(f"/World/Doors/{door_name}/WoodPortal/PortalHeader")
+        expected_header_scale = (outer_width, 0.2, 0.18)
+        if tuple(portal_header.GetAttribute("xformOp:scale").Get()) != expected_header_scale:
+            raise AssertionError(f"central door simple portal header mismatch: {door_name}")
+        portal_material, _ = UsdShade.MaterialBindingAPI(left_jamb).ComputeBoundMaterial()
+        expected_portal_material = f"/World/Doors/{door_name}/PortalMaterials/PortalWood"
+        if not portal_material or str(portal_material.GetPath()) != expected_portal_material:
+            raise AssertionError(f"central door matching wood-portal material mismatch: {door_name}")
+        expected_jamb_x = -0.95 if outer_width == 2.08 else -0.54
+        if tuple(left_jamb.GetAttribute("xformOp:translate").Get()) != (expected_jamb_x, 0.0, 1.14):
+            raise AssertionError(f"central door portal side gap remains: {door_name}")
+        if tuple(portal_header.GetAttribute("xformOp:translate").Get()) != (0.0, 0.0, 2.19):
+            raise AssertionError(f"central door portal top gap remains: {door_name}")
+        if "PhysicsCollisionAPI" in set(left_jamb.GetAppliedSchemas()) or "PhysicsCollisionAPI" in set(portal_header.GetAppliedSchemas()):
+            raise AssertionError(f"central door portal unexpectedly adds collision: {door_name}")
+
+    for door_name in ("Door_Single_01", "Door_Single_02", "Door_Single_03", "Door_Double_05"):
+        wood_portal = stage.GetPrimAtPath(f"/World/Doors/{door_name}/WoodPortal")
+        if wood_portal.IsValid():
+            raise AssertionError(f"excluded corridor/entrance door received a wood portal: {door_name}")
+
     expected_east_door_poses = {
         "Door_Double_03": (35.32, 12.3, 0.0),
         "Door_Double_04": (35.32, 8.05, 0.0),
@@ -572,6 +617,8 @@ def main() -> None:
             raise AssertionError(f"east white double-door yaw mismatch: {door_name}")
         if door.GetAttribute("cbnu:assetVariant").Get() != "white_wood_portal":
             raise AssertionError(f"east double-door variant mismatch: {door_name}")
+        if door.GetAttribute("cbnu:portalFit").Get() != "zero_margin_to_leaf_perimeter":
+            raise AssertionError(f"east double-door portal fit metadata mismatch: {door_name}")
         left_slab = stage.GetPrimAtPath(f"/World/Doors/{door_name}/LeftDoor/Slab")
         leaf_material, _ = UsdShade.MaterialBindingAPI(left_slab).ComputeBoundMaterial()
         expected_leaf_material = f"/World/Doors/{door_name}/Materials/WhiteDoor"
@@ -587,8 +634,13 @@ def main() -> None:
         ):
             raise AssertionError(f"east double-door leaf is not white: {door_name}: {leaf_color}")
         header = stage.GetPrimAtPath(f"/World/Doors/{door_name}/WoodPortal/PortalHeader")
-        if tuple(header.GetAttribute("xformOp:scale").Get()) != (2.22, 0.2, 0.18):
+        if tuple(header.GetAttribute("xformOp:scale").Get()) != (2.08, 0.2, 0.18):
             raise AssertionError(f"east double-door wood header dimensions mismatch: {door_name}")
+        if tuple(header.GetAttribute("xformOp:translate").Get()) != (0.0, 0.0, 2.19):
+            raise AssertionError(f"east double-door portal top gap remains: {door_name}")
+        left_jamb = stage.GetPrimAtPath(f"/World/Doors/{door_name}/WoodPortal/LeftPortalJamb")
+        if tuple(left_jamb.GetAttribute("xformOp:translate").Get()) != (-0.95, 0.0, 1.14):
+            raise AssertionError(f"east double-door portal side gap remains: {door_name}")
         portal_material, _ = UsdShade.MaterialBindingAPI(header).ComputeBoundMaterial()
         expected_portal_material = f"/World/Doors/{door_name}/Materials/PortalWood"
         if not portal_material or str(portal_material.GetPath()) != expected_portal_material:
@@ -607,7 +659,8 @@ def main() -> None:
     print("ATM geometry: loaded=2")
     print("front double-glass sets: loaded=2, fully infilled clear leaves=4")
     print("entrance-right Wall_11: corner sofa return shortened by 0.30 m; one single door inserted with 0.197 m side clearances")
-    print("east Wall_01 doors: Door_Double_03/04 use warm-white leaves inside 2.22 x 0.20 x 2.55 m honey-brown wood portal surrounds")
+    print("east Wall_01 doors: Door_Double_03/04 use warm-white leaves inside zero-margin 2.08 x 0.20 x 2.28 m honey-brown wood portals")
+    print("portal fit: all five newly styled doors have jambs and headers directly touching the leaf perimeter; central three keep brown leaves, narrow corridor and entrance excluded")
     print("lobby tables: loaded=3; all use filled lower bodies")
     print(
         "dynamic parcels: loaded=16; Table_03=9, main entrance=4, between elevators=3"

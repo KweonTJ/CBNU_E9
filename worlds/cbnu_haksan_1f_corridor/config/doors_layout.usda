@@ -43,10 +43,12 @@ def Xform "Doors"
     }
 
     def Xform "Door_Double_01" (
-        prepend references = @../../../assets/architecture/doors/wood_door_double.usda@
+        prepend references = @../../../assets/architecture/doors/wood_door_double_portal.usda@
     )
     {
         custom string cbnu:doorType = "double"
+        custom string cbnu:assetVariant = "wood_double_portal"
+        custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 90
         double3 xformOp:translate = (16.14, 8.9, 0)
@@ -54,10 +56,12 @@ def Xform "Doors"
     }
 
     def Xform "Door_Double_02" (
-        prepend references = @../../../assets/architecture/doors/wood_door_double.usda@
+        prepend references = @../../../assets/architecture/doors/wood_door_double_portal.usda@
     )
     {
         custom string cbnu:doorType = "double"
+        custom string cbnu:assetVariant = "wood_double_portal"
+        custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 90
         double3 xformOp:translate = (16.14, 3.8, 0)
@@ -70,6 +74,7 @@ def Xform "Doors"
     {
         custom string cbnu:doorType = "double"
         custom string cbnu:assetVariant = "white_wood_portal"
+        custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 90
         double3 xformOp:translate = (35.32, 12.3, 0)
@@ -82,6 +87,7 @@ def Xform "Doors"
     {
         custom string cbnu:doorType = "double"
         custom string cbnu:assetVariant = "white_wood_portal"
+        custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 90
         double3 xformOp:translate = (35.32, 8.05, 0)
@@ -89,10 +95,12 @@ def Xform "Doors"
     }
 
     def Xform "Door_Single_04" (
-        prepend references = @../../../assets/architecture/doors/wood_door_single.usda@
+        prepend references = @../../../assets/architecture/doors/wood_door_single_portal.usda@
     )
     {
         custom string cbnu:doorType = "single"
+        custom string cbnu:assetVariant = "wood_single_portal"
+        custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 270
         double3 xformOp:translate = (30.62, 3.14695, 0)

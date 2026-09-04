@@ -24,21 +24,26 @@
     {
       "name": "Door_Double_01",
       "type": "double",
+      "asset_variant": "wood_double_portal",
+      "portal_fit": "zero_margin_to_leaf_perimeter",
       "position": [16.14, 8.9, 0.0],
       "yaw_deg": 90,
-      "source_note": "evacuation diagram: upper paired-leaf symbol on Room 105 east wall"
+      "source_note": "central lobby upper paired-leaf door with the same simple three-sided honey-brown wood portal as the east doors"
     },
     {
       "name": "Door_Double_02",
       "type": "double",
+      "asset_variant": "wood_double_portal",
+      "portal_fit": "zero_margin_to_leaf_perimeter",
       "position": [16.14, 3.8, 0.0],
       "yaw_deg": 90,
-      "source_note": "evacuation diagram: lower paired-leaf symbol on Room 105 east wall"
+      "source_note": "central lobby lower paired-leaf door with the same simple three-sided honey-brown wood portal as the east doors"
     },
     {
       "name": "Door_Double_03",
       "type": "double",
       "asset_variant": "white_wood_portal",
+      "portal_fit": "zero_margin_to_leaf_perimeter",
       "position": [35.32, 12.3, 0.0],
       "yaw_deg": 90,
       "source_note": "east lobby boundary: warm-white paired leaves within a three-sided honey-brown wood portal"
@@ -47,6 +52,7 @@
       "name": "Door_Double_04",
       "type": "double",
       "asset_variant": "white_wood_portal",
+      "portal_fit": "zero_margin_to_leaf_perimeter",
       "position": [35.32, 8.05, 0.0],
       "yaw_deg": 90,
       "source_note": "east lobby boundary: warm-white paired leaves within a three-sided honey-brown wood portal"
@@ -54,9 +60,11 @@
     {
       "name": "Door_Single_04",
       "type": "single",
+      "asset_variant": "wood_single_portal",
+      "portal_fit": "zero_margin_to_leaf_perimeter",
       "position": [30.62, 3.14695, 0.0],
       "yaw_deg": 270,
-      "source_note": "single wood door on Wall_11, immediately right after entering the main entrance, between Table_02 and the shortened return of Sofa_Corner_01"
+      "source_note": "central Wall_11 single wood door with the same simple three-sided honey-brown wood portal as the east doors, between Table_02 and the shortened return of Sofa_Corner_01"
     },
     {
       "name": "Door_Double_05",

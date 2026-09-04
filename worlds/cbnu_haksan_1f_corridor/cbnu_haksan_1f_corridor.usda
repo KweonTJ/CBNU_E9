@@ -396,7 +396,7 @@ def Xform "World"
         prepend references = @config/doors_layout.usda@
     )
     {
-        custom string cbnu:layoutRevision = "2026-09-04-east-white-double-doors-wood-portals-v7"
+        custom string cbnu:layoutRevision = "2026-09-04-all-five-portal-doors-zero-margin-v10"
     }
 
     def Xform "SpawnPoints"

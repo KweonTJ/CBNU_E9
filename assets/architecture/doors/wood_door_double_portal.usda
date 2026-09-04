@@ -1,0 +1,90 @@
+#usda 1.0
+(
+    defaultPrim = "WoodDoorDoublePortal"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "WoodDoorDoublePortal" (
+    prepend references = @./wood_door_double.usda@
+    kind = "component"
+)
+{
+    custom bool cbnu:portalCollisionEnabled = false
+    custom string cbnu:portalSurround = "three-sided honey-brown wood portal matching east doors"
+    custom string cbnu:portalFit = "zero margin to leaf perimeter"
+    custom double cbnu:perimeterGap = 0
+    custom double3 cbnu:portalOuterSize = (2.08, 0.20, 2.28)
+
+    def Scope "PortalMaterials"
+    {
+        def Material "PortalWood"
+        {
+            token outputs:surface.connect = </WoodDoorDoublePortal/PortalMaterials/PortalWood/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.52, 0.27, 0.09)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.40
+                float inputs:clearcoat = 0.08
+                float inputs:clearcoatRoughness = 0.30
+                token outputs:surface
+            }
+        }
+
+        def Material "PortalWoodHighlight"
+        {
+            token outputs:surface.connect = </WoodDoorDoublePortal/PortalMaterials/PortalWoodHighlight/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.66, 0.38, 0.14)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.36
+                token outputs:surface
+            }
+        }
+    }
+
+    def Xform "WoodPortal"
+    {
+        custom string cbnu:construction = "simple U-shaped surround"
+
+        def Cube "LeftPortalJamb" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WoodDoorDoublePortal/PortalMaterials/PortalWood>
+            double size = 1
+            double3 xformOp:scale = (0.18, 0.20, 2.28)
+            double3 xformOp:translate = (-0.95, 0, 1.14)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightPortalJamb" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WoodDoorDoublePortal/PortalMaterials/PortalWood>
+            double size = 1
+            double3 xformOp:scale = (0.18, 0.20, 2.28)
+            double3 xformOp:translate = (0.95, 0, 1.14)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "PortalHeader" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WoodDoorDoublePortal/PortalMaterials/PortalWood>
+            double size = 1
+            double3 xformOp:scale = (2.08, 0.20, 0.18)
+            double3 xformOp:translate = (0, 0, 2.19)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+    }
+}

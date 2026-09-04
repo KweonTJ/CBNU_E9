@@ -1036,17 +1036,30 @@ def main() -> None:
         x, y, _ = door["position"]
         yaw_deg = float(door["yaw_deg"])
         door_type = door["type"]
-        is_white_wood_portal = door.get("asset_variant") == "white_wood_portal"
+        door_variant = door.get("asset_variant")
+        is_white_wood_portal = door_variant == "white_wood_portal"
+        has_matching_wood_portal = door_variant in {
+            "wood_double_portal",
+            "wood_single_portal",
+        }
         if door_type == "single":
             single_index += 1
-            frame_width = 1.06
-            label = f"S{single_index}"
-            frame_color = "#4f2a17"
+            frame_width = 1.26 if has_matching_wood_portal else 1.06
+            label = f"S{single_index}{' PORT' if has_matching_wood_portal else ''}"
+            frame_color = "#9b5822" if has_matching_wood_portal else "#4f2a17"
         elif door_type == "double":
             double_index += 1
-            frame_width = 2.22 if is_white_wood_portal else 1.86
-            label = f"D{double_index}"
-            frame_color = "#9b5822" if is_white_wood_portal else "#351a0d"
+            frame_width = (
+                2.08 if is_white_wood_portal or has_matching_wood_portal else 1.86
+            )
+            label = f"D{double_index}{' PORT' if has_matching_wood_portal else ''}"
+            frame_color = (
+                "#9b5822"
+                if is_white_wood_portal
+                else "#9b5822"
+                if has_matching_wood_portal
+                else "#351a0d"
+            )
         elif door_type == "double_glass":
             double_index += 1
             glass_index += 1
@@ -1162,6 +1175,7 @@ def main() -> None:
         Line2D([0], [0], color="#2d6b4f", marker=">", label="Seat faces lobby / outward"),
         patches.Patch(facecolor="#a9632f", edgecolor="#4f2a17", label="Single wood door"),
         patches.Patch(facecolor="#a9632f", edgecolor="#351a0d", linewidth=2, label="Double wood door"),
+        patches.Patch(facecolor="#a9632f", edgecolor="#9b5822", linewidth=2, label="Central wood door with matching portal"),
         patches.Patch(facecolor="#f1f2ed", edgecolor="#9b5822", linewidth=2, label="East white double door with wood portal"),
         patches.Patch(facecolor="#77b8c8", edgecolor="#163b48", linewidth=2, label="Double glass door"),
     ]
