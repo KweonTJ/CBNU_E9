@@ -11,18 +11,47 @@
       "position": [25.9724, 13.2044, 0.85],
       "yaw_deg": 0,
       "front_length": 2.5,
-      "side_length": 4.5,
+      "side_length": 6.288533,
       "height": 1.22,
       "depth": 0.3,
       "front_display_count": 3,
-      "side_display_count": 5,
+      "side_display_count": 6,
       "display_width": 0.62,
       "display_height": 0.98,
+      "front_display_gap": 0.07,
+      "side_display_gap": 0.24,
+      "side_display_center": 2.9942665,
+      "side_body_end_margin": 0.5342665,
+      "front_frame_end_margin": 0.04,
+      "side_frame_end_margin": 0.10,
       "left_section": "side",
       "right_section": "front",
+      "side_wordmark_text": "학연산공통기술연구원",
+      "side_wordmark_width": 3.6,
+      "side_wordmark_height": 0.38,
+      "side_wordmark_bottom": 1.36,
+      "side_wordmark_depth": 0.016,
+      "side_wordmark_color": "black",
+      "side_wordmark_geometry": "extruded_mesh",
       "mount_clearance": 0.85,
       "placement": "wall_attached_corner",
-      "source_note": "wall-mounted above the floor on the empty inner faces of Wall_02 and Wall_03; left/side section has five displays and right/front section has three"
+      "source_note": "wall-mounted above the floor on the empty inner faces of Wall_02 and Wall_03; left/side section is extended to 6.288533 m with six displays, 0.24 m display gaps and equal 0.5342665 m gray-body margins at both ends; right/front three-display section retains its original size"
+    }
+  ],
+  "partition_walls": [
+    {
+      "name": "WoodPartition_01",
+      "asset_variant": "full_height_wood",
+      "reference_from": "DigitalDisplayWall_01",
+      "reference_to": "NorthCorridorEndGlassWall/RightFrame",
+      "position": [25.8224, 19.8814665, 0.0],
+      "yaw_deg": 0,
+      "thickness": 0.30,
+      "length": 1.377067,
+      "height": 3.00,
+      "facing": "-X_into_north_corridor",
+      "placement": "east_wall_gap_from_five_screen_corner_end_to_north_glass_frame",
+      "source_note": "full-height wooden false wall reduced to two-thirds of its original 2.0656 m length; south edge meets the six-display corner at y=19.192933, north edge stays fixed to the glass RightFrame south face at y=20.5700, and its 0.30 m thickness matches the display body"
     }
   ],
   "column_displays": [
@@ -59,14 +88,18 @@
       "name": "GrayPoster_02",
       "asset_variant": "gray_horizontal_large",
       "reference_wall": "Wall_06",
+      "return_wall": "Wall_05",
+      "reference_elevator": "ElevatorDoor_01",
       "position": [20.5892, 13.0403, 0.85],
       "yaw_deg": 0,
       "width": 4.5,
+      "return_length": 1.3247,
       "height": 1.22,
       "depth": 0.15,
       "facing": "-Y_into_lobby",
-      "placement": "opposite_corner_left_wall_extended_one_piece",
-      "source_note": "replaces DigitalDisplayWall_02 with one non-emissive dark-gray poster slab at twice its previous depth; no screen, bezel, split panels or separate collision helper"
+      "return_facing": "+X_into_north_corridor",
+      "placement": "one_piece_L_shape_around_Wall_06_Wall_05_corner_to_ElevatorDoor_01",
+      "source_note": "one non-emissive dark-gray L-shaped poster mesh; retains the 4.5 m Wall_06 face and wraps 1.3247 m around the corner on Wall_05 until it meets the south outer edge of ElevatorDoor_01 frame; no screen, bezel or separate collision helper"
     }
   ],
   "elevator_doors": [
@@ -99,6 +132,44 @@
       "door_state": "closed",
       "placement": "west_wall_second_elevator_bay",
       "source_note": "second operating stainless-steel elevator door on Wall_05, shifted 0.20 m south (viewer-left) away from the north glass platform"
+    }
+  ],
+  "information_boards": [
+    {
+      "name": "GreenInformationBoard_01",
+      "asset_variant": "green_mobile",
+      "position": [23.4558, 20.25, 0.15],
+      "yaw_deg": 0,
+      "width": 0.72,
+      "depth": 0.34,
+      "height": 1.55,
+      "facing": "-Y_into_north_corridor",
+      "mounted_on": "NorthGlassWoodPlatform",
+      "placement": "left_on_platform"
+    },
+    {
+      "name": "GreenInformationBoard_02",
+      "asset_variant": "green_mobile",
+      "position": [24.4058, 20.25, 0.15],
+      "yaw_deg": 0,
+      "width": 0.72,
+      "depth": 0.34,
+      "height": 1.55,
+      "facing": "-Y_into_north_corridor",
+      "mounted_on": "NorthGlassWoodPlatform",
+      "placement": "center_on_platform"
+    },
+    {
+      "name": "GreenInformationBoard_03",
+      "asset_variant": "green_mobile",
+      "position": [25.3558, 20.25, 0.15],
+      "yaw_deg": 0,
+      "width": 0.72,
+      "depth": 0.34,
+      "height": 1.55,
+      "facing": "-Y_into_north_corridor",
+      "mounted_on": "NorthGlassWoodPlatform",
+      "placement": "right_on_platform"
     }
   ]
 }

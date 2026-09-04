@@ -1,0 +1,24 @@
+#usda 1.0
+(
+    defaultPrim = "DarkReddishBrownLeather"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Material "DarkReddishBrownLeather"
+{
+    custom string cbnu:finish = "blackened charcoal-gray leather with a subtle reddish-brown undertone"
+    token outputs:surface.connect = </DarkReddishBrownLeather/PreviewSurface.outputs:surface>
+
+    def Shader "PreviewSurface"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        color3f inputs:diffuseColor = (0.09, 0.055, 0.05)
+        color3f inputs:specularColor = (0.18, 0.16, 0.15)
+        float inputs:metallic = 0
+        float inputs:roughness = 0.38
+        float inputs:clearcoat = 0.14
+        float inputs:clearcoatRoughness = 0.28
+        token outputs:surface
+    }
+}

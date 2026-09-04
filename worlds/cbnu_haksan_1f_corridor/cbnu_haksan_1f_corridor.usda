@@ -145,6 +145,7 @@ def Xform "World"
             prepend apiSchemas = ["MaterialBindingAPI"]
         )
         {
+            custom string cbnu:cornerJoinRevision = "2026-09-04-four-reentrant-corners-half-thickness-closed-v1"
             custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"
             rel material:binding = </World/Looks/WallColumnLightGray> (
                 bindMaterialAs = "strongerThanDescendants"
@@ -171,8 +172,9 @@ def Xform "World"
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
                 double xformOp:rotateZ = 0
-                double3 xformOp:scale = (9.3768, 0.2, 3)
-                double3 xformOp:translate = (30.7608, 13.3044, 1.5)
+                custom string cbnu:cornerJoin = "extends west to Wall_03 inner face"
+                double3 xformOp:scale = (9.4768, 0.2, 3)
+                double3 xformOp:translate = (30.7108, 13.3044, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
 
@@ -225,8 +227,9 @@ def Xform "World"
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
                 double xformOp:rotateZ = 0
-                double3 xformOp:scale = (22.6522, 0.2, 3)
-                double3 xformOp:translate = (11.4131, 13.1403, 1.5)
+                custom string cbnu:cornerJoin = "extends east to Wall_05 inner face"
+                double3 xformOp:scale = (22.7522, 0.2, 3)
+                double3 xformOp:translate = (11.4631, 13.1403, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
 
@@ -251,8 +254,9 @@ def Xform "World"
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
                 double xformOp:rotateZ = 0
-                double3 xformOp:scale = (15.9275, 0.2, 3)
-                double3 xformOp:translate = (8.05075, 11.4103, 1.5)
+                custom string cbnu:cornerJoin = "extends east to Wall_09 inner face"
+                double3 xformOp:scale = (16.0275, 0.2, 3)
+                double3 xformOp:translate = (8.10075, 11.4103, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
 
@@ -305,8 +309,9 @@ def Xform "World"
                 float3[] primvars:displayColor = [(0.72, 0.72, 0.72)]
                 double size = 1
                 double xformOp:rotateZ = 0
-                double3 xformOp:scale = (4.6956, 0.2, 3)
-                double3 xformOp:translate = (33.1014, 6.1739, 1.5)
+                custom string cbnu:cornerJoin = "extends west to Wall_11 inner face"
+                double3 xformOp:scale = (4.7956, 0.2, 3)
+                double3 xformOp:translate = (33.0514, 6.1739, 1.5)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
             }
         }
@@ -370,7 +375,7 @@ def Xform "World"
         prepend references = @config/architecture_layout.usda@
     )
     {
-        custom string cbnu:layoutRevision = "2026-09-04-wall05-elevators-dark-double-depth-poster-v10"
+        custom string cbnu:layoutRevision = "2026-09-04-north-platform-three-green-information-boards-v11"
     }
 
     def Xform "Furniture" (
@@ -391,7 +396,7 @@ def Xform "World"
         prepend references = @config/doors_layout.usda@
     )
     {
-        custom string cbnu:layoutRevision = "2026-09-04-right-wall-single-door-v6"
+        custom string cbnu:layoutRevision = "2026-09-04-east-white-double-doors-wood-portals-v7"
     }
 
     def Xform "SpawnPoints"

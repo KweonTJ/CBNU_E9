@@ -37,5 +37,27 @@
       "size": [6.0, 2.4],
       "note": "large central lobby ceiling light"
     }
+  ],
+  "air_conditioners": [
+    {
+      "name": "CeilingAC_01",
+      "type": "cassette_4way",
+      "position": [20.8, 8.5, 3.0],
+      "yaw_deg": 0,
+      "size": [1.1, 1.1],
+      "visible_depth": 0.11,
+      "placement": "central_lobby_left_of_large_light",
+      "source_note": "left ceiling cassette centered 4.2 m from the large light center with 0.65 m edge clearance"
+    },
+    {
+      "name": "CeilingAC_02",
+      "type": "cassette_4way",
+      "position": [29.2, 8.5, 3.0],
+      "yaw_deg": 0,
+      "size": [1.1, 1.1],
+      "visible_depth": 0.11,
+      "placement": "central_lobby_right_of_large_light",
+      "source_note": "right ceiling cassette mirrored across the large light center with 0.65 m edge clearance"
+    }
   ]
 }

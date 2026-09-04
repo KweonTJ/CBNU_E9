@@ -15,14 +15,43 @@ def Xform "Architecture"
     {
         custom string cbnu:assetVariant = "corner"
         custom double cbnu:frontLength = 2.5
-        custom double cbnu:sideLength = 4.5
+        custom double cbnu:sideLength = 6.288533
         custom double cbnu:displayWidth = 0.62
         custom double cbnu:displayHeight = 0.98
+        custom double cbnu:frontDisplayGap = 0.07
+        custom double cbnu:sideDisplayGap = 0.24
+        custom double cbnu:sideDisplayCenter = 2.9942665
+        custom double cbnu:sideBodyEndMargin = 0.5342665
+        custom double cbnu:frontFrameEndMargin = 0.04
+        custom double cbnu:sideFrameEndMargin = 0.1
         custom double cbnu:mountClearance = 0.85
         custom int cbnu:frontDisplayCount = 3
-        custom int cbnu:sideDisplayCount = 5
+        custom int cbnu:sideDisplayCount = 6
+        custom string cbnu:sideWordmarkText = "학연산공통기술연구원"
+        custom double cbnu:sideWordmarkWidth = 3.6
+        custom double cbnu:sideWordmarkHeight = 0.38
+        custom double cbnu:sideWordmarkBottom = 1.36
+        custom double cbnu:sideWordmarkDepth = 0.016
+        custom string cbnu:sideWordmarkColor = "black"
+        custom string cbnu:sideWordmarkGeometry = "extruded_mesh"
         double xformOp:rotateZ = 0
         double3 xformOp:translate = (25.9724, 13.2044, 0.85)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "WoodPartition_01" (
+        prepend references = @../../../assets/architecture/partitions/full_height_wood_partition.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "full_height_wood"
+        custom string cbnu:referenceFrom = "DigitalDisplayWall_01"
+        custom string cbnu:referenceTo = "NorthCorridorEndGlassWall/RightFrame"
+        custom string cbnu:facing = "-X_into_north_corridor"
+        custom double cbnu:thickness = 0.3
+        custom double cbnu:length = 1.377067
+        custom double cbnu:height = 3
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (25.8224, 19.8814665, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 
@@ -63,6 +92,10 @@ def Xform "Architecture"
     {
         custom string cbnu:assetVariant = "gray_horizontal_large"
         custom string cbnu:referenceWall = "Wall_06"
+        custom string cbnu:returnWall = "Wall_05"
+        custom string cbnu:referenceElevator = "ElevatorDoor_01"
+        custom string cbnu:returnFacing = "+X_into_north_corridor"
+        custom double cbnu:returnLength = 1.3247
         custom string cbnu:facing = "-Y_into_lobby"
         custom double cbnu:width = 4.5
         custom double cbnu:height = 1.22
@@ -103,6 +136,51 @@ def Xform "Architecture"
         custom double cbnu:depth = 0.08
         double xformOp:rotateZ = 90
         double3 xformOp:translate = (22.8392, 18.8, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "GreenInformationBoard_01" (
+        prepend references = @../../../assets/architecture/signage/green_information_board.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "green_mobile"
+        custom string cbnu:mountedOn = "NorthGlassWoodPlatform"
+        custom string cbnu:facing = "-Y_into_north_corridor"
+        custom double cbnu:width = 0.72
+        custom double cbnu:depth = 0.34
+        custom double cbnu:height = 1.55
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (23.4558, 20.25, 0.15)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "GreenInformationBoard_02" (
+        prepend references = @../../../assets/architecture/signage/green_information_board.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "green_mobile"
+        custom string cbnu:mountedOn = "NorthGlassWoodPlatform"
+        custom string cbnu:facing = "-Y_into_north_corridor"
+        custom double cbnu:width = 0.72
+        custom double cbnu:depth = 0.34
+        custom double cbnu:height = 1.55
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (24.4058, 20.25, 0.15)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
+    def Xform "GreenInformationBoard_03" (
+        prepend references = @../../../assets/architecture/signage/green_information_board.usda@
+    )
+    {
+        custom string cbnu:assetVariant = "green_mobile"
+        custom string cbnu:mountedOn = "NorthGlassWoodPlatform"
+        custom string cbnu:facing = "-Y_into_north_corridor"
+        custom double cbnu:width = 0.72
+        custom double cbnu:depth = 0.34
+        custom double cbnu:height = 1.55
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (25.3558, 20.25, 0.15)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 }

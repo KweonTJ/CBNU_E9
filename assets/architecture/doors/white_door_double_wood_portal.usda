@@ -1,0 +1,275 @@
+#usda 1.0
+(
+    defaultPrim = "WhiteDoubleDoorWoodPortal"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "WhiteDoubleDoorWoodPortal" (
+    kind = "component"
+)
+{
+    custom bool cbnu:collisionEnabled = false
+    custom int cbnu:doorLeafCount = 2
+    custom string cbnu:doorLeafFinish = "warm white opaque double door"
+    custom string cbnu:portalSurround = "three-sided honey-brown wood portal"
+    custom double3 cbnu:portalOuterSize = (2.22, 0.20, 2.55)
+    custom string cbnu:purpose = "decorative east-lobby double door overlay"
+
+    def Scope "Materials"
+    {
+        def Material "WhiteDoor"
+        {
+            token outputs:surface.connect = </WhiteDoubleDoorWoodPortal/Materials/WhiteDoor/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.91, 0.92, 0.89)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.46
+                token outputs:surface
+            }
+        }
+
+        def Material "WhiteInset"
+        {
+            token outputs:surface.connect = </WhiteDoubleDoorWoodPortal/Materials/WhiteInset/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.97, 0.97, 0.94)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.40
+                token outputs:surface
+            }
+        }
+
+        def Material "PortalWood"
+        {
+            token outputs:surface.connect = </WhiteDoubleDoorWoodPortal/Materials/PortalWood/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.52, 0.27, 0.09)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.40
+                float inputs:clearcoat = 0.08
+                float inputs:clearcoatRoughness = 0.30
+                token outputs:surface
+            }
+        }
+
+        def Material "PortalWoodHighlight"
+        {
+            token outputs:surface.connect = </WhiteDoubleDoorWoodPortal/Materials/PortalWoodHighlight/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.66, 0.38, 0.14)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.36
+                token outputs:surface
+            }
+        }
+
+        def Material "HandleMetal"
+        {
+            token outputs:surface.connect = </WhiteDoubleDoorWoodPortal/Materials/HandleMetal/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.50, 0.53, 0.52)
+                float inputs:metallic = 0.88
+                float inputs:roughness = 0.24
+                token outputs:surface
+            }
+        }
+    }
+
+    def Xform "WoodPortal"
+    {
+        custom string cbnu:construction = "continuous U-shaped visual surround"
+
+        def Cube "LeftPortalJamb" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/PortalWood>
+            double size = 1
+            double3 xformOp:scale = (0.18, 0.20, 2.55)
+            double3 xformOp:translate = (-1.02, 0, 1.275)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightPortalJamb" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/PortalWood>
+            double size = 1
+            double3 xformOp:scale = (0.18, 0.20, 2.55)
+            double3 xformOp:translate = (1.02, 0, 1.275)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "PortalHeader" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/PortalWood>
+            double size = 1
+            double3 xformOp:scale = (2.22, 0.20, 0.18)
+            double3 xformOp:translate = (0, 0, 2.46)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LeftInnerTrim" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/PortalWoodHighlight>
+            double size = 1
+            double3 xformOp:scale = (0.07, 0.12, 2.20)
+            double3 xformOp:translate = (-0.895, -0.045, 1.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightInnerTrim" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/PortalWoodHighlight>
+            double size = 1
+            double3 xformOp:scale = (0.07, 0.12, 2.20)
+            double3 xformOp:translate = (0.895, -0.045, 1.10)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "InnerHeaderTrim" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/PortalWoodHighlight>
+            double size = 1
+            double3 xformOp:scale = (1.86, 0.12, 0.08)
+            double3 xformOp:translate = (0, -0.045, 2.16)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "LeftDoor"
+    {
+        custom string cbnu:leafSide = "left"
+
+        def Cube "Slab" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteDoor>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 2.10)
+            double3 xformOp:translate = (-0.435, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "UpperInset" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteInset>
+            double size = 1
+            double3 xformOp:scale = (0.67, 0.016, 0.82)
+            double3 xformOp:translate = (-0.435, -0.0355, 1.55)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LowerInset" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteInset>
+            double size = 1
+            double3 xformOp:scale = (0.67, 0.016, 0.70)
+            double3 xformOp:translate = (-0.435, -0.0355, 0.56)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cylinder "PullHandle" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            uniform token axis = "Z"
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/HandleMetal>
+            double height = 0.36
+            double radius = 0.018
+            double3 xformOp:translate = (-0.13, -0.072, 1.03)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Xform "RightDoor"
+    {
+        custom string cbnu:leafSide = "right"
+
+        def Cube "Slab" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteDoor>
+            double size = 1
+            double3 xformOp:scale = (0.85, 0.055, 2.10)
+            double3 xformOp:translate = (0.435, 0, 1.05)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "UpperInset" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteInset>
+            double size = 1
+            double3 xformOp:scale = (0.67, 0.016, 0.82)
+            double3 xformOp:translate = (0.435, -0.0355, 1.55)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LowerInset" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteInset>
+            double size = 1
+            double3 xformOp:scale = (0.67, 0.016, 0.70)
+            double3 xformOp:translate = (0.435, -0.0355, 0.56)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cylinder "PullHandle" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            uniform token axis = "Z"
+            rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/HandleMetal>
+            double height = 0.36
+            double radius = 0.018
+            double3 xformOp:translate = (0.13, -0.072, 1.03)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Cube "CenterSeam" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/HandleMetal>
+        double size = 1
+        double3 xformOp:scale = (0.018, 0.012, 2.10)
+        double3 xformOp:translate = (0, -0.034, 1.05)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

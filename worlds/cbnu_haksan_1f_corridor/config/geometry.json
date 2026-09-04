@@ -13,6 +13,36 @@
     "ceiling_height": 3.0,
     "ceiling_thickness": 0.1
   },
+  "wall_corner_unifications": [
+    {
+      "corner": [26.0724, 13.3044],
+      "extended_wall": "Wall_02",
+      "adjoining_wall": "Wall_03",
+      "extension_m": 0.1,
+      "unified_endpoint": 25.9724
+    },
+    {
+      "corner": [22.7392, 13.1403],
+      "extended_wall": "Wall_06",
+      "adjoining_wall": "Wall_05",
+      "extension_m": 0.1,
+      "unified_endpoint": 22.8392
+    },
+    {
+      "corner": [16.0145, 11.4103],
+      "extended_wall": "Wall_08",
+      "adjoining_wall": "Wall_09",
+      "extension_m": 0.1,
+      "unified_endpoint": 16.1145
+    },
+    {
+      "corner": [30.7536, 6.1739],
+      "extended_wall": "Wall_12",
+      "adjoining_wall": "Wall_11",
+      "extension_m": 0.1,
+      "unified_endpoint": 30.6536
+    }
+  ],
   "corridor_polygon_xy": [
     [
       35.4492,

@@ -13,6 +13,10 @@ def Xform "NorthCorridorEndGlassWall" (
     custom string cbnu:glassFinish = "clear architectural glass"
     custom string cbnu:placement = "north end of the vertical corridor"
     custom double2 cbnu:glassPanelSize = (3.1332, 2.82)
+    custom bool cbnu:hasLowerOpaqueWall = true
+    custom double cbnu:lowerOpaqueWallHeight = 1.02
+    custom double3 cbnu:lowerOpaqueWallSize = (3.1332, 0.20, 1.02)
+    custom string cbnu:lowerOpaqueWallPlacement = "full glass width with south face flush to the frame and wood platform north edge"
 
     def Material "GlassMaterial"
     {
@@ -45,12 +49,29 @@ def Xform "NorthCorridorEndGlassWall" (
         }
     }
 
+    def Material "LowerOpaqueWallMaterial" (
+        prepend references = @../../materials/lobby/wall_column_light_gray.usda@
+    )
+    {
+    }
+
     def Cube "GlassPanel"
     {
         rel material:binding = </NorthCorridorEndGlassWall/GlassMaterial>
         double size = 1
         double3 xformOp:scale = (3.1332, 0.025, 2.82)
         double3 xformOp:translate = (0, 0, 1.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "LowerOpaqueWall" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </NorthCorridorEndGlassWall/LowerOpaqueWallMaterial>
+        double size = 1
+        double3 xformOp:scale = (3.1332, 0.20, 1.02)
+        double3 xformOp:translate = (0, 0.07, 0.51)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
     }
 

@@ -9,7 +9,7 @@ def Xform "SofaCorner" (
     kind = "component"
 )
 {
-    custom string cbnu:furnitureType = "continuous armless L-shaped brown leather bench sofa"
+    custom string cbnu:furnitureType = "continuous armless L-shaped dark reddish-brown leather bench sofa"
     custom bool cbnu:hasArmrests = false
     custom bool cbnu:continuousJunctions = true
     custom string cbnu:frontDirections = "local +Y and local -X"
@@ -21,6 +21,12 @@ def Xform "SofaCorner" (
 
     def Scope "Materials" (
         prepend references = @../materials/furniture/brown_sofa_material.usda@
+    )
+    {
+    }
+
+    def Material "DarkReddishBrownLeather" (
+        prepend references = @../materials/furniture/dark_reddish_brown_leather_material.usda@
     )
     {
     }
@@ -159,7 +165,9 @@ def Xform "SofaCorner" (
     }
 
     # BEGIN GENERATED SOFA_UNIFIED
-    def Mesh "SofaUnified"
+    def Mesh "SofaUnified" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
     {
         token visibility = "inherited"
         bool doubleSided = true
@@ -224,7 +232,7 @@ def Xform "SofaCorner" (
             157, 156, 143, 144, 158, 157, 144, 145, 159, 158, 145, 146, 160, 159, 146, 147,
             161, 160, 147, 148, 162, 161, 148, 149, 163, 162, 149, 136, 150, 163
         ]
-        rel material:binding = </SofaCorner/Materials/BrownLeatherHighlight>
+        rel material:binding = </SofaCorner/DarkReddishBrownLeather>
         point3f[] points = [
             (-0.3850, -2.6850, 0.0800), (0.3850, -2.6850, 0.0800), (0.3850, -0.5462, 0.0800), (0.4050, -0.4827, 0.0800),
             (0.4827, -0.4050, 0.0800), (0.5462, -0.3850, 0.0800), (2.5150, -0.3850, 0.0800), (2.5150, 0.3850, 0.0800),
@@ -268,7 +276,7 @@ def Xform "SofaCorner" (
             (2.5200, -0.3900, 0.9800), (2.5200, -0.2700, 0.9800), (0.4635, -0.2700, 0.9800), (0.4270, -0.2833, 0.9800),
             (0.4051, -0.3051, 0.9800), (0.3551, -0.3551, 0.9800), (0.2833, -0.4270, 0.9800), (0.2700, -0.4635, 0.9800)
         ]
-        float3[] primvars:displayColor = [(0.33, 0.14, 0.065)]
+        float3[] primvars:displayColor = [(0.09, 0.055, 0.05)]
         uniform token subdivisionScheme = "none"
     }
     # END GENERATED SOFA_UNIFIED

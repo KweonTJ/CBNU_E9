@@ -9,7 +9,7 @@ def Xform "SofaU" (
     kind = "component"
 )
 {
-    custom string cbnu:furnitureType = "continuous armless open-top U-shaped brown leather cushion sofa"
+    custom string cbnu:furnitureType = "continuous armless open-top U-shaped dark reddish-brown leather cushion sofa"
     custom bool cbnu:hasArmrests = false
     custom bool cbnu:continuousJunctions = true
     custom string cbnu:opening = "local +Y"
@@ -23,6 +23,12 @@ def Xform "SofaU" (
 
     def Scope "Materials" (
         prepend references = @../materials/furniture/brown_sofa_material.usda@
+    )
+    {
+    }
+
+    def Material "DarkReddishBrownLeather" (
+        prepend references = @../materials/furniture/dark_reddish_brown_leather_material.usda@
     )
     {
     }
@@ -260,7 +266,9 @@ def Xform "SofaU" (
     }
 
     # BEGIN GENERATED SOFA_UNIFIED
-    def Mesh "SofaUnified"
+    def Mesh "SofaUnified" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
     {
         token visibility = "inherited"
         bool doubleSided = true
@@ -375,7 +383,7 @@ def Xform "SofaU" (
             271, 272, 300, 299, 272, 273, 301, 300, 273, 274, 302, 301, 274, 275, 303, 302,
             275, 248, 276, 303
         ]
-        rel material:binding = </SofaU/Materials/BrownLeatherHighlight>
+        rel material:binding = </SofaU/DarkReddishBrownLeather>
         point3f[] points = [
             (-1.0976, -1.4550, 0.0800), (1.0976, -1.4550, 0.0800), (1.1973, -1.4354, 0.0800), (1.2800, -1.3800, 0.0800),
             (1.3354, -1.2973, 0.0800), (1.3550, -1.1976, 0.0800), (1.3550, 0.5750, 0.0800), (0.6250, 0.5750, 0.0800),
@@ -454,7 +462,7 @@ def Xform "SofaU" (
             (-0.6200, -0.0700, 0.9800), (-0.6200, 0.5800, 0.5800), (-0.7400, 0.5800, 0.5800), (-0.7400, 0.4500, 0.9800),
             (-0.7400, -0.5981, 0.9800), (-0.7294, -0.6521, 0.9800), (-0.6987, -0.6889, 0.9800), (-0.6519, -0.7294, 0.9800)
         ]
-        float3[] primvars:displayColor = [(0.33, 0.14, 0.065)]
+        float3[] primvars:displayColor = [(0.09, 0.055, 0.05)]
         uniform token subdivisionScheme = "none"
     }
     # END GENERATED SOFA_UNIFIED

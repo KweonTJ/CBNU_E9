@@ -1,0 +1,84 @@
+#usda 1.0
+(
+    defaultPrim = "FullHeightWoodPartition"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "FullHeightWoodPartition" (
+    kind = "component"
+)
+{
+    custom string cbnu:architectureType = "full-height wooden false wall"
+    custom bool cbnu:collisionEnabled = true
+    custom double3 cbnu:partitionSize = (0.30, 1.377067, 3.00)
+    custom string cbnu:placement = "continuous infill from the six-screen display-wall end to the north glass frame"
+    custom string cbnu:surfaceFinish = "dark warm wood panels with narrow vertical joints"
+
+    def Material "WoodPanelMaterial"
+    {
+        token outputs:surface.connect = </FullHeightWoodPartition/WoodPanelMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            float inputs:clearcoat = 0.035
+            float inputs:clearcoatRoughness = 0.42
+            color3f inputs:diffuseColor = (0.34, 0.145, 0.055)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.52
+            token outputs:surface
+        }
+    }
+
+    def Material "PanelJointMaterial"
+    {
+        token outputs:surface.connect = </FullHeightWoodPartition/PanelJointMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.105, 0.036, 0.014)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.60
+            token outputs:surface
+        }
+    }
+
+    def Cube "PartitionBody" (
+        prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+    )
+    {
+        rel material:binding = </FullHeightWoodPartition/WoodPanelMaterial>
+        bool physics:collisionEnabled = true
+        double size = 1
+        double3 xformOp:scale = (0.30, 1.377067, 3.00)
+        double3 xformOp:translate = (0, 0, 1.50)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Xform "FrontPanelJoints"
+    {
+        def Cube "Joint_01" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </FullHeightWoodPartition/PanelJointMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.008, 0.012, 2.92)
+            double3 xformOp:translate = (-0.154, -0.229511, 1.50)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "Joint_02" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </FullHeightWoodPartition/PanelJointMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.008, 0.012, 2.92)
+            double3 xformOp:translate = (-0.154, 0.229511, 1.50)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+}

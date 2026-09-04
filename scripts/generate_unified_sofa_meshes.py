@@ -268,7 +268,9 @@ def build_mesh(
         )
     return (
         BEGIN
-        + '    def Mesh "SofaUnified"\n'
+        + '    def Mesh "SofaUnified" (\n'
+        + '        prepend apiSchemas = ["MaterialBindingAPI"]\n'
+        + '    )\n'
         + "    {\n"
         + '        token visibility = "inherited"\n'
         + "        bool doubleSided = true\n"
@@ -278,11 +280,11 @@ def build_mesh(
         + "        int[] faceVertexIndices = [\n"
         + wrap_values(indices, "            ")
         + "\n        ]\n"
-        + f"        rel material:binding = </{root_prim}/Materials/BrownLeatherHighlight>\n"
+        + f"        rel material:binding = </{root_prim}/DarkReddishBrownLeather>\n"
         + "        point3f[] points = [\n"
         + ",\n".join(point_lines)
         + "\n        ]\n"
-        + "        float3[] primvars:displayColor = [(0.33, 0.14, 0.065)]\n"
+        + "        float3[] primvars:displayColor = [(0.09, 0.055, 0.05)]\n"
         + '        uniform token subdivisionScheme = "none"\n'
         + "    }\n"
         + END

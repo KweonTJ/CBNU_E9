@@ -65,10 +65,11 @@ def Xform "Doors"
     }
 
     def Xform "Door_Double_03" (
-        prepend references = @../../../assets/architecture/doors/wood_door_double.usda@
+        prepend references = @../../../assets/architecture/doors/white_door_double_wood_portal.usda@
     )
     {
         custom string cbnu:doorType = "double"
+        custom string cbnu:assetVariant = "white_wood_portal"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 90
         double3 xformOp:translate = (35.32, 12.3, 0)
@@ -76,10 +77,11 @@ def Xform "Doors"
     }
 
     def Xform "Door_Double_04" (
-        prepend references = @../../../assets/architecture/doors/wood_door_double.usda@
+        prepend references = @../../../assets/architecture/doors/white_door_double_wood_portal.usda@
     )
     {
         custom string cbnu:doorType = "double"
+        custom string cbnu:assetVariant = "white_wood_portal"
         custom string cbnu:placementSource = "doors.json"
         double xformOp:rotateZ = 90
         double3 xformOp:translate = (35.32, 8.05, 0)

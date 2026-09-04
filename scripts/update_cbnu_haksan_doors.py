@@ -19,6 +19,9 @@ DOOR_REFERENCES = {
     "double_glass": "../../../assets/architecture/doors/glass_door_double.usda",
     "double_glass_pair": "../../../assets/architecture/doors/glass_door_double_pair.usda",
 }
+DOOR_VARIANT_REFERENCES = {
+    "white_wood_portal": "../../../assets/architecture/doors/white_door_double_wood_portal.usda",
+}
 USD_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -49,6 +52,11 @@ def load_doors(path: Path) -> list[dict[str, object]]:
         seen.add(name)
         if door_type not in DOOR_REFERENCES:
             raise ValueError(f"{name} has unsupported type: {door_type}")
+        asset_variant = door.get("asset_variant")
+        if asset_variant is not None and asset_variant not in DOOR_VARIANT_REFERENCES:
+            raise ValueError(f"{name} has unsupported asset_variant: {asset_variant}")
+        if asset_variant == "white_wood_portal" and door_type != "double":
+            raise ValueError(f"{name}.white_wood_portal requires type=double")
 
         if not isinstance(position, list) or len(position) != 3:
             raise ValueError(f"{name}.position must be [x, y, z]")
@@ -78,7 +86,12 @@ def render_layout(doors: list[dict[str, object]]) -> str:
     for door in doors:
         name = str(door["name"])
         door_type = str(door["type"])
-        reference = DOOR_REFERENCES[door_type]
+        asset_variant = door.get("asset_variant")
+        reference = (
+            DOOR_VARIANT_REFERENCES[str(asset_variant)]
+            if asset_variant is not None
+            else DOOR_REFERENCES[door_type]
+        )
         x, y, z = (float(value) for value in door["position"])
         yaw_deg = float(door["yaw_deg"])
         lines.extend(
@@ -89,6 +102,11 @@ def render_layout(doors: list[dict[str, object]]) -> str:
                 "    )",
                 "    {",
                 f'        custom string cbnu:doorType = "{door_type}"',
+                *(
+                    [f'        custom string cbnu:assetVariant = "{asset_variant}"']
+                    if asset_variant is not None
+                    else []
+                ),
                 '        custom string cbnu:placementSource = "doors.json"',
                 f"        double xformOp:rotateZ = {usd_number(yaw_deg)}",
                 "        double3 xformOp:translate = "

@@ -18,6 +18,7 @@ LIGHT_REFERENCES = {
     "panel": "../../../assets/architecture/ceiling/ceiling_panel_light.usda",
     "large_panel": "../../../assets/architecture/ceiling/ceiling_panel_light_large.usda",
 }
+AIR_CONDITIONER_REFERENCE = "../../../assets/architecture/ceiling/ceiling_cassette_air_conditioner.usda"
 USD_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -57,7 +58,44 @@ def load_lights(path: Path) -> list[dict[str, object]]:
     return lights
 
 
-def render_layout(lights: list[dict[str, object]]) -> str:
+def load_air_conditioners(path: Path) -> list[dict[str, object]]:
+    config = json.loads(path.read_text(encoding="utf-8"))
+    units = config.get("air_conditioners") if isinstance(config, dict) else None
+    if not isinstance(units, list) or len(units) != 2:
+        raise ValueError("ceiling.json must contain exactly two air conditioners")
+
+    seen: set[str] = set()
+    for index, unit in enumerate(units):
+        if not isinstance(unit, dict):
+            raise ValueError(f"air conditioner entry {index} must be an object")
+        name = unit.get("name")
+        position = unit.get("position")
+        yaw_deg = unit.get("yaw_deg")
+        if not isinstance(name, str) or not USD_NAME.fullmatch(name):
+            raise ValueError(f"air conditioner entry {index} has an invalid USD prim name")
+        if name in seen:
+            raise ValueError(f"duplicate ceiling air conditioner name: {name}")
+        seen.add(name)
+        if unit.get("type") != "cassette_4way":
+            raise ValueError(f"{name}.type must be cassette_4way")
+        if not isinstance(position, list) or len(position) != 3:
+            raise ValueError(f"{name}.position must be [x, y, z]")
+        size = unit.get("size")
+        if not isinstance(size, list) or len(size) != 2:
+            raise ValueError(f"{name}.size must be [width, depth]")
+        values = [*position, yaw_deg, *size, unit.get("visible_depth")]
+        if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in values):
+            raise ValueError(f"{name} placement and dimensions must be numeric")
+        if not all(math.isfinite(float(value)) for value in values):
+            raise ValueError(f"{name} placement and dimensions must be finite")
+        if any(float(value) <= 0 for value in [*size, unit["visible_depth"]]):
+            raise ValueError(f"{name} dimensions must be positive")
+    return units
+
+
+def render_layout(
+    lights: list[dict[str, object]], air_conditioners: list[dict[str, object]]
+) -> str:
     lines = [
         "#usda 1.0",
         "(",
@@ -93,6 +131,32 @@ def render_layout(lights: list[dict[str, object]]) -> str:
             ]
         )
 
+    lines.extend(["", '    def Scope "AirConditioners"', "    {"])
+    for unit in air_conditioners:
+        x, y, z = (float(value) for value in unit["position"])
+        yaw_deg = float(unit["yaw_deg"])
+        width, depth = (float(value) for value in unit["size"])
+        lines.extend(
+            [
+                "",
+                f'        def Xform "{unit["name"]}" (',
+                f"            prepend references = @{AIR_CONDITIONER_REFERENCE}@",
+                "        )",
+                "        {",
+                '            custom string cbnu:placementSource = "ceiling.json"',
+                '            custom string cbnu:fixtureType = "cassette_4way"',
+                f"            custom double2 cbnu:footprint = ({usd_number(width)}, {usd_number(depth)})",
+                f"            custom double cbnu:visibleDepth = {usd_number(float(unit['visible_depth']))}",
+                f'            custom string cbnu:placement = "{unit["placement"]}"',
+                f"            double xformOp:rotateZ = {usd_number(yaw_deg)}",
+                "            double3 xformOp:translate = "
+                f"({usd_number(x)}, {usd_number(y)}, {usd_number(z)})",
+                '            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]',
+                "        }",
+            ]
+        )
+    lines.append("    }")
+
     lines.extend(["}", ""])
     return "\n".join(lines)
 
@@ -104,8 +168,14 @@ def main() -> None:
     args = parser.parse_args()
 
     lights = load_lights(args.config)
-    args.output.write_text(render_layout(lights), encoding="utf-8")
-    print(f"wrote {args.output} ({len(lights)} ceiling lights)")
+    air_conditioners = load_air_conditioners(args.config)
+    args.output.write_text(
+        render_layout(lights, air_conditioners), encoding="utf-8"
+    )
+    print(
+        f"wrote {args.output} ({len(lights)} ceiling lights, "
+        f"{len(air_conditioners)} ceiling air conditioners)"
+    )
 
 
 if __name__ == "__main__":

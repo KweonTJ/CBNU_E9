@@ -1,0 +1,304 @@
+#usda 1.0
+(
+    defaultPrim = "GreenInformationBoard"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "GreenInformationBoard" (
+    kind = "component"
+)
+{
+    custom string cbnu:architectureType = "mobile green information board"
+    custom bool cbnu:collisionEnabled = true
+    custom string cbnu:facing = "-Y"
+    custom double3 cbnu:overallSize = (0.72, 0.34, 1.55)
+    custom string cbnu:referenceStyle = "three wheeled green corridor notice boards"
+
+    def Material "GreenBoardMaterial"
+    {
+        token outputs:surface.connect = </GreenInformationBoard/GreenBoardMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.035, 0.28, 0.14)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.52
+            token outputs:surface
+        }
+    }
+
+    def Material "FrameMetalMaterial"
+    {
+        token outputs:surface.connect = </GreenInformationBoard/FrameMetalMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.57, 0.61, 0.58)
+            float inputs:metallic = 0.72
+            float inputs:roughness = 0.30
+            token outputs:surface
+        }
+    }
+
+    def Material "NoticePaperMaterial"
+    {
+        token outputs:surface.connect = </GreenInformationBoard/NoticePaperMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.88, 0.89, 0.82)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.76
+            token outputs:surface
+        }
+    }
+
+    def Material "NoticeInkMaterial"
+    {
+        token outputs:surface.connect = </GreenInformationBoard/NoticeInkMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.08, 0.11, 0.10)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.62
+            token outputs:surface
+        }
+    }
+
+    def Material "WheelRubberMaterial"
+    {
+        token outputs:surface.connect = </GreenInformationBoard/WheelRubberMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.025, 0.03, 0.028)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.70
+            token outputs:surface
+        }
+    }
+
+    def Cube "PanelBacking" (
+        prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+    )
+    {
+        rel material:binding = </GreenInformationBoard/GreenBoardMaterial>
+        bool physics:collisionEnabled = true
+        double size = 1
+        double3 xformOp:scale = (0.63, 0.055, 1.20)
+        double3 xformOp:translate = (0, 0, 0.885)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Xform "Frame"
+    {
+        def Cube "TopRail" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.72, 0.07, 0.045)
+            double3 xformOp:translate = (0, 0, 1.5275)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "BottomRail" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.72, 0.07, 0.045)
+            double3 xformOp:translate = (0, 0, 0.2425)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LeftRail" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.045, 0.07, 1.33)
+            double3 xformOp:translate = (-0.3375, 0, 0.885)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightRail" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.045, 0.07, 1.33)
+            double3 xformOp:translate = (0.3375, 0, 0.885)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "NoticeFace"
+    {
+        def Cube "NoticeSheet" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/NoticePaperMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.52, 0.014, 0.47)
+            double3 xformOp:translate = (0, -0.0345, 1.19)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "HeaderBar" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/GreenBoardMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.42, 0.008, 0.045)
+            double3 xformOp:translate = (0, -0.0455, 1.355)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "InfoLine_01" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/NoticeInkMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.36, 0.008, 0.018)
+            double3 xformOp:translate = (0, -0.0455, 1.255)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "InfoLine_02" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/NoticeInkMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.40, 0.008, 0.018)
+            double3 xformOp:translate = (0, -0.0455, 1.195)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "InfoLine_03" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/NoticeInkMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.30, 0.008, 0.018)
+            double3 xformOp:translate = (-0.05, -0.0455, 1.135)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "InfoBlock" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/NoticeInkMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.11, 0.008, 0.11)
+            double3 xformOp:translate = (-0.155, -0.0455, 1.03)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "RollingBase"
+    {
+        def Cube "LeftPost" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.045, 0.055, 0.20)
+            double3 xformOp:translate = (-0.25, 0, 0.12)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightPost" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            double size = 1
+            double3 xformOp:scale = (0.045, 0.055, 0.20)
+            double3 xformOp:translate = (0.25, 0, 0.12)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LeftFoot" (
+            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            bool physics:collisionEnabled = true
+            double size = 1
+            double3 xformOp:scale = (0.055, 0.34, 0.045)
+            double3 xformOp:translate = (-0.25, 0, 0.0675)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "RightFoot" (
+            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/FrameMetalMaterial>
+            bool physics:collisionEnabled = true
+            double size = 1
+            double3 xformOp:scale = (0.055, 0.34, 0.045)
+            double3 xformOp:translate = (0.25, 0, 0.0675)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Sphere "Wheel_FL" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/WheelRubberMaterial>
+            double radius = 0.045
+            double3 xformOp:translate = (-0.25, -0.125, 0.045)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "Wheel_FR" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/WheelRubberMaterial>
+            double radius = 0.045
+            double3 xformOp:translate = (0.25, -0.125, 0.045)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "Wheel_BL" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/WheelRubberMaterial>
+            double radius = 0.045
+            double3 xformOp:translate = (-0.25, 0.125, 0.045)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "Wheel_BR" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </GreenInformationBoard/WheelRubberMaterial>
+            double radius = 0.045
+            double3 xformOp:translate = (0.25, 0.125, 0.045)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}

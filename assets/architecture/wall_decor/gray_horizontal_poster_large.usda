@@ -9,11 +9,13 @@ def Xform "GrayHorizontalPosterLarge" (
     kind = "component"
 )
 {
-    custom string cbnu:decorType = "one-piece large horizontal gray wall poster"
+    custom string cbnu:decorType = "one-piece L-shaped large gray wall poster"
     custom double cbnu:width = 4.5
+    custom double cbnu:returnLength = 1.3247
     custom double cbnu:height = 1.22
     custom double cbnu:depth = 0.15
-    custom string cbnu:facing = "local -Y"
+    custom string cbnu:facing = "local -Y main face and local +X return face"
+    custom string cbnu:returnTermination = "flush to the south outer edge of ElevatorDoor_01 frame"
     custom bool cbnu:emissive = false
     custom bool cbnu:hasBezel = false
     custom bool cbnu:hasScreen = false
@@ -35,12 +37,12 @@ def Xform "GrayHorizontalPosterLarge" (
         }
     }
 
-    def Cube "PosterSlab"
+    def Mesh "PosterSlab"
     {
         rel material:binding = </GrayHorizontalPosterLarge/GrayPoster>
-        double size = 1
-        double3 xformOp:scale = (4.5, 0.15, 1.22)
-        double3 xformOp:translate = (0, 0, 0.61)
-        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        int[] faceVertexCounts = [6, 6, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [5, 4, 3, 2, 1, 0, 6, 7, 8, 9, 10, 11, 0, 1, 7, 6, 1, 2, 8, 7, 2, 3, 9, 8, 3, 4, 10, 9, 4, 5, 11, 10, 5, 0, 6, 11]
+        point3f[] points = [(-2.25, -0.075, 0), (2.325, -0.075, 0), (2.325, 1.3247, 0), (2.175, 1.3247, 0), (2.175, 0.075, 0), (-2.25, 0.075, 0), (-2.25, -0.075, 1.22), (2.325, -0.075, 1.22), (2.325, 1.3247, 1.22), (2.175, 1.3247, 1.22), (2.175, 0.075, 1.22), (-2.25, 0.075, 1.22)]
+        uniform token subdivisionScheme = "none"
     }
 }

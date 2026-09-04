@@ -1,0 +1,230 @@
+#usda 1.0
+(
+    defaultPrim = "CeilingCassetteAC"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "CeilingCassetteAC" (
+    kind = "component"
+)
+{
+    custom string cbnu:fixtureType = "four-way ceiling cassette air conditioner"
+    custom bool cbnu:operational = true
+    custom bool cbnu:collisionEnabled = false
+    custom int cbnu:airflowDirections = 4
+    custom double2 cbnu:faceSize = (1.1, 1.1)
+    custom double cbnu:visibleDepth = 0.11
+    custom string cbnu:mounting = "recessed housing with root at the 3.0 m ceiling underside"
+
+    def Scope "Materials"
+    {
+        def Material "PanelWhite"
+        {
+            token outputs:surface.connect = </CeilingCassetteAC/Materials/PanelWhite/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.76, 0.78, 0.80)
+                float inputs:metallic = 0.02
+                float inputs:roughness = 0.62
+                token outputs:surface
+            }
+        }
+
+        def Material "GrilleGray"
+        {
+            token outputs:surface.connect = </CeilingCassetteAC/Materials/GrilleGray/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.24, 0.26, 0.28)
+                float inputs:metallic = 0.08
+                float inputs:roughness = 0.58
+                token outputs:surface
+            }
+        }
+
+        def Material "VentDark"
+        {
+            token outputs:surface.connect = </CeilingCassetteAC/Materials/VentDark/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.025, 0.030, 0.035)
+                float inputs:metallic = 0.05
+                float inputs:roughness = 0.70
+                token outputs:surface
+            }
+        }
+
+        def Material "VaneLight"
+        {
+            token outputs:surface.connect = </CeilingCassetteAC/Materials/VaneLight/PreviewSurface.outputs:surface>
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.58, 0.61, 0.64)
+                float inputs:metallic = 0.04
+                float inputs:roughness = 0.54
+                token outputs:surface
+            }
+        }
+    }
+
+    def Cube "RecessedHousing"
+    {
+        rel material:binding = </CeilingCassetteAC/Materials/PanelWhite>
+        double size = 1
+        double3 xformOp:scale = (1.10, 1.10, 0.070)
+        double3 xformOp:translate = (0, 0, -0.035)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "FacePanel"
+    {
+        rel material:binding = </CeilingCassetteAC/Materials/PanelWhite>
+        double size = 1
+        double3 xformOp:scale = (1.04, 1.04, 0.028)
+        double3 xformOp:translate = (0, 0, -0.075)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Cube "IntakeGrille"
+    {
+        rel material:binding = </CeilingCassetteAC/Materials/GrilleGray>
+        double size = 1
+        double3 xformOp:scale = (0.56, 0.56, 0.012)
+        double3 xformOp:translate = (0, 0, -0.095)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Xform "IntakeSlats"
+    {
+        def Cube "Slat_01"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.50, 0.018, 0.006)
+            double3 xformOp:translate = (0, -0.18, -0.104)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "Slat_02"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.50, 0.018, 0.006)
+            double3 xformOp:translate = (0, -0.12, -0.104)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "Slat_03"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.50, 0.018, 0.006)
+            double3 xformOp:translate = (0, -0.06, -0.104)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "Slat_04"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.50, 0.018, 0.006)
+            double3 xformOp:translate = (0, 0.00, -0.104)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "Slat_05"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.50, 0.018, 0.006)
+            double3 xformOp:translate = (0, 0.06, -0.104)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "Slat_06"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.50, 0.018, 0.006)
+            double3 xformOp:translate = (0, 0.12, -0.104)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "Slat_07"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.50, 0.018, 0.006)
+            double3 xformOp:translate = (0, 0.18, -0.104)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "FourWayOutlets"
+    {
+        def Cube "NorthOutlet"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.68, 0.10, 0.014)
+            double3 xformOp:translate = (0, 0.42, -0.101)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "SouthOutlet"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.68, 0.10, 0.014)
+            double3 xformOp:translate = (0, -0.42, -0.101)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "EastOutlet"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.10, 0.68, 0.014)
+            double3 xformOp:translate = (0.42, 0, -0.101)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "WestOutlet"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VentDark>
+            double size = 1
+            double3 xformOp:scale = (0.10, 0.68, 0.014)
+            double3 xformOp:translate = (-0.42, 0, -0.101)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "NorthVane"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VaneLight>
+            double size = 1
+            double3 xformOp:scale = (0.56, 0.018, 0.006)
+            double3 xformOp:translate = (0, 0.42, -0.110)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "SouthVane"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VaneLight>
+            double size = 1
+            double3 xformOp:scale = (0.56, 0.018, 0.006)
+            double3 xformOp:translate = (0, -0.42, -0.110)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "EastVane"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VaneLight>
+            double size = 1
+            double3 xformOp:scale = (0.018, 0.56, 0.006)
+            double3 xformOp:translate = (0.42, 0, -0.110)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+        def Cube "WestVane"
+        {
+            rel material:binding = </CeilingCassetteAC/Materials/VaneLight>
+            double size = 1
+            double3 xformOp:scale = (0.018, 0.56, 0.006)
+            double3 xformOp:translate = (-0.42, 0, -0.110)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+}

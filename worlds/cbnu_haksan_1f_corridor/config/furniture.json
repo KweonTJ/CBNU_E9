@@ -6,6 +6,7 @@
       "position": [35.0392, 10.2174, 0.0],
       "yaw_deg": 270,
       "length_scale": 1.11595,
+      "material_variant": "brown_leather",
       "placement": "wall_attached",
       "facing": "lobby",
       "source_note": "east edge flush to the east lobby wall; restored after correcting Door_Single_04 to the entrance-right wall"
@@ -16,6 +17,7 @@
       "position": [17.7101, 0.4535, 0.0],
       "yaw_deg": 180,
       "length_scale": 1.4203,
+      "material_variant": "brown_leather",
       "placement": "wall_attached",
       "facing": "lobby",
       "source_note": "south edge flush to the south wall; seat faces inward toward the lobby"
@@ -26,6 +28,7 @@
       "position": [29.1159, 0.4535, 0.0],
       "yaw_deg": 180,
       "length_scale": 1.6087,
+      "material_variant": "brown_leather",
       "placement": "wall_attached",
       "facing": "lobby",
       "source_note": "south edge flush to the south wall; seat faces inward toward the lobby"
@@ -36,6 +39,7 @@
       "position": [30.3436, 6.5839, 0.0],
       "yaw_deg": 0,
       "return_length_m": 2.71,
+      "material_variant": "dark_reddish_brown_leather",
       "placement": "wall_attached",
       "facing": "lobby",
       "source_note": "L-shaped sofa flush to both walls at the inner southeast lobby corner; Wall_11 return shortened by 0.30 m for Door_Single_04"
@@ -44,6 +48,7 @@
       "name": "Sofa_U_Column_02",
       "type": "u_column",
       "column": "Column_02",
+      "material_variant": "dark_reddish_brown_leather",
       "placement": "column_attached",
       "facing": "outward",
       "source_note": "structural exception: attached around Column_02 on left, bottom and right"

@@ -26,6 +26,7 @@ ASSET_REFERENCES = {
 }
 PLACEMENTS = {"column_attached", "wall_attached", "freestanding"}
 FACINGS = {"lobby", "outward", "not_applicable"}
+SOFA_MATERIAL_VARIANTS = {"brown_leather", "dark_reddish_brown_leather"}
 USD_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -76,6 +77,13 @@ def load_layout(config_path: Path, geometry_path: Path) -> tuple[list[dict[str, 
             raise ValueError(
                 f"{name}.facing must be one of: {', '.join(sorted(FACINGS))}"
             )
+        if item_type in {"straight", "corner", "single", "u_column"}:
+            material_variant = item.get("material_variant")
+            if material_variant not in SOFA_MATERIAL_VARIANTS:
+                raise ValueError(
+                    f"{name}.material_variant must be one of: "
+                    f"{', '.join(sorted(SOFA_MATERIAL_VARIANTS))}"
+                )
 
         if item_type == "u_column":
             column = item.get("column")
@@ -148,6 +156,8 @@ def render_layout(items: list[dict[str, object]], columns: dict[str, list[float]
             lines.insert(-1, f'        custom string cbnu:sofaType = "{item_type}"')
         else:
             lines.insert(-1, '        custom string cbnu:sofaType = "u_column"')
+        if item_type in {"straight", "corner", "single", "u_column"}:
+            lines.insert(-1, f'        custom string cbnu:materialVariant = "{item["material_variant"]}"')
         if item_type in {"straight", "lobby_table", "lobby_table_filled"}:
             depth_scale = float(item.get("depth_scale", 1.0))
             lines.append(

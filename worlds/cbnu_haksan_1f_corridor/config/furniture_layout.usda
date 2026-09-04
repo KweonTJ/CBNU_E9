@@ -18,6 +18,7 @@ def Xform "Furniture"
         custom string cbnu:facing = "lobby"
         custom string cbnu:itemType = "straight"
         custom string cbnu:sofaType = "straight"
+        custom string cbnu:materialVariant = "brown_leather"
         double xformOp:rotateZ = 270
         double3 xformOp:scale = (1.11595, 1, 1)
         double3 xformOp:translate = (35.0392, 10.2174, 0)
@@ -33,6 +34,7 @@ def Xform "Furniture"
         custom string cbnu:facing = "lobby"
         custom string cbnu:itemType = "straight"
         custom string cbnu:sofaType = "straight"
+        custom string cbnu:materialVariant = "brown_leather"
         double xformOp:rotateZ = 180
         double3 xformOp:scale = (1.4203, 1, 1)
         double3 xformOp:translate = (17.7101, 0.4535, 0)
@@ -48,6 +50,7 @@ def Xform "Furniture"
         custom string cbnu:facing = "lobby"
         custom string cbnu:itemType = "straight"
         custom string cbnu:sofaType = "straight"
+        custom string cbnu:materialVariant = "brown_leather"
         double xformOp:rotateZ = 180
         double3 xformOp:scale = (1.6087, 1, 1)
         double3 xformOp:translate = (29.1159, 0.4535, 0)
@@ -63,6 +66,7 @@ def Xform "Furniture"
         custom string cbnu:facing = "lobby"
         custom string cbnu:itemType = "corner"
         custom string cbnu:sofaType = "corner"
+        custom string cbnu:materialVariant = "dark_reddish_brown_leather"
         double xformOp:rotateZ = 0
         double3 xformOp:translate = (30.3436, 6.5839, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
@@ -77,6 +81,7 @@ def Xform "Furniture"
         custom string cbnu:facing = "outward"
         custom string cbnu:itemType = "u_column"
         custom string cbnu:sofaType = "u_column"
+        custom string cbnu:materialVariant = "dark_reddish_brown_leather"
         double xformOp:rotateZ = 0
         double3 xformOp:translate = (31.1014, 10.3957, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]

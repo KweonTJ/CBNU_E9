@@ -30,6 +30,7 @@ SOFA_ASSETS = {
     "u_column": ROOT / "assets/furniture/sofa_u_around_2m_column.usda",
 }
 COMMON_SOFA_MATERIAL = ROOT / "assets/materials/furniture/brown_sofa_material.usda"
+DARK_REDDISH_BROWN_SOFA_MATERIAL = ROOT / "assets/materials/furniture/dark_reddish_brown_leather_material.usda"
 MARBLE_MATERIAL = ROOT / "assets/materials/lobby/marble_floor.usda"
 WALL_COLUMN_MATERIAL = ROOT / "assets/materials/lobby/wall_column_light_gray.usda"
 GRANITE_TEXTURE = ROOT / "assets/materials/lobby/textures/bala_white_granite_floor_pattern.png"
@@ -42,9 +43,11 @@ CEILING_LAYOUT = WORLD_DIR / "config/ceiling_layout.usda"
 CEILING_MATERIAL = ROOT / "assets/materials/lobby/ceiling_white.usda"
 CEILING_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light.usda"
 CEILING_LARGE_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light_large.usda"
+CEILING_AC_ASSET = ROOT / "assets/architecture/ceiling/ceiling_cassette_air_conditioner.usda"
 FRONT_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/front_entrance_glass_walls.usda"
 NORTH_CORRIDOR_END_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/north_corridor_end_glass_wall.usda"
 NORTH_CORRIDOR_WOOD_PLATFORM_ASSET = ROOT / "assets/architecture/platforms/north_corridor_wood_platform.usda"
+GREEN_INFORMATION_BOARD_ASSET = ROOT / "assets/architecture/signage/green_information_board.usda"
 ENTRANCE_PILLAR_ASSET = ROOT / "assets/structural/entrance_side_pillar.usda"
 COLUMN_ASSET = ROOT / "assets/structural/column_2m.usda"
 DISPLAY_WALL_ASSET = ROOT / "assets/architecture/digital_display_wall/digital_display_wall_corner.usda"
@@ -53,8 +56,11 @@ COLUMN_DISPLAY_ASSET = ROOT / "assets/architecture/digital_display_wall/digital_
 GRAY_POSTER_ASSET = ROOT / "assets/architecture/wall_decor/gray_horizontal_poster.usda"
 GRAY_POSTER_LARGE_ASSET = ROOT / "assets/architecture/wall_decor/gray_horizontal_poster_large.usda"
 ELEVATOR_DOOR_ASSET = ROOT / "assets/architecture/elevators/stainless_elevator_door.usda"
+EAST_WHITE_DOUBLE_DOOR_ASSET = ROOT / "assets/architecture/doors/white_door_double_wood_portal.usda"
 DISPLAY_WALL_DARK_MATERIAL = ROOT / "assets/materials/display_wall/display_wall_dark.usda"
 DISPLAY_SCREEN_MATERIAL = ROOT / "assets/materials/display_wall/display_screen.usda"
+DISPLAY_WORDMARK_ASSET = ROOT / "assets/architecture/digital_display_wall/institute_wordmark_mesh.usda"
+WOOD_PARTITION_ASSET = ROOT / "assets/architecture/partitions/full_height_wood_partition.usda"
 EXTERIOR_PAVEMENT_ASSET = ROOT / "assets/architecture/exterior/exterior_sidewalk_pavers.usda"
 SIDEWALK_MATERIAL = ROOT / "assets/materials/exterior/sidewalk_pavers.usda"
 SIDEWALK_TEXTURE = ROOT / "assets/materials/exterior/textures/campus_sidewalk_pavers_basecolor.png"
@@ -68,7 +74,7 @@ def require(condition: bool, message: str) -> None:
 
 
 def usd_number(value: float) -> str:
-    result = f"{float(value):.6f}".rstrip("0").rstrip(".")
+    result = f"{float(value):.7f}".rstrip("0").rstrip(".")
     return "0" if result in {"", "-0"} else result
 
 
@@ -227,7 +233,38 @@ def validate_world() -> None:
     require('bindMaterialAs = "strongerThanDescendants"' in walls_section, "wall light-gray binding must override descendants")
     require('custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"' in walls_section, "wall gray metadata missing")
 
+    expected_corner_wall_transforms = {
+        "Wall_02": ((9.4768, 0.2, 3.0), (30.7108, 13.3044, 1.5), 25.9724, "min"),
+        "Wall_06": ((22.7522, 0.2, 3.0), (11.4631, 13.1403, 1.5), 22.8392, "max"),
+        "Wall_08": ((16.0275, 0.2, 3.0), (8.10075, 11.4103, 1.5), 16.1145, "max"),
+        "Wall_12": ((4.7956, 0.2, 3.0), (33.0514, 6.1739, 1.5), 30.6536, "min"),
+    }
+    for wall_name, (scale, translate, target_endpoint, endpoint_side) in expected_corner_wall_transforms.items():
+        block = prim_block(world_text, wall_name)
+        require(
+            f"double3 xformOp:scale = ({usd_number(scale[0])}, 0.2, 3)" in block,
+            f"unified corner wall scale mismatch: {wall_name}",
+        )
+        require(
+            f"double3 xformOp:translate = ({usd_number(translate[0])}, {usd_number(translate[1])}, 1.5)" in block,
+            f"unified corner wall pose mismatch: {wall_name}",
+        )
+        endpoint = translate[0] + (-scale[0] / 2 if endpoint_side == "min" else scale[0] / 2)
+        require(abs(endpoint - target_endpoint) < 1e-9, f"wall does not reach adjoining inner face: {wall_name}")
+        require('custom string cbnu:cornerJoin = "extends ' in block, f"corner join metadata missing: {wall_name}")
+
     geometry = json.loads(GEOMETRY.read_text(encoding="utf-8"))
+    corner_joins = geometry.get("wall_corner_unifications", [])
+    require(len(corner_joins) == 4, "expected four unified re-entrant wall corners")
+    require(
+        {item["extended_wall"] for item in corner_joins}
+        == {"Wall_02", "Wall_06", "Wall_08", "Wall_12"},
+        "wall corner unification set mismatch",
+    )
+    require(
+        all(float(item["extension_m"]) == 0.1 for item in corner_joins),
+        "each re-entrant corner must close the wall half-thickness gap",
+    )
     west_corridor = geometry.get("west_corridor", {})
     require(west_corridor.get("width") == 1.73, "west corridor width must be 1.73 m")
     require(west_corridor.get("center_y") == 12.2753, "west corridor centerline changed")
@@ -338,9 +375,27 @@ def validate_ceiling() -> Counter[str]:
     ceiling = ceiling_config["ceiling"]
     lighting_profile = ceiling_config["lighting_profile"]
     lights = ceiling_config["lights"]
+    air_conditioners = ceiling_config.get("air_conditioners", [])
     type_counts = Counter(item.get("type", "panel") for item in lights)
 
     require(type_counts == Counter({"panel": 15, "large_panel": 1}), f"unexpected ceiling lights: {type_counts}")
+    require(len(air_conditioners) == 2, "exactly two central ceiling air conditioners are required")
+    air_conditioners_by_name = {item["name"]: item for item in air_conditioners}
+    require(
+        set(air_conditioners_by_name) == {"CeilingAC_01", "CeilingAC_02"},
+        "ceiling air conditioner set mismatch",
+    )
+    expected_air_conditioners = {
+        "CeilingAC_01": ([20.8, 8.5, 3.0], "central_lobby_left_of_large_light"),
+        "CeilingAC_02": ([29.2, 8.5, 3.0], "central_lobby_right_of_large_light"),
+    }
+    for name, (position, placement) in expected_air_conditioners.items():
+        unit = air_conditioners_by_name[name]
+        require(unit["type"] == "cassette_4way", f"ceiling AC type mismatch: {name}")
+        require(unit["position"] == position and unit["yaw_deg"] == 0, f"ceiling AC pose mismatch: {name}")
+        require(unit["size"] == [1.1, 1.1], f"ceiling AC footprint mismatch: {name}")
+        require(unit["visible_depth"] == 0.11, f"ceiling AC depth mismatch: {name}")
+        require(unit["placement"] == placement, f"ceiling AC placement metadata mismatch: {name}")
     lights_by_name = {item["name"]: item for item in lights}
     expected_additional_lights = {
         "CeilingLight_13": ([19.0, 12.0, 2.96], 90),
@@ -387,11 +442,18 @@ def validate_ceiling() -> Counter[str]:
     layout_text = CEILING_LAYOUT.read_text(encoding="utf-8")
     require(layout_text.count('ceiling_panel_light.usda@') == 15, "standard ceiling panel reference count mismatch")
     require(layout_text.count('ceiling_panel_light_large.usda@') == 1, "large central ceiling light reference missing")
+    require('def Scope "AirConditioners"' in layout_text, "ceiling air conditioner scope missing")
+    require(layout_text.count('ceiling_cassette_air_conditioner.usda@') == 2, "ceiling air conditioner references missing")
     for light in lights:
         require(f'def Xform "{light["name"]}"' in layout_text, f"ceiling light missing from layout: {light['name']}")
         x, y, z = light["position"]
         expected_translate = f"double3 xformOp:translate = ({usd_number(x)}, {usd_number(y)}, {usd_number(z)})"
         require(expected_translate in layout_text, f"ceiling light layout pose mismatch: {light['name']}")
+    for unit in air_conditioners:
+        require(f'def Xform "{unit["name"]}"' in layout_text, f"ceiling air conditioner missing from layout: {unit['name']}")
+        x, y, z = unit["position"]
+        expected_translate = f"double3 xformOp:translate = ({usd_number(x)}, {usd_number(y)}, {usd_number(z)})"
+        require(expected_translate in layout_text, f"ceiling air conditioner layout pose mismatch: {unit['name']}")
 
     regular_text = CEILING_LIGHT_ASSET.read_text(encoding="utf-8")
     require('def RectLight "Light"' in regular_text and 'float inputs:intensity = 8000' in regular_text, "standard ceiling RectLight intensity mismatch")
@@ -407,6 +469,68 @@ def validate_ceiling() -> Counter[str]:
     large = next(item for item in lights if item.get("type") == "large_panel")
     require(large["position"] == [25.0, 8.5, 2.95], "large central light pose mismatch")
     require(large.get("size") == [6.0, 2.4], "large central light config size mismatch")
+    large_left = float(large["position"][0]) - float(large["size"][0]) / 2
+    large_right = float(large["position"][0]) + float(large["size"][0]) / 2
+    left_ac = air_conditioners_by_name["CeilingAC_01"]
+    right_ac = air_conditioners_by_name["CeilingAC_02"]
+    left_ac_right = float(left_ac["position"][0]) + float(left_ac["size"][0]) / 2
+    right_ac_left = float(right_ac["position"][0]) - float(right_ac["size"][0]) / 2
+    require(
+        abs(large_left - left_ac_right - 0.65) < 1e-9
+        and abs(right_ac_left - large_right - 0.65) < 1e-9,
+        "ceiling air conditioners must retain 0.65 m clearance from the large light",
+    )
+    require(
+        abs(
+            (float(left_ac["position"][0]) + float(right_ac["position"][0])) / 2
+            - float(large["position"][0])
+        ) < 1e-9
+        and float(left_ac["position"][1]) == float(right_ac["position"][1]) == float(large["position"][1]),
+        "ceiling air conditioners must be mirrored across the central light",
+    )
+    for unit in air_conditioners:
+        unit_half_x = float(unit["size"][0]) / 2
+        unit_half_y = float(unit["size"][1]) / 2
+        unit_x, unit_y = (float(value) for value in unit["position"][:2])
+        for light in lights:
+            light_width, light_depth = (
+                (float(value) for value in light["size"])
+                if light.get("type") == "large_panel"
+                else (1.30, 0.36)
+            )
+            if int(light["yaw_deg"]) % 180 == 90:
+                light_width, light_depth = light_depth, light_width
+            light_x, light_y = (float(value) for value in light["position"][:2])
+            overlap_x = min(unit_x + unit_half_x, light_x + light_width / 2) - max(
+                unit_x - unit_half_x, light_x - light_width / 2
+            )
+            overlap_y = min(unit_y + unit_half_y, light_y + light_depth / 2) - max(
+                unit_y - unit_half_y, light_y - light_depth / 2
+            )
+            require(
+                overlap_x <= 0 or overlap_y <= 0,
+                f"ceiling air conditioner overlaps light: {unit['name']} / {light['name']}",
+            )
+
+    require(CEILING_AC_ASSET.exists(), "ceiling cassette air conditioner asset missing")
+    ac_text = CEILING_AC_ASSET.read_text(encoding="utf-8")
+    require('custom string cbnu:fixtureType = "four-way ceiling cassette air conditioner"' in ac_text, "ceiling AC type metadata missing")
+    require('custom bool cbnu:operational = true' in ac_text, "ceiling AC must be operational")
+    require('custom bool cbnu:collisionEnabled = false' in ac_text, "ceiling AC collision policy mismatch")
+    require('custom int cbnu:airflowDirections = 4' in ac_text, "ceiling AC airflow metadata mismatch")
+    require('custom double2 cbnu:faceSize = (1.1, 1.1)' in ac_text, "ceiling AC face size mismatch")
+    require(ac_text.count('def Cube "') == 18, "ceiling AC visible part count mismatch")
+    for part in (
+        "RecessedHousing", "FacePanel", "IntakeGrille", "Slat_01", "Slat_07",
+        "NorthOutlet", "SouthOutlet", "EastOutlet", "WestOutlet",
+        "NorthVane", "SouthVane", "EastVane", "WestVane",
+    ):
+        require(f'"{part}"' in ac_text, f"ceiling AC part missing: {part}")
+    require('double3 xformOp:scale = (1.10, 1.10, 0.070)' in prim_block(ac_text, "RecessedHousing"), "ceiling AC housing dimensions mismatch")
+    require('double3 xformOp:scale = (0.56, 0.56, 0.012)' in prim_block(ac_text, "IntakeGrille"), "ceiling AC intake dimensions mismatch")
+    require("PhysicsCollisionAPI" not in ac_text, "ceiling AC must reuse the ceiling collider")
+    require('def RectLight "' not in ac_text, "ceiling AC must not emit light")
+    type_counts["air_conditioner"] = len(air_conditioners)
     return type_counts
 
 
@@ -508,12 +632,29 @@ def validate_north_corridor_end_glass_wall() -> None:
 
     glass_text = NORTH_CORRIDOR_END_GLASS_WALL_ASSET.read_text(encoding="utf-8")
     require('custom double2 cbnu:glassPanelSize = (3.1332, 2.82)' in glass_text, "north corridor glass size mismatch")
+    require('custom bool cbnu:hasLowerOpaqueWall = true' in glass_text, "north corridor lower opaque wall metadata missing")
+    require('custom double cbnu:lowerOpaqueWallHeight = 1.02' in glass_text, "north corridor lower wall height mismatch")
+    require('custom double3 cbnu:lowerOpaqueWallSize = (3.1332, 0.20, 1.02)' in glass_text, "north corridor lower wall size metadata mismatch")
     require(glass_text.count('def Cube "GlassPanel"') == 1, "north corridor must use one full-height glass pane")
+    require(glass_text.count('def Cube "LowerOpaqueWall"') == 1, "north corridor must use one lower opaque wall")
+    north_lower_wall = prim_block(glass_text, "LowerOpaqueWall")
+    require('prepend apiSchemas = ["MaterialBindingAPI"]' in glass_text, "north corridor lower wall material API missing")
+    require('double3 xformOp:scale = (3.1332, 0.20, 1.02)' in north_lower_wall, "north corridor lower wall dimensions mismatch")
+    require('double3 xformOp:translate = (0, 0.07, 0.51)' in north_lower_wall, "north corridor lower wall pose mismatch")
+    require('rel material:binding = </NorthCorridorEndGlassWall/LowerOpaqueWallMaterial>' in north_lower_wall, "north corridor lower wall material binding mismatch")
+    require('@../../materials/lobby/wall_column_light_gray.usda@' in glass_text, "north corridor lower wall stone-gray material reference missing")
     require('custom string cbnu:glassFinish = "clear architectural glass"' in glass_text, "north corridor clear glass metadata missing")
     require('color3f inputs:diffuseColor = (0.48, 0.73, 0.78)' in glass_text, "north corridor clear glass tint mismatch")
     require('float inputs:opacity = 0.13' in glass_text, "north corridor clear glass opacity missing")
     require('float inputs:roughness = 0.08' in glass_text, "north corridor clear glass roughness missing")
     require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative north glass must not add collision")
+    require("PhysicsCollisionAPI" not in glass_text, "north glazing and lower wall must reuse Wall_04 collision")
+    north_lower_wall_south_face = 20.60 + 0.07 - 0.20 / 2
+    platform_north_edge = 20.27 + 0.60 / 2
+    require(
+        abs(north_lower_wall_south_face - platform_north_edge) < 1e-9,
+        "north lower wall is stepped from the wood platform edge",
+    )
 
 
 def validate_north_corridor_wood_platform() -> None:
@@ -617,10 +758,36 @@ def validate_doors() -> Counter[str]:
         and doors_by_name["Door_Single_04"]["yaw_deg"] == 270,
         "entrance-right Wall_11 single door pose mismatch",
     )
+    require(
+        all(
+            doors_by_name[name].get("asset_variant") == "white_wood_portal"
+            for name in ("Door_Double_03", "Door_Double_04")
+        ),
+        "east double doors must use the white-door wood-portal variant",
+    )
+    require(
+        all(
+            doors_by_name[name].get("asset_variant") is None
+            for name in ("Door_Double_01", "Door_Double_02")
+        ),
+        "west double doors must retain the standard wood variant",
+    )
     single = (ROOT / "assets/architecture/doors/wood_door_single.usda").read_text(encoding="utf-8")
     double = (ROOT / "assets/architecture/doors/wood_door_double.usda").read_text(encoding="utf-8")
     require('"DoorLeaf"' in single, "single door leaf missing")
     require('"LeftDoor"' in double and '"RightDoor"' in double, "double door must contain two leaves")
+    require(EAST_WHITE_DOUBLE_DOOR_ASSET.exists(), "east white double-door asset missing")
+    east_double = EAST_WHITE_DOUBLE_DOOR_ASSET.read_text(encoding="utf-8")
+    require('custom string cbnu:doorLeafFinish = "warm white opaque double door"' in east_double, "east door white finish metadata missing")
+    require('custom string cbnu:portalSurround = "three-sided honey-brown wood portal"' in east_double, "east door wood portal metadata missing")
+    require('custom double3 cbnu:portalOuterSize = (2.22, 0.20, 2.55)' in east_double, "east door portal size mismatch")
+    require(east_double.count('rel material:binding = </WhiteDoubleDoorWoodPortal/Materials/WhiteDoor>') == 2, "east door leaf white-material bindings mismatch")
+    require('(0.91, 0.92, 0.89)' in east_double, "east double-door white color mismatch")
+    require('(0.52, 0.27, 0.09)' in east_double, "east double-door portal wood color mismatch")
+    for portal_part in ("LeftPortalJamb", "RightPortalJamb", "PortalHeader"):
+        require(f'def Cube "{portal_part}"' in east_double, f"east door wood portal part missing: {portal_part}")
+    require(east_double.count('def Cylinder "PullHandle"') == 2, "east double-door pull handles mismatch")
+    require("PhysicsCollisionAPI" not in east_double, "east decorative door overlay must reuse Wall_01 collision")
     glass = (ROOT / "assets/architecture/doors/glass_door_double.usda").read_text(encoding="utf-8")
     require('custom int cbnu:doorLeafCount = 2' in glass, "glass door leaf count missing")
     require('def Xform "LeftDoor"' in glass and 'def Xform "RightDoor"' in glass, "glass door must contain two leaves")
@@ -668,6 +835,13 @@ def validate_doors() -> Counter[str]:
         and 'double xformOp:rotateZ = 270' in prim_block(layout, "Door_Single_04"),
         "entrance-right Wall_11 single door layout mismatch",
     )
+    for name, expected_y in (("Door_Double_03", 12.3), ("Door_Double_04", 8.05)):
+        block = prim_block(layout, name)
+        require('custom string cbnu:assetVariant = "white_wood_portal"' in block, f"east door layout variant mismatch: {name}")
+        require(f"double3 xformOp:translate = (35.32, {expected_y}, 0)" in block, f"east door layout pose mismatch: {name}")
+        require("double xformOp:rotateZ = 90" in block, f"east door layout yaw mismatch: {name}")
+    require(layout.count("white_door_double_wood_portal.usda@") == 2, "east white double-door reference count mismatch")
+    require(layout.count("wood_door_double.usda@") == 2, "standard wood double-door reference count mismatch")
     glass_block = prim_block(layout, "Door_Double_05")
     require("glass_door_double_pair.usda" in layout and 'cbnu:doorType = "double_glass_pair"' in glass_block, "front double-glass pair reference missing")
     return counts
@@ -699,6 +873,16 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
         "Sofa_Corner_01": (30.3436, 6.5839),
     }
     sofas_by_name = {item["name"]: item for item in sofas}
+    require(
+        {name for name, sofa in sofas_by_name.items() if sofa.get("material_variant") == "dark_reddish_brown_leather"}
+        == {"Sofa_Corner_01", "Sofa_U_Column_02"},
+        "dark reddish-brown leather sofa assignment mismatch",
+    )
+    require(
+        {name for name, sofa in sofas_by_name.items() if sofa.get("material_variant") == "brown_leather"}
+        == {"Sofa_02", "Sofa_03", "Sofa_05"},
+        "brown leather sofa assignment mismatch",
+    )
     for name, expected_position in expected_wall_attached_positions.items():
         actual_position = tuple(float(value) for value in sofas_by_name[name]["position"][:2])
         require(
@@ -784,6 +968,8 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     require(abs(1.36 * float(replacement_table["depth_scale"]) - 0.82) < 1e-6, "Table_03 depth mismatch")
     require(replacement_table["placement"] == "wall_attached", "Table_03 must remain wall attached")
     layout_text = FURNITURE_LAYOUT.read_text(encoding="utf-8")
+    require(layout_text.count('custom string cbnu:materialVariant = "dark_reddish_brown_leather"') == 2, "furniture layout dark reddish-brown leather assignment mismatch")
+    require(layout_text.count('custom string cbnu:materialVariant = "brown_leather"') == 3, "furniture layout brown leather assignment mismatch")
     require(
         'def Xform "ATM_01"' in layout_text
         and 'def Xform "ATM_02"' in layout_text
@@ -803,6 +989,13 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     for material_name in ("BrownLeather", "BrownLeatherHighlight", "BrownPiping"):
         require(f'def Material "{material_name}"' in material_text, f"material missing: {material_name}")
 
+    require(DARK_REDDISH_BROWN_SOFA_MATERIAL.exists(), "dark reddish-brown leather sofa material missing")
+    accent_material_text = DARK_REDDISH_BROWN_SOFA_MATERIAL.read_text(encoding="utf-8")
+    require('custom string cbnu:finish = "blackened charcoal-gray leather with a subtle reddish-brown undertone"' in accent_material_text, "blackened charcoal reddish-brown leather finish metadata missing")
+    require('color3f inputs:diffuseColor = (0.09, 0.055, 0.05)' in accent_material_text, "blackened charcoal reddish-brown leather color mismatch")
+    require('float inputs:roughness = 0.38' in accent_material_text, "dark reddish-brown leather roughness mismatch")
+    require('float inputs:clearcoat = 0.14' in accent_material_text, "dark reddish-brown leather clearcoat mismatch")
+
     required_parts = {
         "straight": ("BaseUpholsteryUnified", "SeatCushionContinuous", "BackCushionContinuous"),
         "single": ("BaseUpholsteryUnified", "SeatCushion", "BackCushion"),
@@ -817,6 +1010,22 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     for sofa_type, asset in SOFA_ASSETS.items():
         text = asset.read_text(encoding="utf-8")
         require("@../materials/furniture/brown_sofa_material.usda@" in text, f"brown material reference missing: {asset.name}")
+        if sofa_type in {"corner", "u_column"}:
+            require("@../materials/furniture/dark_reddish_brown_leather_material.usda@" in text, f"dark reddish-brown leather material reference missing: {asset.name}")
+            require(
+                'def Mesh "SofaUnified" (\n        prepend apiSchemas = ["MaterialBindingAPI"]\n    )'
+                in text,
+                f"dark reddish-brown leather mesh material API missing: {asset.name}",
+            )
+            root_prim = "SofaCorner" if sofa_type == "corner" else "SofaU"
+            require(
+                f"rel material:binding = </{root_prim}/DarkReddishBrownLeather>" in prim_block(text, "SofaUnified"),
+                f"dark reddish-brown leather binding missing from visible mesh: {asset.name}",
+            )
+            require(
+                "float3[] primvars:displayColor = [(0.09, 0.055, 0.05)]" in prim_block(text, "SofaUnified"),
+                f"blackened charcoal reddish-brown leather fallback color missing: {asset.name}",
+            )
         require("NavyFabric" not in text and "CharcoalFabric" not in text, f"legacy non-brown material remains: {asset.name}")
         require("custom bool cbnu:hasArmrests = false" in text, f"armless metadata missing: {asset.name}")
         require("custom string cbnu:cushionStyle" in text and "soft" in text, f"soft cushion metadata missing: {asset.name}")
@@ -839,6 +1048,7 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
         require("double xformOp:rotateX = -7" in linear_text, f"soft backrest recline missing: {sofa_type}")
 
     corner_text = SOFA_ASSETS["corner"].read_text(encoding="utf-8")
+    require('custom string cbnu:furnitureType = "continuous armless L-shaped dark reddish-brown leather bench sofa"' in corner_text, "corner sofa dark reddish-brown leather metadata missing")
     require("custom bool cbnu:continuousJunctions = true" in corner_text, "corner sofa continuous-junction metadata missing")
     require("custom double cbnu:returnLength = 2.71" in corner_text, "corner sofa return length metadata mismatch")
     require("custom double cbnu:returnTrim = 0.30" in corner_text, "corner sofa return trim metadata mismatch")
@@ -875,6 +1085,7 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
         require('visibility = "invisible"' in prim_block(corner_text, hidden_name), f"legacy corner module remains visible: {hidden_name}")
 
     u_text = SOFA_ASSETS["u_column"].read_text(encoding="utf-8")
+    require('custom string cbnu:furnitureType = "continuous armless open-top U-shaped dark reddish-brown leather cushion sofa"' in u_text, "U sofa dark reddish-brown leather metadata missing")
     require("custom bool cbnu:continuousJunctions = true" in u_text, "U sofa continuous-junction metadata missing")
     require(
         'custom string cbnu:surfaceConstruction = "one beveled SofaUnified render mesh with non-overlapping base, seat and back topology"' in u_text,
@@ -1084,11 +1295,14 @@ def validate_dynamic_obstacles() -> tuple[int, int, int, float]:
     return len(table_boxes), len(entrance_boxes), len(elevator_boxes), total_mass
 
 
-def validate_architecture() -> tuple[int, int, int, int, int]:
+def validate_architecture() -> tuple[int, int, int, int, int, int]:
     world_text = WORLD.read_text(encoding="utf-8")
     config = json.loads(ARCHITECTURE_CONFIG.read_text(encoding="utf-8"))
     display_walls = {
         item["name"]: item for item in config.get("digital_display_walls", [])
+    }
+    partition_walls = {
+        item["name"]: item for item in config.get("partition_walls", [])
     }
     column_displays = {
         item["name"]: item for item in config.get("column_displays", [])
@@ -1099,13 +1313,22 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
     elevator_doors = {
         item["name"]: item for item in config.get("elevator_doors", [])
     }
+    information_boards = {
+        item["name"]: item for item in config.get("information_boards", [])
+    }
     require(
         set(display_walls) == {"DigitalDisplayWall_01"},
         "digital display wall set mismatch",
     )
+    require(set(partition_walls) == {"WoodPartition_01"}, "wood partition wall set mismatch")
     require(set(column_displays) == {"ColumnDisplay_01"}, "column display set mismatch")
     require(set(wall_posters) == {"GrayPoster_01", "GrayPoster_02"}, "wall poster set mismatch")
     require(set(elevator_doors) == {"ElevatorDoor_01", "ElevatorDoor_02"}, "elevator door set mismatch")
+    require(
+        set(information_boards)
+        == {"GreenInformationBoard_01", "GreenInformationBoard_02", "GreenInformationBoard_03"},
+        "green information board set mismatch",
+    )
 
     wall_01 = display_walls["DigitalDisplayWall_01"]
     require(wall_01["asset_variant"] == "corner", "first display wall variant mismatch")
@@ -1113,11 +1336,11 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
     require(wall_01["yaw_deg"] == 0, "first display wall yaw mismatch")
     require(
         [wall_01[field] for field in ("front_length", "side_length", "height", "depth")]
-        == [2.5, 4.5, 1.22, 0.3],
+        == [2.5, 6.288533, 1.22, 0.3],
         "first display wall dimensions mismatch",
     )
     require(
-        wall_01["front_display_count"] == 3 and wall_01["side_display_count"] == 5,
+        wall_01["front_display_count"] == 3 and wall_01["side_display_count"] == 6,
         "first display wall count mismatch",
     )
     require(
@@ -1129,6 +1352,103 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
         wall_01["display_width"] == 0.62
         and wall_01["display_height"] == 0.98,
         "display wall panel dimensions mismatch",
+    )
+    require(
+        [wall_01[field] for field in ("front_display_gap", "front_frame_end_margin")]
+        == [0.07, 0.04],
+        "three-display section must retain its original spacing and end margins",
+    )
+    require(
+        [wall_01[field] for field in ("side_display_gap", "side_frame_end_margin")]
+        == [0.24, 0.10],
+        "six-display section gap/end-margin mismatch",
+    )
+    require(
+        [wall_01[field] for field in ("side_display_center", "side_body_end_margin")]
+        == [2.9942665, 0.5342665],
+        "six-display section centering/body-margin metadata mismatch",
+    )
+    side_screen_span = (
+        int(wall_01["side_display_count"]) * float(wall_01["display_width"])
+        + (int(wall_01["side_display_count"]) - 1) * float(wall_01["side_display_gap"])
+    )
+    require(abs(side_screen_span - 4.92) < 1e-9, "six-display screen span mismatch")
+    require(
+        abs(side_screen_span + 2 * float(wall_01["side_frame_end_margin"]) - 5.12) < 1e-9,
+        "six-display frame length does not preserve end margins",
+    )
+    side_visible_length = float(wall_01["side_length"]) - float(wall_01["depth"])
+    calculated_body_margin = (side_visible_length - side_screen_span) / 2
+    require(
+        abs(calculated_body_margin - float(wall_01["side_body_end_margin"])) < 1e-9
+        and abs(calculated_body_margin - 0.5342665) < 1e-9,
+        "six-display section does not have equal 0.5342665 m gray-body margins",
+    )
+    require(
+        wall_01["side_wordmark_text"] == "학연산공통기술연구원",
+        "six-screen wall wordmark text mismatch",
+    )
+    require(
+        [wall_01[field] for field in ("side_wordmark_width", "side_wordmark_height", "side_wordmark_bottom")]
+        == [3.6, 0.38, 1.36],
+        "six-screen wall wordmark placement metadata mismatch",
+    )
+    require(
+        wall_01["side_wordmark_depth"] == 0.016
+        and wall_01["side_wordmark_color"] == "black"
+        and wall_01["side_wordmark_geometry"] == "extruded_mesh",
+        "six-screen wall wordmark must use solid black extruded geometry",
+    )
+    require(
+        abs(
+            float(wall_01["side_wordmark_bottom"])
+            - float(wall_01["height"])
+            - 0.14
+        ) < 1e-9
+        and float(wall_01["mount_clearance"])
+        + float(wall_01["side_wordmark_bottom"])
+        + float(wall_01["side_wordmark_height"])
+        < 3.0,
+        "six-screen wall wordmark must clear the display wall and ceiling",
+    )
+
+    wood_partition = partition_walls["WoodPartition_01"]
+    require(wood_partition["asset_variant"] == "full_height_wood", "wood partition variant mismatch")
+    require(
+        wood_partition["reference_from"] == "DigitalDisplayWall_01"
+        and wood_partition["reference_to"] == "NorthCorridorEndGlassWall/RightFrame",
+        "wood partition endpoint references mismatch",
+    )
+    require(wood_partition["position"] == [25.8224, 19.8814665, 0.0], "wood partition pose mismatch")
+    require(wood_partition["yaw_deg"] == 0, "wood partition yaw mismatch")
+    require(
+        [wood_partition[field] for field in ("thickness", "length", "height")]
+        == [0.30, 1.377067, 3.00],
+        "wood partition dimensions mismatch",
+    )
+    require(
+        abs(float(wood_partition["length"]) - 2.0656 * 2 / 3) < 1e-6,
+        "wood partition length is not two-thirds of the original 2.0656 m",
+    )
+    require(wood_partition["facing"] == "-X_into_north_corridor", "wood partition facing mismatch")
+    display_end_y = (
+        float(wall_01["position"][1])
+        + float(wall_01["side_length"])
+        - float(wall_01["depth"])
+    )
+    partition_south_y = float(wood_partition["position"][1]) - float(wood_partition["length"]) / 2
+    partition_north_y = float(wood_partition["position"][1]) + float(wood_partition["length"]) / 2
+    north_glass_frame_south_y = 20.60 - 0.060 / 2
+    require(abs(display_end_y - 19.192933) < 1e-9, "extended display-wall end coordinate mismatch")
+    require(abs(partition_south_y - display_end_y) < 1e-9, "gap or overlap between display wall and wood partition")
+    require(abs(partition_north_y - north_glass_frame_south_y) < 1e-9, "gap or overlap between wood partition and north glass frame")
+    display_corridor_face_x = float(wall_01["position"][0]) - float(wall_01["depth"])
+    partition_corridor_face_x = float(wood_partition["position"][0]) - float(wood_partition["thickness"]) / 2
+    partition_wall_face_x = float(wood_partition["position"][0]) + float(wood_partition["thickness"]) / 2
+    require(
+        abs(partition_corridor_face_x - display_corridor_face_x) < 1e-9
+        and abs(partition_wall_face_x - float(wall_01["position"][0])) < 1e-9,
+        "wood partition thickness is not aligned with the display corner",
     )
 
     column_display = column_displays["ColumnDisplay_01"]
@@ -1209,17 +1529,30 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
     require(large_poster["asset_variant"] == "gray_horizontal_large", "large gray poster variant mismatch")
     require(large_poster["reference_wall"] == "Wall_06", "large gray poster wall reference mismatch")
     require("reference_door" not in large_poster, "large gray poster must not reference a door")
+    require(
+        large_poster["return_wall"] == "Wall_05"
+        and large_poster["reference_elevator"] == "ElevatorDoor_01",
+        "large gray poster corner-return references mismatch",
+    )
     require(large_poster["position"] == [20.5892, 13.0403, 0.85], "large gray poster pose mismatch")
     require(large_poster["yaw_deg"] == 0, "large gray poster must face south into the lobby")
     require(
-        [large_poster[field] for field in ("width", "height", "depth")]
-        == [4.5, 1.22, 0.15],
+        [large_poster[field] for field in ("width", "return_length", "height", "depth")]
+        == [4.5, 1.3247, 1.22, 0.15],
         "large gray poster dimensions mismatch",
     )
     require(large_poster["facing"] == "-Y_into_lobby", "large gray poster facing mismatch")
+    require(large_poster["return_facing"] == "+X_into_north_corridor", "large gray poster return facing mismatch")
     require(
         abs(float(large_poster["position"][0]) + float(large_poster["width"]) / 2 - 22.8392) < 1e-9,
         "large gray poster right edge moved while extending left",
+    )
+    elevator_01_frame_south_edge = float(elevator_doors["ElevatorDoor_01"]["position"][1]) - 1.67 / 2
+    poster_return_end = float(large_poster["position"][1]) + float(large_poster["return_length"])
+    require(
+        abs(poster_return_end - elevator_01_frame_south_edge) < 1e-9
+        and abs(poster_return_end - 14.365) < 1e-9,
+        "large gray poster return does not terminate beside ElevatorDoor_01 frame",
     )
 
     expected_elevator_poses = {
@@ -1249,6 +1582,38 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
         "elevator door lies outside Wall_05",
     )
 
+    expected_board_x = [23.4558, 24.4058, 25.3558]
+    for index, name in enumerate(sorted(information_boards)):
+        board = information_boards[name]
+        require(board["asset_variant"] == "green_mobile", f"information board variant mismatch: {name}")
+        require(
+            board["position"] == [expected_board_x[index], 20.25, 0.15],
+            f"information board pose mismatch: {name}",
+        )
+        require(board["yaw_deg"] == 0, f"information board yaw mismatch: {name}")
+        require(
+            [board[field] for field in ("width", "depth", "height")] == [0.72, 0.34, 1.55],
+            f"information board dimensions mismatch: {name}",
+        )
+        require(
+            board["facing"] == "-Y_into_north_corridor"
+            and board["mounted_on"] == "NorthGlassWoodPlatform",
+            f"information board platform/facing mismatch: {name}",
+        )
+    require(
+        all(abs(expected_board_x[index + 1] - expected_board_x[index] - 0.95) < 1e-9 for index in range(2)),
+        "information board center spacing mismatch",
+    )
+    platform_min_x = 24.4058 - 3.1332 / 2
+    platform_max_x = 24.4058 + 3.1332 / 2
+    require(
+        abs((expected_board_x[0] - 0.72 / 2) - platform_min_x - 0.2566) < 1e-9
+        and abs(platform_max_x - (expected_board_x[-1] + 0.72 / 2) - 0.2566) < 1e-9,
+        "three information boards are not centered with equal platform margins",
+    )
+    require(20.25 - 0.34 / 2 >= 20.27 - 0.60 / 2, "information boards overhang platform south edge")
+    require(20.25 + 0.34 / 2 <= 20.27 + 0.60 / 2, "information boards overhang platform north edge")
+
     require('def Xform "Architecture"' in world_text, "/World/Architecture missing")
     require(
         'prepend references = @config/architecture_layout.usda@' in world_text,
@@ -1257,11 +1622,15 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
     layout_text = ARCHITECTURE_LAYOUT.read_text(encoding="utf-8")
     for prim_name in (
         "DigitalDisplayWall_01",
+        "WoodPartition_01",
         "ColumnDisplay_01",
         "GrayPoster_01",
         "GrayPoster_02",
         "ElevatorDoor_01",
         "ElevatorDoor_02",
+        "GreenInformationBoard_01",
+        "GreenInformationBoard_02",
+        "GreenInformationBoard_03",
     ):
         require(f'def Xform "{prim_name}"' in layout_text, f"architecture layout prim missing: {prim_name}")
     require(
@@ -1270,21 +1639,37 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
         "architecture asset reference set mismatch",
     )
     require(
+        layout_text.count("full_height_wood_partition.usda@") == 1,
+        "wood partition asset reference mismatch",
+    )
+    require(
         layout_text.count("gray_horizontal_poster.usda@") == 1
         and layout_text.count("gray_horizontal_poster_large.usda@") == 1,
         "gray poster asset reference mismatch",
     )
+    require('custom string cbnu:returnWall = "Wall_05"' in layout_text, "large poster return-wall metadata missing from layout")
+    require('custom string cbnu:referenceElevator = "ElevatorDoor_01"' in layout_text, "large poster elevator reference missing from layout")
+    require('custom string cbnu:returnFacing = "+X_into_north_corridor"' in layout_text, "large poster return facing missing from layout")
+    require('custom double cbnu:returnLength = 1.3247' in layout_text, "large poster return length missing from layout")
     require(
         layout_text.count("stainless_elevator_door.usda@") == 2,
         "elevator door asset reference mismatch",
     )
+    require(
+        layout_text.count("green_information_board.usda@") == 3,
+        "green information board asset reference mismatch",
+    )
     for pose in (
         "double3 xformOp:translate = (25.9724, 13.2044, 0.85)",
+        "double3 xformOp:translate = (25.8224, 19.8814665, 0)",
         "double3 xformOp:translate = (26.43765, 9.78845, 0.7)",
         "double3 xformOp:translate = (30.62, 5, 1.05)",
         "double3 xformOp:translate = (20.5892, 13.0403, 0.85)",
         "double3 xformOp:translate = (22.8392, 15.2, 0)",
         "double3 xformOp:translate = (22.8392, 18.8, 0)",
+        "double3 xformOp:translate = (23.4558, 20.25, 0.15)",
+        "double3 xformOp:translate = (24.4058, 20.25, 0.15)",
+        "double3 xformOp:translate = (25.3558, 20.25, 0.15)",
     ):
         require(pose in layout_text, f"architecture layout pose missing: {pose}")
 
@@ -1295,19 +1680,85 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
         "unified L body metadata missing",
     )
     require('custom double cbnu:frontLength = 2.5' in asset_text, "right/front length metadata mismatch")
-    require('custom double cbnu:sideLength = 4.5' in asset_text, "left/side length metadata mismatch")
+    require('custom double cbnu:sideLength = 6.288533' in asset_text, "extended left/side length metadata mismatch")
     require('custom int cbnu:frontDisplayCount = 3' in asset_text, "right/front display metadata mismatch")
-    require('custom int cbnu:sideDisplayCount = 5' in asset_text, "left/side display metadata mismatch")
+    require('custom int cbnu:sideDisplayCount = 6' in asset_text, "left/side display metadata mismatch")
+    require('custom double cbnu:frontDisplayGap = 0.07' in asset_text, "three-display gap changed unexpectedly")
+    require('custom double cbnu:frontFrameEndMargin = 0.04' in asset_text, "three-display end margin changed unexpectedly")
+    require('custom double cbnu:sideDisplayGap = 0.24' in asset_text, "six-display gap mismatch")
+    require('custom double cbnu:sideDisplayCenter = 2.9942665' in asset_text, "six-display center metadata mismatch")
+    require('custom double cbnu:sideBodyEndMargin = 0.5342665' in asset_text, "six-display equal body margin metadata mismatch")
+    require('custom double cbnu:sideFrameEndMargin = 0.1' in asset_text, "six-display frame end margin mismatch")
+    require('custom double cbnu:sideFrameLength = 5.12' in asset_text, "six-display frame length mismatch")
+    require('custom string cbnu:sideWordmarkText = "학연산공통기술연구원"' in asset_text, "institute wordmark metadata missing")
+    require('custom double cbnu:sideWordmarkWidth = 3.6' in asset_text, "institute wordmark width mismatch")
+    require('custom double cbnu:sideWordmarkHeight = 0.38' in asset_text, "institute wordmark height mismatch")
+    require('@./institute_wordmark_mesh.usda@' in asset_text, "institute wordmark mesh reference missing")
     validate_mesh_topology(asset_text, "MainBody")
     validate_watertight_mesh(asset_text, "MainBody")
     body_points = mesh_points(asset_text, "MainBody")
     require(
         {(point[0], point[1]) for point in body_points}
-        == {(-0.3, -0.3), (2.2, -0.3), (2.2, 0.0), (0.0, 0.0), (0.0, 4.2), (-0.3, 4.2)},
+        == {(-0.3, -0.3), (2.2, -0.3), (2.2, 0.0), (0.0, 0.0), (0.0, 5.988533), (-0.3, 5.988533)},
         "L footprint mismatch",
     )
-    require(asset_text.count('references = @./digital_display_panel.usda@') == 8, "first wall panel count mismatch")
+    for name, expected_y in {
+        "Display_04": 0.8442665,
+        "Display_05": 1.7042665,
+        "Display_06": 2.5642665,
+        "Display_07": 3.4242665,
+        "Display_08": 4.2842665,
+        "Display_09": 5.1442665,
+    }.items():
+        require(
+            f'double3 xformOp:translate = (-0.3, {usd_number(expected_y)}, 0)'
+            in prim_block(asset_text, name),
+            f"six-display spacing mismatch: {name}",
+        )
+    require(asset_text.count('double3 xformOp:scale = (0.025, 5.12, 0.04)') == 2, "extended side frame rails mismatch")
+    require('double3 xformOp:translate = (-0.3125, 0.4142665, 0.61)' in prim_block(asset_text, "StartTrim"), "side frame start margin mismatch")
+    require('double3 xformOp:translate = (-0.3125, 5.5742665, 0.61)' in prim_block(asset_text, "EndTrim"), "side frame end margin mismatch")
+    require('double3 xformOp:scale = (2.5, 0.3, 1.22)' in prim_block(asset_text, "FrontCollision"), "three-display collision length changed")
+    require('double3 xformOp:scale = (0.3, 6.288533, 1.22)' in prim_block(asset_text, "SideCollision"), "six-display collision length mismatch")
+    require('double3 xformOp:translate = (-0.15, 2.8442665, 0.61)' in prim_block(asset_text, "SideCollision"), "six-display collision pose mismatch")
+    require(asset_text.count('references = @./digital_display_panel.usda@') == 9, "first wall panel count mismatch")
     require(asset_text.count("PhysicsCollisionAPI") == 2, "first wall collision count mismatch")
+    wordmark_block = prim_block(asset_text, "InstituteWordmarkText")
+    require('prepend references = @./institute_wordmark_mesh.usda@' in asset_text, "visible institute wordmark asset missing")
+    require('double xformOp:rotateZ = -90' in wordmark_block, "institute wordmark orientation mismatch")
+    require('double3 xformOp:translate = (0, 2.9942665, 1.36)' in wordmark_block, "institute wordmark wall placement mismatch")
+    require("PhysicsCollisionAPI" not in wordmark_block, "institute wordmark must not add collision")
+
+    require(DISPLAY_WORDMARK_ASSET.exists(), "solid institute wordmark mesh asset missing")
+    wordmark_asset_text = DISPLAY_WORDMARK_ASSET.read_text(encoding="utf-8")
+    require('custom string cbnu:content = "학연산공통기술연구원"' in wordmark_asset_text, "solid institute wordmark content missing")
+    require('custom string cbnu:construction = "solid black extruded Hangul glyph mesh"' in wordmark_asset_text, "solid institute wordmark construction mismatch")
+    require('custom double cbnu:width = 3.6' in wordmark_asset_text, "solid institute wordmark width mismatch")
+    require('custom double cbnu:height = 0.38' in wordmark_asset_text, "solid institute wordmark height mismatch")
+    require('custom double cbnu:depth = 0.016' in wordmark_asset_text, "solid institute wordmark depth mismatch")
+    run_count_match = re.search(r'custom int cbnu:glyphRunBoxCount = (\d+)', wordmark_asset_text)
+    require(run_count_match is not None and int(run_count_match.group(1)) >= 100, "solid institute wordmark glyph geometry is unexpectedly sparse")
+    require('color3f inputs:diffuseColor = (0.003, 0.003, 0.003)' in wordmark_asset_text, "institute wordmark is not black")
+    require('rel material:binding = </InstituteWordmarkText/BlackLettering>' in wordmark_asset_text, "solid institute wordmark binding mismatch")
+    require("UsdUVTexture" not in wordmark_asset_text, "solid institute wordmark must not rely on a texture")
+    require("PhysicsCollisionAPI" not in wordmark_asset_text, "solid institute wordmark must not add collision")
+    validate_mesh_topology(wordmark_asset_text, "GlyphMesh")
+    validate_watertight_mesh(wordmark_asset_text, "GlyphMesh")
+
+    require(WOOD_PARTITION_ASSET.exists(), "full-height wood partition asset missing")
+    partition_text = WOOD_PARTITION_ASSET.read_text(encoding="utf-8")
+    require('custom string cbnu:architectureType = "full-height wooden false wall"' in partition_text, "wood partition type metadata missing")
+    require('custom bool cbnu:collisionEnabled = true' in partition_text, "wood partition collision metadata mismatch")
+    require('custom double3 cbnu:partitionSize = (0.30, 1.377067, 3.00)' in partition_text, "wood partition size metadata mismatch")
+    partition_body = prim_block(partition_text, "PartitionBody")
+    require('double3 xformOp:scale = (0.30, 1.377067, 3.00)' in partition_body, "wood partition body dimensions mismatch")
+    require('double3 xformOp:translate = (0, 0, 1.50)' in partition_body, "wood partition vertical pose mismatch")
+    require('bool physics:collisionEnabled = true' in partition_body, "wood partition body collider is disabled")
+    require(partition_text.count("PhysicsCollisionAPI") == 1, "wood partition must have exactly one collider")
+    require(partition_text.count('def Cube "') == 3, "wood partition visible piece count mismatch")
+    require('color3f inputs:diffuseColor = (0.34, 0.145, 0.055)' in partition_text, "wood partition panel color mismatch")
+    require("PhysicsCollisionAPI" not in prim_block(partition_text, "Joint_01"), "wood partition joint must not collide")
+    require("PhysicsCollisionAPI" not in prim_block(partition_text, "Joint_02"), "wood partition joint must not collide")
 
     panel_text = DISPLAY_PANEL_ASSET.read_text(encoding="utf-8")
     require('def Xform "Bezel"' in panel_text and 'def Cube "Screen"' in panel_text, "display panel structure missing")
@@ -1336,14 +1787,32 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
     require('(0.70, 0.72, 0.74)' in poster_text, "light-gray poster face material mismatch")
 
     large_poster_text = GRAY_POSTER_LARGE_ASSET.read_text(encoding="utf-8")
-    require('custom string cbnu:decorType = "one-piece large horizontal gray wall poster"' in large_poster_text, "large poster type metadata missing")
+    require('custom string cbnu:decorType = "one-piece L-shaped large gray wall poster"' in large_poster_text, "large poster type metadata missing")
     require('custom int cbnu:visiblePieceCount = 1' in large_poster_text, "large poster must be one visible piece")
     require('custom bool cbnu:emissive = false' in large_poster_text, "large poster must not emit like a screen")
     require('custom bool cbnu:hasBezel = false' in large_poster_text, "large poster bezel was not removed")
     require('custom bool cbnu:hasScreen = false' in large_poster_text, "large poster screen was not removed")
-    require(large_poster_text.count('def Cube "') == 1, "large poster must contain one slab only")
+    require(large_poster_text.count('def Mesh "PosterSlab"') == 1, "large poster must contain one L-shaped slab mesh")
+    require(large_poster_text.count('def Cube "') == 0, "large poster retains split box geometry")
     require('custom double cbnu:depth = 0.15' in large_poster_text, "large poster doubled-depth metadata mismatch")
-    require('double3 xformOp:scale = (4.5, 0.15, 1.22)' in prim_block(large_poster_text, "PosterSlab"), "large poster slab dimensions mismatch")
+    require('custom double cbnu:returnLength = 1.3247' in large_poster_text, "large poster return-length metadata mismatch")
+    require('custom string cbnu:returnTermination = "flush to the south outer edge of ElevatorDoor_01 frame"' in large_poster_text, "large poster return termination metadata missing")
+    validate_mesh_topology(large_poster_text, "PosterSlab")
+    validate_watertight_mesh(large_poster_text, "PosterSlab")
+    large_poster_points = mesh_points(large_poster_text, "PosterSlab")
+    require(
+        {(point[0], point[1]) for point in large_poster_points}
+        == {
+            (-2.25, -0.075), (2.325, -0.075), (2.325, 1.3247),
+            (2.175, 1.3247), (2.175, 0.075), (-2.25, 0.075),
+        },
+        "large poster L footprint mismatch",
+    )
+    require(
+        min(point[2] for point in large_poster_points) == 0
+        and max(point[2] for point in large_poster_points) == 1.22,
+        "large poster vertical extent mismatch",
+    )
     require('(0.34, 0.36, 0.38)' in large_poster_text, "large poster must use the dark-gray finish")
     require("PhysicsCollisionAPI" not in large_poster_text, "large wall poster must not add collision")
 
@@ -1358,6 +1827,31 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
     require(elevator_text.count('color3f inputs:emissiveColor') == 1, "elevator status indicator mismatch")
     require("PhysicsCollisionAPI" not in elevator_text, "elevator door asset must not duplicate wall collision")
 
+    require(GREEN_INFORMATION_BOARD_ASSET.exists(), "green information board asset missing")
+    board_text = GREEN_INFORMATION_BOARD_ASSET.read_text(encoding="utf-8")
+    require(
+        'custom string cbnu:architectureType = "mobile green information board"' in board_text,
+        "green information board type metadata missing",
+    )
+    require('custom double3 cbnu:overallSize = (0.72, 0.34, 1.55)' in board_text, "information board overall size mismatch")
+    require('(0.035, 0.28, 0.14)' in board_text, "information board green finish mismatch")
+    require('def Cube "NoticeSheet"' in board_text, "information board notice sheet missing")
+    require(board_text.count('def Sphere "Wheel_') == 4, "information board caster count mismatch")
+    require(
+        'def Cube "PanelBacking" (\n        prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]'
+        in board_text
+        and "physics:collisionEnabled = true" in prim_block(board_text, "PanelBacking"),
+        "information board panel collider missing",
+    )
+    for foot_name in ("LeftFoot", "RightFoot"):
+        foot = prim_block(board_text, foot_name)
+        require(
+            f'def Cube "{foot_name}" (\n            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]'
+            in board_text
+            and "physics:collisionEnabled = true" in foot,
+            f"information board foot collider missing: {foot_name}",
+        )
+
     dark_text = DISPLAY_WALL_DARK_MATERIAL.read_text(encoding="utf-8")
     screen_text = DISPLAY_SCREEN_MATERIAL.read_text(encoding="utf-8")
     require('(0.055, 0.063, 0.072)' in dark_text and 'float inputs:roughness = 0.40' in dark_text, "charcoal wall material mismatch")
@@ -1366,6 +1860,7 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
     return (
         int(wall_01["front_display_count"]),
         int(wall_01["side_display_count"]),
+        len(partition_walls),
         len(column_displays),
         len(wall_posters),
         len(elevator_doors),
@@ -1386,6 +1881,7 @@ def main() -> None:
     (
         front_display_count,
         side_display_count,
+        partition_wall_count,
         column_display_count,
         wall_poster_count,
         elevator_door_count,
@@ -1396,10 +1892,12 @@ def main() -> None:
 
     print("CBNU Haksan detailed lobby validation: PASS")
     print(
-        f"doors: single wood={door_counts['single']}, double wood={door_counts['double']}, "
+        f"doors: single wood={door_counts['single']}, double total={door_counts['double']} "
+        "(standard wood=2, east white+wood portal=2), "
         f"double glass sets={2 * door_counts['double_glass_pair']} "
         "(four clear leaves + one central clear fixed glass panel)"
     )
+    print("east double-door finish: Door_Double_03/04 use warm-white leaves with three-sided honey-brown wood portals; west double doors remain brown wood")
     print(
         "sofas: total=" + str(sum(type_counts.values())) + ", "
         + ", ".join(f"{key}={type_counts[key]}" for key in ("straight", "corner", "u_column"))
@@ -1427,23 +1925,36 @@ def main() -> None:
         f"ceiling lights: standard panels={ceiling_light_counts['panel']}, "
         f"large central panel={ceiling_light_counts['large_panel']} (6.0 x 2.4 m)"
     )
+    print(
+        f"central ceiling air conditioners: {ceiling_light_counts['air_conditioner']} four-way cassette units, "
+        "1.1 x 1.1 m each, mirrored beside the large light with 0.65 m clearance"
+    )
     print("front entrance glazing: two 4.85 x 2.82 m clear panels with full-span lower facade walls aligned to the visible entrance-pillar plane (south face y=-0.01 m); Wall_10 collider unchanged")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision; three wood doors realigned to wall faces")
-    print("north corridor end glazing: one 3.1332 x 2.82 m clear panel (opacity=0.13, roughness=0.08); Wall_04 collider unchanged")
+    print("north corridor end glazing: one 3.1332 x 2.82 m clear panel with a full-width 1.02 m stone-gray lower wall; Wall_04 collider unchanged")
     print("north glass wood platform: 3.1332 x 0.60 x 0.15 m; full corridor width, flush with the glass frame, static collision enabled")
+    print("north platform information boards: 3 wheeled green units, each 0.72 x 0.34 x 1.55 m; equal 0.23 m gaps and 0.2566 m platform side margins")
+    print("wall corners: Wall_02/06/08/12 extended 0.10 m to close all four re-entrant half-thickness gaps")
     print("exterior pavement: south 200.0 x 100.0435 m + north 200.0 x 79.2754 m watertight opaque sidewalk-paver slabs; top z=0.05 m, bottom z=-0.12 m")
     print(
         f"digital display walls: original only, left={side_display_count}/right={front_display_count}; "
-        "floating 0.85 m above floor, height=1.22 m, depth=0.30 m, panels=0.62 x 0.98 m"
+        "floating 0.85 m above floor, height=1.22 m, depth=0.30 m, panels=0.62 x 0.98 m; "
+        "six-screen side extended to 6.288533 m with 0.24 m gaps and equal 0.5342665 m gray-body end margins; three-screen side unchanged"
     )
+    print("six-screen wall wordmark: 학연산공통기술연구원, 3.6 x 0.38 x 0.016 m solid black extruded glyph mesh, bottom=2.21 m")
     print("display wall collision: original=2 invisible box helpers; opposite screen structure removed")
+    print(
+        f"wood partition walls: {partition_wall_count}; 0.30 x 1.377067 x 3.00 m (two-thirds former length), "
+        "flush from the six-screen corner end at y=19.192933 m to the north glass frame at y=20.5700 m"
+    )
     print(
         f"Column_03 entrance-facing displays: {column_display_count} large panel, "
         "1.0 x 1.45 m, bottom=0.70 m, no duplicate collider"
     )
     print(
         f"gray wall posters: total={wall_poster_count}; Wall_11=2.2 x 1.0 m, "
-        "Wall_06=4.5 x 1.22 x 0.15 m dark-gray one-piece slab; doubled depth, no screens, emission or colliders"
+        "Wall_06/05=4.5 m main + 1.3247 m return x 1.22 x 0.15 m dark-gray one-piece L slab; "
+        "return meets ElevatorDoor_01 frame, no screens, emission or colliders"
     )
     print(
         f"Wall_05 elevators: {elevator_door_count} operational stainless-steel center-opening doors; "

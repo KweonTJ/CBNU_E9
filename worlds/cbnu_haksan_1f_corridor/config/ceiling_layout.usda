@@ -184,4 +184,36 @@ def Xform "CeilingLights"
         double3 xformOp:translate = (25, 8.5, 2.95)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
+
+    def Scope "AirConditioners"
+    {
+
+        def Xform "CeilingAC_01" (
+            prepend references = @../../../assets/architecture/ceiling/ceiling_cassette_air_conditioner.usda@
+        )
+        {
+            custom string cbnu:placementSource = "ceiling.json"
+            custom string cbnu:fixtureType = "cassette_4way"
+            custom double2 cbnu:footprint = (1.1, 1.1)
+            custom double cbnu:visibleDepth = 0.11
+            custom string cbnu:placement = "central_lobby_left_of_large_light"
+            double xformOp:rotateZ = 0
+            double3 xformOp:translate = (20.8, 8.5, 3)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+
+        def Xform "CeilingAC_02" (
+            prepend references = @../../../assets/architecture/ceiling/ceiling_cassette_air_conditioner.usda@
+        )
+        {
+            custom string cbnu:placementSource = "ceiling.json"
+            custom string cbnu:fixtureType = "cassette_4way"
+            custom double2 cbnu:footprint = (1.1, 1.1)
+            custom double cbnu:visibleDepth = 0.11
+            custom string cbnu:placement = "central_lobby_right_of_large_light"
+            double xformOp:rotateZ = 0
+            double3 xformOp:translate = (29.2, 8.5, 3)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+        }
+    }
 }
