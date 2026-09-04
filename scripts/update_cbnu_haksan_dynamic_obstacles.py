@@ -66,6 +66,7 @@ def load_config(
     groups_by_name = {str(group["name"]): group for group in groups}
     table_group = groups_by_name.get("ParcelPile_Table_03", {})
     entrance_group = groups_by_name.get("ParcelCluster_MainEntrance", {})
+    elevator_group = groups_by_name.get("ParcelCluster_BetweenElevators", {})
     if table_group.get("reference_prim") != "Table_03":
         raise ValueError("parcel pile must remain anchored to Table_03")
     if table_group.get("front_direction") != "+X":
@@ -82,6 +83,14 @@ def load_config(
     validate_number(
         entrance_group.get("clear_path_x_max"),
         "ParcelCluster_MainEntrance.clear_path_x_max",
+    )
+    if elevator_group.get("reference_prim") != "Wall_05":
+        raise ValueError("between-elevator parcel cluster must remain anchored to Wall_05")
+    if elevator_group.get("placement") != "between_elevator_bays_west_wall":
+        raise ValueError("between-elevator parcel cluster placement mismatch")
+    validate_number(
+        elevator_group.get("clear_path_x_min"),
+        "ParcelCluster_BetweenElevators.clear_path_x_min",
     )
     if not isinstance(starts_asleep, bool):
         raise ValueError("starts_asleep must be boolean")
@@ -187,6 +196,7 @@ def render_layout(
     groups_by_name = {str(group["name"]): group for group in groups}
     table_group = groups_by_name["ParcelPile_Table_03"]
     entrance_group = groups_by_name["ParcelCluster_MainEntrance"]
+    elevator_group = groups_by_name["ParcelCluster_BetweenElevators"]
     group_names = ", ".join(f'"{group["name"]}"' for group in groups)
     lines = [
         "#usda 1.0",
@@ -203,6 +213,7 @@ def render_layout(
         f"    custom int cbnu:groupCount = {len(groups)}",
         f"    custom double cbnu:minimumTableClearance = {usd_number(float(table_group['minimum_clearance_m']))}",
         f"    custom double cbnu:entranceClearPathXMax = {usd_number(float(entrance_group['clear_path_x_max']))}",
+        f"    custom double cbnu:elevatorClearPathXMin = {usd_number(float(elevator_group['clear_path_x_min']))}",
         f"    custom int cbnu:boxCount = {len(boxes)}",
         "",
         '    def Scope "Looks"',

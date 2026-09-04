@@ -8,11 +8,12 @@
 def Xform "DynamicObstacles"
 {
     custom string cbnu:sourceConfig = "dynamic_obstacles.json"
-    custom string[] cbnu:groupNames = ["ParcelPile_Table_03", "ParcelCluster_MainEntrance"]
-    custom int cbnu:groupCount = 2
+    custom string[] cbnu:groupNames = ["ParcelPile_Table_03", "ParcelCluster_MainEntrance", "ParcelCluster_BetweenElevators"]
+    custom int cbnu:groupCount = 3
     custom double cbnu:minimumTableClearance = 0.6
     custom double cbnu:entranceClearPathXMax = 24.4
-    custom int cbnu:boxCount = 13
+    custom double cbnu:elevatorClearPathXMin = 23.65
+    custom int cbnu:boxCount = 16
 
     def Scope "Looks"
     {
@@ -793,6 +794,171 @@ def Xform "DynamicObstacles"
             double size = 1
             double3 xformOp:scale = (0.1496, 0.102, 0.004)
             double3 xformOp:translate = (0.0704, -0.0408, 0.146)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "ParcelBox_14" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        custom string cbnu:semanticClass = "dynamic_parcel_box"
+        custom string cbnu:group = "ParcelCluster_BetweenElevators"
+        custom int cbnu:stackLevel = 1
+        custom string cbnu:support = "floor"
+        bool physics:startsAsleep = true
+        bool physics:kinematicEnabled = false
+        bool physics:rigidBodyEnabled = true
+        float physics:mass = 3.6
+        double xformOp:rotateZ = 2
+        double3 xformOp:translate = (23.25, 16.45, 0.24)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+        def Cube "Body" (
+            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            rel material:binding = </DynamicObstacles/Looks/CardboardKraftLight>
+            bool physics:collisionEnabled = true
+            double size = 1
+            double3 xformOp:scale = (0.62, 0.72, 0.48)
+            uniform token[] xformOpOrder = ["xformOp:scale"]
+        }
+
+        def Cube "TopTape"
+        {
+            rel material:binding = </DynamicObstacles/Looks/PackingTape>
+            double size = 1
+            double3 xformOp:scale = (0.11, 0.73, 0.006)
+            double3 xformOp:translate = (0, 0, 0.243)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "FrontTape"
+        {
+            rel material:binding = </DynamicObstacles/Looks/PackingTape>
+            double size = 1
+            double3 xformOp:scale = (0.11, 0.006, 0.486)
+            double3 xformOp:translate = (0, -0.363, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "ShippingLabel"
+        {
+            rel material:binding = </DynamicObstacles/Looks/ShippingLabel>
+            double size = 1
+            double3 xformOp:scale = (0.2108, 0.16, 0.004)
+            double3 xformOp:translate = (0.0992, -0.0864, 0.246)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "ParcelBox_15" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        custom string cbnu:semanticClass = "dynamic_parcel_box"
+        custom string cbnu:group = "ParcelCluster_BetweenElevators"
+        custom int cbnu:stackLevel = 1
+        custom string cbnu:support = "floor"
+        bool physics:startsAsleep = true
+        bool physics:kinematicEnabled = false
+        bool physics:rigidBodyEnabled = true
+        float physics:mass = 2.8
+        double xformOp:rotateZ = -3
+        double3 xformOp:translate = (23.27, 17.35, 0.2)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+        def Cube "Body" (
+            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            rel material:binding = </DynamicObstacles/Looks/CardboardKraftMedium>
+            bool physics:collisionEnabled = true
+            double size = 1
+            double3 xformOp:scale = (0.56, 0.64, 0.4)
+            uniform token[] xformOpOrder = ["xformOp:scale"]
+        }
+
+        def Cube "TopTape"
+        {
+            rel material:binding = </DynamicObstacles/Looks/PackingTape>
+            double size = 1
+            double3 xformOp:scale = (0.11, 0.65, 0.006)
+            double3 xformOp:translate = (0, 0, 0.203)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "FrontTape"
+        {
+            rel material:binding = </DynamicObstacles/Looks/PackingTape>
+            double size = 1
+            double3 xformOp:scale = (0.11, 0.006, 0.406)
+            double3 xformOp:translate = (0, -0.323, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "ShippingLabel"
+        {
+            rel material:binding = </DynamicObstacles/Looks/ShippingLabel>
+            double size = 1
+            double3 xformOp:scale = (0.1904, 0.16, 0.004)
+            double3 xformOp:translate = (0.0896, -0.0768, 0.206)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "ParcelBox_16" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        custom string cbnu:semanticClass = "dynamic_parcel_box"
+        custom string cbnu:group = "ParcelCluster_BetweenElevators"
+        custom int cbnu:stackLevel = 2
+        custom string cbnu:support = "ParcelBox_14"
+        bool physics:startsAsleep = true
+        bool physics:kinematicEnabled = false
+        bool physics:rigidBodyEnabled = true
+        float physics:mass = 1.3
+        double xformOp:rotateZ = -2
+        double3 xformOp:translate = (23.25, 16.45, 0.63)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+        def Cube "Body" (
+            prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            rel material:binding = </DynamicObstacles/Looks/CardboardKraftDark>
+            bool physics:collisionEnabled = true
+            double size = 1
+            double3 xformOp:scale = (0.44, 0.52, 0.3)
+            uniform token[] xformOpOrder = ["xformOp:scale"]
+        }
+
+        def Cube "TopTape"
+        {
+            rel material:binding = </DynamicObstacles/Looks/PackingTape>
+            double size = 1
+            double3 xformOp:scale = (0.0968, 0.53, 0.006)
+            double3 xformOp:translate = (0, 0, 0.153)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "FrontTape"
+        {
+            rel material:binding = </DynamicObstacles/Looks/PackingTape>
+            double size = 1
+            double3 xformOp:scale = (0.0968, 0.006, 0.306)
+            double3 xformOp:translate = (0, -0.263, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "ShippingLabel"
+        {
+            rel material:binding = </DynamicObstacles/Looks/ShippingLabel>
+            double size = 1
+            double3 xformOp:scale = (0.1496, 0.156, 0.004)
+            double3 xformOp:translate = (0.0704, -0.0624, 0.156)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
     }

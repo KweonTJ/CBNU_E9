@@ -1,0 +1,45 @@
+#usda 1.0
+(
+    defaultPrim = "NorthCorridorWoodPlatform"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "NorthCorridorWoodPlatform" (
+    kind = "component"
+)
+{
+    custom string cbnu:architectureType = "low wooden platform"
+    custom bool cbnu:collisionEnabled = true
+    custom string cbnu:placement = "directly in front of the north corridor end glass"
+    custom double3 cbnu:platformSize = (3.1332, 0.60, 0.15)
+    custom string cbnu:widthFit = "flush between the two corridor inner wall faces"
+
+    def Material "WoodMaterial"
+    {
+        token outputs:surface.connect = </NorthCorridorWoodPlatform/WoodMaterial/PreviewSurface.outputs:surface>
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.38, 0.17, 0.055)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.42
+            float inputs:clearcoat = 0.08
+            float inputs:clearcoatRoughness = 0.24
+            token outputs:surface
+        }
+    }
+
+    def Cube "PlatformBody" (
+        prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+    )
+    {
+        rel material:binding = </NorthCorridorWoodPlatform/WoodMaterial>
+        bool physics:collisionEnabled = true
+        double size = 1
+        double3 xformOp:scale = (3.1332, 0.60, 0.15)
+        double3 xformOp:translate = (0, 0, 0.075)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

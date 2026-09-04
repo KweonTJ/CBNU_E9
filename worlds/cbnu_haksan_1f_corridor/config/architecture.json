@@ -89,7 +89,7 @@
       "name": "ElevatorDoor_02",
       "asset_variant": "stainless_center_opening",
       "reference_wall": "Wall_05",
-      "position": [22.8392, 19.0, 0.0],
+      "position": [22.8392, 18.8, 0.0],
       "yaw_deg": 90,
       "width": 1.45,
       "height": 2.3,
@@ -98,7 +98,7 @@
       "service_state": "operational",
       "door_state": "closed",
       "placement": "west_wall_second_elevator_bay",
-      "source_note": "second operating stainless-steel elevator door on Wall_05, aligned with the second north-corridor ceiling light"
+      "source_note": "second operating stainless-steel elevator door on Wall_05, shifted 0.20 m south (viewer-left) away from the north glass platform"
     }
   ]
 }

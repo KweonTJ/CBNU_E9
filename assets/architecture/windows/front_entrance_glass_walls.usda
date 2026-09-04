@@ -17,6 +17,12 @@ def Xform "FrontEntranceGlassWalls" (
     custom string cbnu:placement = "both sides of the south double-glass entrance"
     custom double cbnu:doorOpeningWidth = 4.6
     custom double2 cbnu:eachGlassPanelSize = (4.85, 2.82)
+    custom int cbnu:lowerFacadeWallPanelCount = 2
+    custom double cbnu:lowerFacadeWallHeight = 1.02
+    custom double3 cbnu:leftLowerFacadeWallSize = (5.4055, 0.20, 1.02)
+    custom double3 cbnu:rightLowerFacadeWallSize = (5.1736, 0.20, 1.02)
+    custom double2 cbnu:lowerFacadeDoorClearSpan = (21.42, 25.58)
+    custom string cbnu:lowerFacadeWallPlacement = "full facade spans from side-wall centerlines to the glass-door frame, flush with the visible entrance-pillar south plane"
 
     def Material "GlassMaterial"
     {
@@ -49,6 +55,12 @@ def Xform "FrontEntranceGlassWalls" (
         }
     }
 
+    def Material "LowerFacadeWallMaterial" (
+        prepend references = @../../materials/lobby/wall_column_light_gray.usda@
+    )
+    {
+    }
+
     def Xform "LeftFullHeightGlass"
     {
         custom string cbnu:side = "left of entrance"
@@ -59,6 +71,17 @@ def Xform "FrontEntranceGlassWalls" (
             double size = 1
             double3 xformOp:scale = (4.85, 0.025, 2.82)
             double3 xformOp:translate = (-4.725, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LowerOpaqueWall" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </FrontEntranceGlassWalls/LowerFacadeWallMaterial>
+            double size = 1
+            double3 xformOp:scale = (5.4055, 0.20, 1.02)
+            double3 xformOp:translate = (-4.78275, -0.08, 0.51)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
 
@@ -109,6 +132,17 @@ def Xform "FrontEntranceGlassWalls" (
             double size = 1
             double3 xformOp:scale = (4.85, 0.025, 2.82)
             double3 xformOp:translate = (4.725, 0, 1.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "LowerOpaqueWall" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            rel material:binding = </FrontEntranceGlassWalls/LowerFacadeWallMaterial>
+            double size = 1
+            double3 xformOp:scale = (5.1736, 0.20, 1.02)
+            double3 xformOp:translate = (4.6668, -0.08, 0.51)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
         }
 

@@ -44,6 +44,7 @@ CEILING_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light.us
 CEILING_LARGE_LIGHT_ASSET = ROOT / "assets/architecture/ceiling/ceiling_panel_light_large.usda"
 FRONT_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/front_entrance_glass_walls.usda"
 NORTH_CORRIDOR_END_GLASS_WALL_ASSET = ROOT / "assets/architecture/windows/north_corridor_end_glass_wall.usda"
+NORTH_CORRIDOR_WOOD_PLATFORM_ASSET = ROOT / "assets/architecture/platforms/north_corridor_wood_platform.usda"
 ENTRANCE_PILLAR_ASSET = ROOT / "assets/structural/entrance_side_pillar.usda"
 COLUMN_ASSET = ROOT / "assets/structural/column_2m.usda"
 DISPLAY_WALL_ASSET = ROOT / "assets/architecture/digital_display_wall/digital_display_wall_corner.usda"
@@ -224,7 +225,7 @@ def validate_world() -> None:
     require('prepend apiSchemas = ["MaterialBindingAPI"]' in walls_section, "wall material binding API missing")
     require('rel material:binding = </World/Looks/WallColumnLightGray>' in walls_section, "walls must use the light-gray material")
     require('bindMaterialAs = "strongerThanDescendants"' in walls_section, "wall light-gray binding must override descendants")
-    require('custom string cbnu:surfaceFinish = "medium neutral gray between the light and dark-gray posters"' in walls_section, "wall gray metadata missing")
+    require('custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"' in walls_section, "wall gray metadata missing")
 
     geometry = json.loads(GEOMETRY.read_text(encoding="utf-8"))
     west_corridor = geometry.get("west_corridor", {})
@@ -275,7 +276,7 @@ def validate_world() -> None:
     require('prepend apiSchemas = ["MaterialBindingAPI"]' in columns_section, "column material binding API missing")
     require('rel material:binding = </World/Looks/WallColumnLightGray>' in columns_section, "columns must use the light-gray material")
     require('bindMaterialAs = "strongerThanDescendants"' in columns_section, "column light-gray binding must override asset materials")
-    require('custom string cbnu:surfaceFinish = "medium neutral gray between the light and dark-gray posters"' in columns_section, "column gray metadata missing")
+    require('custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"' in columns_section, "column gray metadata missing")
     column_text = COLUMN_ASSET.read_text(encoding="utf-8")
     require("custom double cbnu:columnWidth = 1.2" in column_text, "column width metadata mismatch")
     require('prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]' in column_text, "column body material binding API missing")
@@ -319,15 +320,15 @@ def validate_world() -> None:
     )
     light_gray_text = WALL_COLUMN_MATERIAL.read_text(encoding="utf-8")
     require(
-        'custom string cbnu:finish = "medium neutral gray matte wall and column finish"'
+        'custom string cbnu:finish = "cool stone-gray matte wall and column finish"'
         in light_gray_text,
         "light-gray finish metadata missing",
     )
     require(
-        'color3f inputs:diffuseColor = (0.56, 0.57, 0.56)' in light_gray_text,
+        'color3f inputs:diffuseColor = (0.50, 0.51, 0.52)' in light_gray_text,
         "wall/column gray color mismatch",
     )
-    require('float inputs:roughness = 0.68' in light_gray_text, "wall/column light-gray roughness mismatch")
+    require('float inputs:roughness = 0.72' in light_gray_text, "wall/column stone-gray roughness mismatch")
 
 
 def validate_ceiling() -> Counter[str]:
@@ -427,15 +428,49 @@ def validate_front_glass_walls() -> None:
     require('custom int cbnu:fullHeightGlassPanelCount = 2' in glass_text, "two full-height glass panels are required")
     require('custom bool cbnu:perimeterGapsClosed = true' in glass_text, "front glazing perimeter closure flag missing")
     require('custom double2 cbnu:eachGlassPanelSize = (4.85, 2.82)' in glass_text, "full-height glass panel size mismatch")
+    require('custom int cbnu:lowerFacadeWallPanelCount = 2' in glass_text, "front lower facade wall count metadata missing")
+    require('custom double cbnu:lowerFacadeWallHeight = 1.02' in glass_text, "front lower facade wall height mismatch")
+    require('custom double3 cbnu:leftLowerFacadeWallSize = (5.4055, 0.20, 1.02)' in glass_text, "left lower facade wall size metadata mismatch")
+    require('custom double3 cbnu:rightLowerFacadeWallSize = (5.1736, 0.20, 1.02)' in glass_text, "right lower facade wall size metadata mismatch")
+    require('custom double2 cbnu:lowerFacadeDoorClearSpan = (21.42, 25.58)' in glass_text, "lower facade door clear span metadata mismatch")
+    require(
+        'custom string cbnu:lowerFacadeWallPlacement = "full facade spans from side-wall centerlines to the glass-door frame, flush with the visible entrance-pillar south plane"' in glass_text,
+        "lower facade wall visible-plane placement metadata mismatch",
+    )
     require('def Xform "LeftFullHeightGlass"' in glass_text, "left full-height glass panel missing")
     require('def Xform "RightFullHeightGlass"' in glass_text, "right full-height glass panel missing")
     require(glass_text.count('def Cube "GlassPanel"') == 2, "exactly two full-height glass panes are required")
+    require(glass_text.count('def Cube "LowerOpaqueWall"') == 2, "exactly two lower opaque facade walls are required")
+    require(glass_text.count('prepend apiSchemas = ["MaterialBindingAPI"]') == 2, "lower facade wall material binding API mismatch")
+    require('double3 xformOp:scale = (5.4055, 0.20, 1.02)' in glass_text, "left lower facade wall dimensions mismatch")
+    require('double3 xformOp:scale = (5.1736, 0.20, 1.02)' in glass_text, "right lower facade wall dimensions mismatch")
+    require('double3 xformOp:translate = (-4.78275, -0.08, 0.51)' in glass_text, "left lower facade wall pose mismatch")
+    require('double3 xformOp:translate = (4.6668, -0.08, 0.51)' in glass_text, "right lower facade wall pose mismatch")
+    lower_wall_exterior_y = 0.17 - 0.08 - 0.20 / 2
+    entrance_pillar_exterior_y = 0.49 - 1.0 / 2
+    require(
+        abs(lower_wall_exterior_y - entrance_pillar_exterior_y) < 1e-9,
+        "lower facade wall exterior face is stepped from the visible entrance pillars",
+    )
+    lower_wall_interior_y = 0.17 - 0.08 + 0.20 / 2
+    glass_exterior_y = 0.17 - 0.025 / 2
+    require(lower_wall_interior_y >= glass_exterior_y, "lower facade wall has a depth gap from the glazing")
+    left_wall_world_min_x = 23.5 - 4.78275 - 5.4055 / 2
+    left_wall_world_max_x = 23.5 - 4.78275 + 5.4055 / 2
+    right_wall_world_min_x = 23.5 + 4.6668 - 5.1736 / 2
+    right_wall_world_max_x = 23.5 + 4.6668 + 5.1736 / 2
+    require(abs(left_wall_world_min_x - 16.0145) < 1e-9, "left lower facade wall does not reach Wall_09")
+    require(abs(left_wall_world_max_x - 21.42) < 1e-9, "left lower facade wall does not reach the entrance frame")
+    require(abs(right_wall_world_min_x - 25.58) < 1e-9, "right lower facade wall does not start at the entrance frame")
+    require(abs(right_wall_world_max_x - 30.7536) < 1e-9, "right lower facade wall does not reach Wall_11")
+    require('prepend references = @../../materials/lobby/wall_column_light_gray.usda@' in glass_text, "lower facade wall material reference missing")
     require('custom string cbnu:glassFinish = "clear architectural glass"' in glass_text, "full-height clear glass metadata missing")
     require('color3f inputs:diffuseColor = (0.48, 0.73, 0.78)' in glass_text, "full-height clear glass tint mismatch")
     require('float inputs:opacity = 0.13' in glass_text, "full-height clear glass opacity missing")
     require('float inputs:roughness = 0.08' in glass_text, "full-height clear glass roughness missing")
     require('float inputs:opacityThreshold = 0' in glass_text, "full-height glass blend threshold missing")
     require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative glass must not add collision")
+    require("PhysicsCollisionAPI" not in glass_text, "front glazing and lower facade walls must reuse Wall_10 collision")
     require('double3 xformOp:scale = (0.2355, 0.060, 3.0)' in prim_block(glass_text, "OuterFrame"), "left wall/glass perimeter gap remains")
     require('double3 xformOp:translate = (-7.26775, 0, 1.5)' in prim_block(glass_text, "OuterFrame"), "left outer frame closure pose mismatch")
     require(glass_text.count('double3 xformOp:scale = (0.22, 0.060, 3.0)') == 2, "door-side perimeter gaps remain")
@@ -479,6 +514,45 @@ def validate_north_corridor_end_glass_wall() -> None:
     require('float inputs:opacity = 0.13' in glass_text, "north corridor clear glass opacity missing")
     require('float inputs:roughness = 0.08' in glass_text, "north corridor clear glass roughness missing")
     require('custom bool cbnu:collisionEnabled = false' in glass_text, "decorative north glass must not add collision")
+
+
+def validate_north_corridor_wood_platform() -> None:
+    world_text = WORLD.read_text(encoding="utf-8")
+    require('def Xform "NorthGlassWoodPlatform"' in world_text, "north glass wood platform prim missing")
+    require(
+        'prepend references = @../../assets/architecture/platforms/north_corridor_wood_platform.usda@' in world_text,
+        "north glass wood platform relative reference missing",
+    )
+    platform_root = prim_block(world_text, "NorthGlassWoodPlatform")
+    require('double3 xformOp:translate = (24.4058, 20.27, 0)' in platform_root, "north glass wood platform pose mismatch")
+
+    platform_text = NORTH_CORRIDOR_WOOD_PLATFORM_ASSET.read_text(encoding="utf-8")
+    require('custom string cbnu:architectureType = "low wooden platform"' in platform_text, "wood platform type metadata mismatch")
+    require('custom bool cbnu:collisionEnabled = true' in platform_text, "wood platform collision metadata mismatch")
+    require('custom double3 cbnu:platformSize = (3.1332, 0.60, 0.15)' in platform_text, "wood platform size metadata mismatch")
+    require(platform_text.count('def Cube "PlatformBody"') == 1, "wood platform must use one solid body")
+    platform_body = prim_block(platform_text, "PlatformBody")
+    require('double3 xformOp:scale = (3.1332, 0.60, 0.15)' in platform_body, "wood platform body dimensions mismatch")
+    require('double3 xformOp:translate = (0, 0, 0.075)' in platform_body, "wood platform body height mismatch")
+    require(
+        'prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]' in platform_text,
+        "wood platform collider schema missing",
+    )
+    require('bool physics:collisionEnabled = true' in platform_body, "wood platform collision disabled")
+    require('PhysicsRigidBodyAPI' not in platform_text, "wood platform must remain static")
+    require('rel material:binding = </NorthCorridorWoodPlatform/WoodMaterial>' in platform_body, "wood platform material binding missing")
+    require('color3f inputs:diffuseColor = (0.38, 0.17, 0.055)' in platform_text, "wood platform color mismatch")
+
+    corridor_center_x = 24.4058
+    platform_width = 3.1332
+    require(abs(corridor_center_x - platform_width / 2 - 22.8392) < 1e-9, "wood platform does not meet the west corridor inner face")
+    require(abs(corridor_center_x + platform_width / 2 - 25.9724) < 1e-9, "wood platform does not meet the east corridor inner face")
+    platform_north_edge = 20.27 + 0.60 / 2
+    glass_frame_south_edge = 20.60 - 0.060 / 2
+    require(abs(platform_north_edge - glass_frame_south_edge) < 1e-9, "wood platform is not flush with the glass frame")
+    elevator_02_north_edge = 18.8 + 1.45 / 2
+    platform_south_edge = 20.27 - 0.60 / 2
+    require(abs(platform_south_edge - elevator_02_north_edge - 0.445) < 1e-9, "wood platform clearance from ElevatorDoor_02 mismatch")
 
 
 def validate_exterior_sidewalk_pavers() -> None:
@@ -841,7 +915,7 @@ def validate_sofas() -> tuple[Counter[str], Counter[str], Counter[str], Counter[
     return type_counts, placement_counts, facing_counts, fixture_counts
 
 
-def validate_dynamic_obstacles() -> tuple[int, int, float]:
+def validate_dynamic_obstacles() -> tuple[int, int, int, float]:
     config = json.loads(DYNAMIC_OBSTACLES_CONFIG.read_text(encoding="utf-8"))
     groups = config.get("groups", [])
     boxes = config.get("boxes", [])
@@ -851,11 +925,13 @@ def validate_dynamic_obstacles() -> tuple[int, int, float]:
         == {
             "ParcelPile_Table_03",
             "ParcelCluster_MainEntrance",
+            "ParcelCluster_BetweenElevators",
         },
         "dynamic parcel group set mismatch",
     )
     table_group = groups_by_name["ParcelPile_Table_03"]
     entrance_group = groups_by_name["ParcelCluster_MainEntrance"]
+    elevator_group = groups_by_name["ParcelCluster_BetweenElevators"]
     require(table_group.get("reference_prim") == "Table_03", "parcel pile must reference Table_03")
     require(table_group.get("placement") == "in_front_of_table", "parcel pile placement mismatch")
     require(table_group.get("front_direction") == "+X", "Table_03 parcel pile must face +X")
@@ -863,8 +939,11 @@ def validate_dynamic_obstacles() -> tuple[int, int, float]:
     require(entrance_group.get("reference_prim") == "Door_Double_05", "entrance parcels must reference Door_Double_05")
     require(entrance_group.get("placement") == "inside_main_entrance_right", "entrance parcel placement mismatch")
     require(entrance_group.get("clear_path_x_max") == 24.4, "entrance clear-path boundary mismatch")
+    require(elevator_group.get("reference_prim") == "Wall_05", "between-elevator parcels must reference Wall_05")
+    require(elevator_group.get("placement") == "between_elevator_bays_west_wall", "between-elevator parcel placement mismatch")
+    require(elevator_group.get("clear_path_x_min") == 23.65, "between-elevator clear-path boundary mismatch")
     require(config.get("starts_asleep") is True, "parcel boxes must start asleep for stable loading")
-    require(len(boxes) == 13, f"expected 13 parcel boxes, found {len(boxes)}")
+    require(len(boxes) == 16, f"expected 16 parcel boxes, found {len(boxes)}")
 
     names = [box["name"] for box in boxes]
     require(len(set(names)) == len(names), "duplicate parcel box names")
@@ -876,8 +955,10 @@ def validate_dynamic_obstacles() -> tuple[int, int, float]:
 
     table_boxes = [box for box in boxes if box["group"] == table_group["name"]]
     entrance_boxes = [box for box in boxes if box["group"] == entrance_group["name"]]
+    elevator_boxes = [box for box in boxes if box["group"] == elevator_group["name"]]
     require(len(table_boxes) == 9, "Table_03 parcel pile count mismatch")
     require(len(entrance_boxes) == 4, "main entrance parcel count mismatch")
+    require(len(elevator_boxes) == 3, "between-elevator parcel count mismatch")
     require(
         Counter(int(box["stack_level"]) for box in table_boxes) == Counter({1: 5, 2: 3, 3: 1}),
         "Table_03 parcel stack distribution mismatch",
@@ -885,6 +966,10 @@ def validate_dynamic_obstacles() -> tuple[int, int, float]:
     require(
         Counter(int(box["stack_level"]) for box in entrance_boxes) == Counter({1: 3, 2: 1}),
         "entrance parcel stack distribution mismatch",
+    )
+    require(
+        Counter(int(box["stack_level"]) for box in elevator_boxes) == Counter({1: 2, 2: 1}),
+        "between-elevator parcel stack distribution mismatch",
     )
 
     def aabb_xy(box: dict[str, object]) -> tuple[float, float, float, float]:
@@ -925,6 +1010,20 @@ def validate_dynamic_obstacles() -> tuple[int, int, float]:
         dy = max(min_y - spawn_xy[1], 0.0, spawn_xy[1] - max_y)
         require(math.hypot(dx, dy) >= 0.50, f"entrance parcel is too close to Spawn_South: {box['name']}")
 
+    elevator_01_north_edge = 15.2 + 1.45 / 2
+    elevator_02_south_edge = 18.8 - 1.45 / 2
+    elevator_clear_x = float(elevator_group["clear_path_x_min"])
+    ground_elevator_boxes = [box for box in elevator_boxes if box["support"] == "floor"]
+    for box in elevator_boxes:
+        min_x, max_x, min_y, max_y = aabb_xy(box)
+        require(min_x > 22.8392, f"between-elevator parcel intersects Wall_05: {box['name']}")
+        require(max_x < elevator_clear_x, f"between-elevator parcel enters the preserved east-side path: {box['name']}")
+        require(min_y > elevator_01_north_edge, f"parcel overlaps ElevatorDoor_01: {box['name']}")
+        require(max_y < elevator_02_south_edge, f"parcel overlaps ElevatorDoor_02: {box['name']}")
+    first_bounds = aabb_xy(ground_elevator_boxes[0])
+    second_bounds = aabb_xy(ground_elevator_boxes[1])
+    require(first_bounds[3] < second_bounds[2], "between-elevator floor parcels overlap")
+
     by_name: dict[str, dict[str, object]] = {}
     for box in boxes:
         position = tuple(float(value) for value in box["position"])
@@ -954,10 +1053,11 @@ def validate_dynamic_obstacles() -> tuple[int, int, float]:
 
     layout = DYNAMIC_OBSTACLES_LAYOUT.read_text(encoding="utf-8")
     require('defaultPrim = "DynamicObstacles"' in layout, "dynamic obstacle defaultPrim mismatch")
-    require('custom int cbnu:groupCount = 2' in layout, "layout parcel group count mismatch")
+    require('custom int cbnu:groupCount = 3' in layout, "layout parcel group count mismatch")
     require('custom double cbnu:minimumTableClearance = 0.6' in layout, "layout table clearance metadata mismatch")
     require('custom double cbnu:entranceClearPathXMax = 24.4' in layout, "layout entrance clear-path metadata mismatch")
-    require('custom int cbnu:boxCount = 13' in layout, "layout parcel count metadata mismatch")
+    require('custom double cbnu:elevatorClearPathXMin = 23.65' in layout, "layout between-elevator clear-path metadata mismatch")
+    require('custom int cbnu:boxCount = 16' in layout, "layout parcel count metadata mismatch")
     require(layout.count("PhysicsRigidBodyAPI") == len(boxes), "parcel rigid-body API count mismatch")
     require(layout.count("PhysicsMassAPI") == len(boxes), "parcel mass API count mismatch")
     require(layout.count("PhysicsCollisionAPI") == len(boxes), "parcel collision API count mismatch")
@@ -981,7 +1081,7 @@ def validate_dynamic_obstacles() -> tuple[int, int, float]:
         require(f'custom string cbnu:group = "{box["group"]}"' in layout, f"parcel group metadata missing: {box['name']}")
 
     total_mass = sum(float(box["mass_kg"]) for box in boxes)
-    return len(table_boxes), len(entrance_boxes), total_mass
+    return len(table_boxes), len(entrance_boxes), len(elevator_boxes), total_mass
 
 
 def validate_architecture() -> tuple[int, int, int, int, int]:
@@ -1124,7 +1224,7 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
 
     expected_elevator_poses = {
         "ElevatorDoor_01": [22.8392, 15.2, 0.0],
-        "ElevatorDoor_02": [22.8392, 19.0, 0.0],
+        "ElevatorDoor_02": [22.8392, 18.8, 0.0],
     }
     for name, expected_position in expected_elevator_poses.items():
         elevator = elevator_doors[name]
@@ -1143,6 +1243,7 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
         )
     elevator_gap = float(elevator_doors["ElevatorDoor_02"]["position"][1]) - float(elevator_doors["ElevatorDoor_01"]["position"][1])
     require(elevator_gap > 1.45, "elevator door bays overlap")
+    require(abs(elevator_gap - 3.6) < 1e-9, "ElevatorDoor_02 viewer-left shift mismatch")
     require(
         all(13.1403 < float(door["position"][1]) < 20.7246 for door in elevator_doors.values()),
         "elevator door lies outside Wall_05",
@@ -1183,7 +1284,7 @@ def validate_architecture() -> tuple[int, int, int, int, int]:
         "double3 xformOp:translate = (30.62, 5, 1.05)",
         "double3 xformOp:translate = (20.5892, 13.0403, 0.85)",
         "double3 xformOp:translate = (22.8392, 15.2, 0)",
-        "double3 xformOp:translate = (22.8392, 19, 0)",
+        "double3 xformOp:translate = (22.8392, 18.8, 0)",
     ):
         require(pose in layout_text, f"architecture layout pose missing: {pose}")
 
@@ -1277,10 +1378,11 @@ def main() -> None:
     validate_front_glass_walls()
     validate_west_corridor_end_wall()
     validate_north_corridor_end_glass_wall()
+    validate_north_corridor_wood_platform()
     validate_exterior_sidewalk_pavers()
     door_counts = validate_doors()
     type_counts, placement_counts, facing_counts, fixture_counts = validate_sofas()
-    table_parcels, entrance_parcels, parcel_mass = validate_dynamic_obstacles()
+    table_parcels, entrance_parcels, elevator_parcels, parcel_mass = validate_dynamic_obstacles()
     (
         front_display_count,
         side_display_count,
@@ -1313,7 +1415,7 @@ def main() -> None:
     print("table fit: all 3 use filled bases; Table_01/02 match paired sofa widths and Table_03 matches former Sofa_01 footprint (1.6232 x 0.82 m)")
     print(
         f"dynamic parcels: Table_03={table_parcels}, main entrance={entrance_parcels}, "
-        f"distinct sizes={table_parcels + entrance_parcels}, "
+        f"between elevators={elevator_parcels}, distinct sizes={table_parcels + entrance_parcels + elevator_parcels}, "
         f"max stack levels=3, total mass={parcel_mass:.1f} kg; "
         "all rigid, collidable and non-kinematic"
     )
@@ -1325,9 +1427,10 @@ def main() -> None:
         f"ceiling lights: standard panels={ceiling_light_counts['panel']}, "
         f"large central panel={ceiling_light_counts['large_panel']} (6.0 x 2.4 m)"
     )
-    print("front entrance glazing: two 4.85 x 2.82 m clear panels (opacity=0.13, roughness=0.08); Wall_10 collider unchanged")
+    print("front entrance glazing: two 4.85 x 2.82 m clear panels with full-span lower facade walls aligned to the visible entrance-pillar plane (south face y=-0.01 m); Wall_10 collider unchanged")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision; three wood doors realigned to wall faces")
     print("north corridor end glazing: one 3.1332 x 2.82 m clear panel (opacity=0.13, roughness=0.08); Wall_04 collider unchanged")
+    print("north glass wood platform: 3.1332 x 0.60 x 0.15 m; full corridor width, flush with the glass frame, static collision enabled")
     print("exterior pavement: south 200.0 x 100.0435 m + north 200.0 x 79.2754 m watertight opaque sidewalk-paver slabs; top z=0.05 m, bottom z=-0.12 m")
     print(
         f"digital display walls: original only, left={side_display_count}/right={front_display_count}; "
@@ -1344,7 +1447,7 @@ def main() -> None:
     )
     print(
         f"Wall_05 elevators: {elevator_door_count} operational stainless-steel center-opening doors; "
-        "1.45 x 2.30 m each, facing +X into the north corridor"
+        "1.45 x 2.30 m each, facing +X; ElevatorDoor_02 shifted 0.20 m viewer-left to y=18.8 m"
     )
     print(f"USD references: {reference_count} relative and resolved")
     print(f"preview: {width}x{height}")

@@ -102,7 +102,7 @@ def Xform "Architecture"
         custom double cbnu:height = 2.3
         custom double cbnu:depth = 0.08
         double xformOp:rotateZ = 90
-        double3 xformOp:translate = (22.8392, 19, 0)
+        double3 xformOp:translate = (22.8392, 18.8, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
     }
 }

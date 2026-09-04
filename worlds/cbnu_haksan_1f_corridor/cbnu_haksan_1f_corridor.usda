@@ -118,7 +118,7 @@ def Xform "World"
             prepend references = @../../assets/architecture/windows/front_entrance_glass_walls.usda@
         )
         {
-            custom string cbnu:layoutRevision = "2026-09-02-clear-glass-closed-perimeter-exterior-pavers-v3"
+            custom string cbnu:layoutRevision = "2026-09-04-visible-facade-plane-lower-walls-v7"
             double3 xformOp:translate = (23.5, 0.17, 0)
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
@@ -132,11 +132,20 @@ def Xform "World"
             uniform token[] xformOpOrder = ["xformOp:translate"]
         }
 
+        def Xform "NorthGlassWoodPlatform" (
+            prepend references = @../../assets/architecture/platforms/north_corridor_wood_platform.usda@
+        )
+        {
+            custom string cbnu:layoutRevision = "2026-09-04-north-glass-full-width-wood-platform-v1"
+            double3 xformOp:translate = (24.4058, 20.27, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
         def Xform "Walls" (
             prepend apiSchemas = ["MaterialBindingAPI"]
         )
         {
-            custom string cbnu:surfaceFinish = "medium neutral gray between the light and dark-gray posters"
+            custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"
             rel material:binding = </World/Looks/WallColumnLightGray> (
                 bindMaterialAs = "strongerThanDescendants"
             )
@@ -307,7 +316,7 @@ def Xform "World"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        custom string cbnu:surfaceFinish = "medium neutral gray between the light and dark-gray posters"
+        custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"
         rel material:binding = </World/Looks/WallColumnLightGray> (
             bindMaterialAs = "strongerThanDescendants"
         )

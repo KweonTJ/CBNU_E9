@@ -242,6 +242,17 @@ def main() -> None:
             alpha=0.72,
             zorder=5,
         )
+    for center_x, width in ((18.71725, 5.4055), (28.1668, 5.1736)):
+        add_centered_rectangle(
+            axis,
+            (center_x, 0.09),
+            width,
+            0.20,
+            facecolor="#808285",
+            edgecolor="#484a4c",
+            linewidth=1.2,
+            zorder=6,
+        )
     add_centered_rectangle(
         axis,
         (24.4058, 20.60),
@@ -253,6 +264,17 @@ def main() -> None:
         alpha=0.72,
         zorder=5,
     )
+    add_centered_rectangle(
+        axis,
+        (24.4058, 20.27),
+        3.1332,
+        0.60,
+        facecolor="#8a451f",
+        edgecolor="#3f1d0c",
+        linewidth=1.4,
+        zorder=6,
+    )
+    axis.text(24.4058, 20.27, "WOOD PLATFORM", color="#fff0d2", fontsize=6.5, fontweight="bold", ha="center", va="center", zorder=7)
 
     for column in geometry["columns"]:
         center = tuple(column["center"])
@@ -261,8 +283,8 @@ def main() -> None:
             center,
             float(column["size"][0]),
             float(column["size"][1]),
-            facecolor="#8f918f",
-            edgecolor="#6f6d67",
+            facecolor="#808285",
+            edgecolor="#5f6265",
             linewidth=1.5,
             zorder=4,
         )
@@ -275,8 +297,8 @@ def main() -> None:
             center,
             float(pillar["size"][0]),
             float(pillar["size"][1]),
-            facecolor="#8f918f",
-            edgecolor="#6f6d67",
+            facecolor="#808285",
+            edgecolor="#5f6265",
             linewidth=1.1,
             zorder=7,
         )
@@ -914,8 +936,10 @@ def main() -> None:
         patches.Patch(facecolor="#fff7cf", edgecolor="#c8ad64", label="Recessed ceiling LED panel"),
         patches.Patch(facecolor="#fff2ad", edgecolor="#d39b28", linewidth=2, label="Large central ceiling light"),
         patches.Patch(facecolor="#8ed7e5", edgecolor="#1f6978", label="Full-height entrance glass wall"),
-        patches.Patch(facecolor="#8f918f", edgecolor="#4f514f", label="Medium gray 1.2 m column"),
-        patches.Patch(facecolor="#8f918f", edgecolor="#4f514f", label="Medium gray entrance pillar"),
+        patches.Patch(facecolor="#8a451f", edgecolor="#3f1d0c", label="Full-width low wood platform"),
+        patches.Patch(facecolor="#808285", edgecolor="#484a4c", label="1.02 m stone-gray lower facade wall"),
+        patches.Patch(facecolor="#808285", edgecolor="#484a4c", label="Stone-gray 1.2 m column"),
+        patches.Patch(facecolor="#808285", edgecolor="#484a4c", label="Stone-gray entrance pillar"),
         patches.Patch(facecolor="#7b4528", edgecolor="#4b2614", label="Straight armless sofa"),
         patches.Patch(facecolor="#9b5c35", edgecolor="#4b2614", label="Single armless sofa"),
         patches.Patch(facecolor="#6d3b22", edgecolor="#3b1d0f", label="Continuous L sofa"),

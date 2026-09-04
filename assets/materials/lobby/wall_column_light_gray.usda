@@ -7,17 +7,17 @@
 
 def Material "WallColumnLightGray"
 {
-    custom string cbnu:finish = "medium neutral gray matte wall and column finish"
-    custom string cbnu:colorAdjustment = "medium gray chosen to separate the light poster and dark-gray poster"
+    custom string cbnu:finish = "cool stone-gray matte wall and column finish"
+    custom string cbnu:colorAdjustment = "slightly cool and darker stone gray chosen to preserve separation from the light and dark-gray posters"
     token outputs:surface.connect = </WallColumnLightGray/PreviewSurface.outputs:surface>
 
     def Shader "PreviewSurface"
     {
         uniform token info:id = "UsdPreviewSurface"
-        color3f inputs:diffuseColor = (0.56, 0.57, 0.56)
+        color3f inputs:diffuseColor = (0.50, 0.51, 0.52)
         float inputs:metallic = 0
         float inputs:opacity = 1
-        float inputs:roughness = 0.68
+        float inputs:roughness = 0.72
         token outputs:surface
     }
 }

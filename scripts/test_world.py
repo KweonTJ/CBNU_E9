@@ -33,8 +33,11 @@ REQUIRED_PRIMS = {
     "/World/Environment/CeilingLights/CeilingLight_Central_Large/Diffuser": "Cube",
     "/World/Environment/CeilingLights/CeilingLight_Central_Large/Light": "RectLight",
     "/World/Environment/FrontEntranceGlassWalls/LeftFullHeightGlass/GlassPanel": "Cube",
+    "/World/Environment/FrontEntranceGlassWalls/LeftFullHeightGlass/LowerOpaqueWall": "Cube",
     "/World/Environment/FrontEntranceGlassWalls/RightFullHeightGlass/GlassPanel": "Cube",
+    "/World/Environment/FrontEntranceGlassWalls/RightFullHeightGlass/LowerOpaqueWall": "Cube",
     "/World/Environment/NorthCorridorEndGlassWall/GlassPanel": "Cube",
+    "/World/Environment/NorthGlassWoodPlatform/PlatformBody": "Cube",
     "/World/Environment/ExteriorSidewalkPavers/SouthEntrancePavement": "Mesh",
     "/World/Environment/ExteriorSidewalkPavers/NorthExitPavement": "Mesh",
     "/World/Columns/Entrance_Pillar_ATM_Side/Body": "Cube",
@@ -82,6 +85,9 @@ REQUIRED_PRIMS = {
     "/World/DynamicObstacles/ParcelBox_09/ShippingLabel": "Cube",
     "/World/DynamicObstacles/ParcelBox_10/Body": "Cube",
     "/World/DynamicObstacles/ParcelBox_13/Body": "Cube",
+    "/World/DynamicObstacles/ParcelBox_14/Body": "Cube",
+    "/World/DynamicObstacles/ParcelBox_15/Body": "Cube",
+    "/World/DynamicObstacles/ParcelBox_16/Body": "Cube",
     "/World/Doors/Door_Double_05/DoubleDoorSet_01/LeftDoor/GlassPanel": "Cube",
     "/World/Doors/Door_Double_05/DoubleDoorSet_01/LeftDoor/MidRail": "Cube",
     "/World/Doors/Door_Double_05/DoubleDoorSet_01/RightDoor/GlassPanel": "Cube",
@@ -144,6 +150,15 @@ def main() -> None:
         material, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial()
         if not material or str(material.GetPath()) != "/World/Looks/WallColumnLightGray":
             raise AssertionError(f"light-gray material mismatch: {path}")
+    wall_gray_shader = UsdShade.Shader(
+        stage.GetPrimAtPath("/World/Looks/WallColumnLightGray/PreviewSurface")
+    )
+    wall_gray = tuple(float(value) for value in wall_gray_shader.GetInput("diffuseColor").Get())
+    expected_stone_gray = (0.50, 0.51, 0.52)
+    if any(abs(value - expected) > 1e-6 for value, expected in zip(wall_gray, expected_stone_gray)):
+        raise AssertionError("wall/column material is not the requested cool stone gray")
+    if abs(float(wall_gray_shader.GetInput("roughness").Get()) - 0.72) > 1e-6:
+        raise AssertionError("wall/column material roughness is not stone-like")
     additional_ceiling_lights = {
         "CeilingLight_13": (19.0, 12.0, 2.96),
         "CeilingLight_14": (28.8, 12.0, 2.96),
@@ -163,6 +178,39 @@ def main() -> None:
     ceiling_material, _ = UsdShade.MaterialBindingAPI(ceiling).ComputeBoundMaterial()
     if not ceiling_material or str(ceiling_material.GetPath()) != "/World/Looks/CeilingWhite":
         raise AssertionError("ceiling no longer uses the original white material")
+    expected_lower_wall_translates = {
+        "LeftFullHeightGlass": ((-4.78275, -0.08, 0.51), (5.4055, 0.2, 1.02)),
+        "RightFullHeightGlass": ((4.6668, -0.08, 0.51), (5.1736, 0.2, 1.02)),
+    }
+    for side, (expected_translate, expected_scale) in expected_lower_wall_translates.items():
+        lower_wall = stage.GetPrimAtPath(
+            f"/World/Environment/FrontEntranceGlassWalls/{side}/LowerOpaqueWall"
+        )
+        if tuple(lower_wall.GetAttribute("xformOp:scale").Get()) != expected_scale:
+            raise AssertionError(f"front lower facade wall dimensions mismatch: {side}")
+        if tuple(lower_wall.GetAttribute("xformOp:translate").Get()) != expected_translate:
+            raise AssertionError(f"front lower facade wall flush pose mismatch: {side}")
+        lower_wall_material, _ = UsdShade.MaterialBindingAPI(lower_wall).ComputeBoundMaterial()
+        if not lower_wall_material or str(lower_wall_material.GetPath()) != "/World/Environment/FrontEntranceGlassWalls/LowerFacadeWallMaterial":
+            raise AssertionError(f"front lower facade wall material mismatch: {side}")
+
+    wood_platform = stage.GetPrimAtPath("/World/Environment/NorthGlassWoodPlatform")
+    if tuple(wood_platform.GetAttribute("xformOp:translate").Get()) != (24.4058, 20.27, 0.0):
+        raise AssertionError("north glass wood platform world pose mismatch")
+    platform_body = stage.GetPrimAtPath("/World/Environment/NorthGlassWoodPlatform/PlatformBody")
+    if tuple(platform_body.GetAttribute("xformOp:scale").Get()) != (3.1332, 0.6, 0.15):
+        raise AssertionError("north glass wood platform dimensions mismatch")
+    if tuple(platform_body.GetAttribute("xformOp:translate").Get()) != (0.0, 0.0, 0.075):
+        raise AssertionError("north glass wood platform body pose mismatch")
+    if "PhysicsCollisionAPI" not in set(platform_body.GetAppliedSchemas()):
+        raise AssertionError("north glass wood platform collider missing")
+    if platform_body.GetAttribute("physics:collisionEnabled").Get() is not True:
+        raise AssertionError("north glass wood platform collision disabled")
+    if "PhysicsRigidBodyAPI" in set(platform_body.GetAppliedSchemas()):
+        raise AssertionError("north glass wood platform unexpectedly dynamic")
+    platform_material, _ = UsdShade.MaterialBindingAPI(platform_body).ComputeBoundMaterial()
+    if not platform_material or str(platform_material.GetPath()) != "/World/Environment/NorthGlassWoodPlatform/WoodMaterial":
+        raise AssertionError("north glass wood platform material mismatch")
 
     parcel_config = json.loads(DYNAMIC_OBSTACLES.read_text(encoding="utf-8"))
     parcel_boxes = parcel_config["boxes"]
@@ -224,7 +272,7 @@ def main() -> None:
         "GrayPoster_01": ((30.62, 5.0, 1.05), 270.0),
         "GrayPoster_02": ((20.5892, 13.0403, 0.85), 0.0),
         "ElevatorDoor_01": ((22.8392, 15.2, 0.0), 90.0),
-        "ElevatorDoor_02": ((22.8392, 19.0, 0.0), 90.0),
+        "ElevatorDoor_02": ((22.8392, 18.8, 0.0), 90.0),
     }
     for prim_name, (expected_translate, expected_yaw) in expected_architecture_poses.items():
         prim = stage.GetPrimAtPath(f"/World/Architecture/{prim_name}")
@@ -285,18 +333,19 @@ def main() -> None:
     print(f"CBNU Haksan composed Stage: PASS (USD {Usd.GetVersion()})")
     print(f"verified composed prims: {len(REQUIRED_PRIMS)}")
     print("sky background: authored DomeLight color removed; original default restored")
-    print("surface colors: walls and all columns use medium neutral gray between the light and dark-gray posters; floor keeps Bala White and ceiling keeps CeilingWhite")
+    print("surface colors: walls and all columns use cool stone gray RGB (0.50, 0.51, 0.52), roughness 0.72; floor keeps Bala White and ceiling keeps CeilingWhite")
     print("ATM geometry: loaded=2")
     print("front double-glass sets: loaded=2, fully infilled clear leaves=4")
     print("entrance-right Wall_11: corner sofa return shortened by 0.30 m; one single door inserted with 0.197 m side clearances")
     print("lobby tables: loaded=3; all use filled lower bodies")
     print(
-        "dynamic parcels: loaded=13; Table_03=9, main entrance=4"
+        "dynamic parcels: loaded=16; Table_03=9, main entrance=4, between elevators=3"
     )
     print("ceiling: loaded; standard panels=15 at 8000; large central panel=1 at 12000 (6.0 x 2.4 m)")
-    print("front entrance glazing: loaded=2 clear full-height panels; original Wall_10 collider retained")
+    print("front entrance glazing: loaded=2 clear panels plus full-span sofa-height lower walls from Wall_09 to the door frame and from the door frame to Wall_11; south face aligned to the visible entrance pillars at y=-0.01 m")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision")
     print("north corridor end glazing: loaded=1 clear full-height panel; original Wall_04 collider retained")
+    print("north glass wood platform: loaded=1 static 3.1332 x 0.60 x 0.15 m body; corridor-width fit and glass-frame contact verified")
     print("exterior pavement: loaded=2 oversized watertight opaque sidewalk-paver slabs; south=200.0 x 100.0435 m, north=200.0 x 79.2754 m; top z=0.05 m")
     print("entrance side pillars: loaded=2; mirrored 1.0425 x 1.0 x 3.0 m bodies projecting into lobby")
     print("front entrance joins: wall/glass, pillar/glass and leaf/rail borders closed; center gap filled by one 0.44 m clear panel meeting the transom")
@@ -307,7 +356,7 @@ def main() -> None:
     print("Column_03 display: loaded=1 large 1.0 x 1.45 m panel facing the main entrance")
     print("Wall_11 poster: loaded=1 light-gray 2.2 x 1.0 m panel; top fixed at 2.05 m and bottom extended")
     print("Wall_06 poster: loaded=1 non-emissive dark-gray 4.5 x 1.22 x 0.15 m slab; doubled depth, no bezel, screen or collider")
-    print("Wall_05 elevators: loaded=2 operational stainless-steel center-opening doors, 1.45 x 2.30 m each")
+    print("Wall_05 elevators: loaded=2 operational stainless-steel center-opening doors, 1.45 x 2.30 m each; ElevatorDoor_02 shifted 0.20 m viewer-left to y=18.8 m")
     print("corner/U sofas: one visible SofaUnified mesh each; sampled helpers invisible=8")
 
 
