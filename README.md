@@ -1,6 +1,6 @@
 # CBNU 학연산 2층 건물 Isaac Sim 월드
 
-충북대학교 학연산공동기술연구원 1층 피난안내도를 바탕으로 제작한 실내 로비를 두 층으로 쌓은 Isaac Sim 월드다. 두 층은 같은 평면·가구·문·디스플레이·조명을 사용한다.
+충북대학교 학연산공동기술연구원 1층 피난안내도를 바탕으로 제작한 실내 로비를 두 층으로 쌓은 Isaac Sim 월드다. 같은 평면을 바탕으로 2층의 가구·전시물을 정리하고 가벽과 양쪽 계단을 추가했다.
 
 실측 CAD 복제가 아니라 안내도와 현장 이미지를 기준으로 비율과 동선을 근사한 환경이다. 현재 버전은 로비·복도 구조, 가구, 출입문, 전시 구조물, 엘리베이터 철문, 이동식 안내판, 실내 조명과 물리 반응형 택배 박스를 포함한다.
 
@@ -27,22 +27,24 @@ cd /home/a/Isaac_Worlds_CBNU
 
 - 1층 바닥 z=0m, 2층 바닥 z=3.2m, 지붕 상단 z=6.3m. 층별 실내 높이는 3m다.
 - 2층 정면 출입문 자리는 양옆과 같은 규격의 고정창과 하부 벽으로 바꿨다. 세 창 중심 간격은 각각 4.725m이며 기존 창·기둥 위치를 유지한다. [변경 기록](docs/31.45_cbnu_haksan_upper_entrance_window.md)
-- 새 양쪽 2.5 × 2 × 3m 공간과 각각의 천장 조명은 두 층에 동일하게 배치한다.
+- 양쪽 공간은 각각 폭 2.5m·깊이 3.44m의 계단실로 확장했다.
 - 2층 일반 문, 소파·의자, 책상, 우편물·택배 상자, ATM을 제거했다. 1층 배치는 유지한다. [변경 기록](docs/31.46_cbnu_haksan_upper_floor_clear.md)
 - 2층 엘리베이터 문 2개는 원래 위치·형상·재질로 복원했다. [복원 기록](docs/31.48_cbnu_haksan_upper_elevators_restore.md)
 - 2층 중앙 기둥 3개를 충돌 형상까지 제거했다. [변경 기록](docs/31.49_cbnu_haksan_upper_columns_clear.md)
-- 2층 가벽은 최초 코너 벽선에서 엘리베이터 쪽으로 1m 이동했다. 양 끝을 벽까지 연결해 길이는 약 19.23m이며 높이 3m·두께 0.2m다. [배치도](worlds/cbnu_haksan_2f_building/preview_upper_partition.png) · [변경 기록](docs/31.51_cbnu_haksan_upper_partition_shift.md)
+- 2층 가벽은 서쪽 복도의 꺾인 코너 벽선(y=11.4103m)까지 옮겨 기존 벽과 일자로 연결했다. 길이 약 19.23m, 높이 3m·두께 0.2m이며 2층 에어컨 2대는 제거 상태다. [배치도](worlds/cbnu_haksan_2f_building/preview_upper_partition.png) · [변경 기록](docs/31.53_cbnu_haksan_partition_corner.md)
 - 2층 코너·기둥 디스플레이, 회색 전시 패널 2개, 엘리베이터 옆 안내판 3개도 제거했다. [변경 기록](docs/31.47_cbnu_haksan_upper_displays_clear.md)
 - 1층 천장과 2층 바닥은 z=3.1m에서 맞닿으며, 두 층의 벽 사이에는 높이 0.2m 연결부 22개가 있다.
-- PhysicsScene과 DomeLight는 각 1개만 사용한다. 외부 보도는 지상에만 있다. 2층 대형 천장등을 제거해 패널 조명은 1층 18개·2층 17개, 총 35개다.
+- PhysicsScene과 DomeLight는 각 1개만 사용한다. 외부 보도는 지상에만 있다. 패널 조명은 1층 16개·2층 21개·중간참 2개, 총 39개다. 2층 복도·엘리베이터 쪽 기존 등 5개의 광원 세기를 50% 높였다. [조명 변경 기록](docs/31.54_cbnu_haksan_upper_corridor_lighting.md)
+- 복도 중앙 보강등 3개(`CeilingLight_18`–`20`)는 세로 방향으로 90° 회전했다. [변경 기록](docs/31.55_cbnu_haksan_corridor_light_rotation.md)
 - 1층은 기존 `/World/Environment` 등의 경로를 유지하고 2층은 `/World/Floor_02` 아래에 있다.
-- 층간 계단과 엘리베이터 이동 기능은 아직 없다.
+- 양쪽 계단은 서로 대칭이며 높이 1.6m 중간참에서 180° 돌아 2층(3.2m)으로 연결된다. 각각 총 18단, 단 높이 약 17.8cm, 디딤판 깊이 28cm이며 계단 아래는 개방했다. 합성 월드에서 계단 위 1층 천장과 2층 바닥을 뚫었으며 원본 1층 파일은 보존한다. [왼쪽 미리보기](worlds/cbnu_haksan_2f_building/preview_left_staircase.png) · [오른쪽 미리보기](worlds/cbnu_haksan_2f_building/preview_right_staircase.png) · [변경 기록](docs/31.56_cbnu_haksan_staircases.md). 엘리베이터 이동 기능은 아직 없다.
 
 1층 배치 수정은 reference를 통해 두 층에 반영된다. 벽 위치·층 높이를 바꾸면 연결부도 함께 갱신한다.
 
 ~~~bash
 python3 scripts/update_cbnu_haksan_two_floor.py
 MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_two_floor_preview.py
+MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_staircase.py
 ./scripts/test_world_with_isaac_usd.sh scripts/test_two_floor_world.py
 ~~~
 

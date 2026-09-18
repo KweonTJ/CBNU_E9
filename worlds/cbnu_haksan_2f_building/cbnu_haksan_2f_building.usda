@@ -3,6 +3,7 @@
     defaultPrim = "World"
     metersPerUnit = 1
     upAxis = "Z"
+    subLayers = [@config/staircases.usda@]
     customLayerData = {
         string generator = "scripts/update_cbnu_haksan_two_floor.py"
         dictionary cameraSettings = {
@@ -22,7 +23,7 @@ def Xform "World" (
     custom double cbnu:floorToFloorHeight = 3.2
     custom double cbnu:clearFloorHeight = 3
     custom string cbnu:layout = "upper floor cleared of three main columns, regular doors, furniture, parcels, ATMs, displays, posters and information boards; elevator doors retained; matching front windows"
-    custom bool cbnu:interFloorConnectionBuilt = false
+    custom bool cbnu:interFloorConnectionBuilt = true
 
     def Xform "Floor_02" (
         prepend references = @../cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda@</World>
@@ -89,12 +90,13 @@ def Xform "World" (
                 prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
             )
             {
-                custom string cbnu:placement = "1 m north toward elevators from former corner line; spans Wall_09 to Wall_01"
-                custom double cbnu:shiftTowardElevators = 1
+                custom string cbnu:placement = "continues west corridor Wall_08 straight across to Wall_01 with no corner offset"
+                custom double cbnu:shiftTowardElevators = 5.2364
+                custom double cbnu:previousCenterY = 9.05
                 rel material:binding = </World/Floor_02/Looks/WallColumnLightGray>
                 bool physics:collisionEnabled = true
                 double size = 1
-                double3 xformOp:translate = (25.73185, 7.1739, 1.5)
+                double3 xformOp:translate = (25.73185, 11.4103, 1.5)
                 double3 xformOp:scale = (19.2347, 0.2, 3)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
             }
@@ -103,10 +105,111 @@ def Xform "World" (
                 over "CeilingLight_Central_Large" (
                     active = false
                 ) {}
+                over "AirConditioners" (
+                    active = false
+                ) {}
+                over "CeilingLight_04"
+                {
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                over "CeilingLight_05"
+                {
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                over "CeilingLight_12"
+                {
+                    custom string cbnu:placementSource = "2F corridor partition clearance; shifted 0.25 m north"
+                    double3 xformOp:translate = (32.8, 12.25, 2.96)
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                over "CeilingLight_13"
+                {
+                    custom string cbnu:placementSource = "2F corridor partition clearance; shifted 0.25 m north"
+                    double3 xformOp:translate = (19, 12.25, 2.96)
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                over "CeilingLight_14"
+                {
+                    custom string cbnu:placementSource = "2F corridor partition clearance; shifted 0.25 m north"
+                    double3 xformOp:translate = (28.8, 12.25, 2.96)
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                over "CeilingLight_09"
+                {
+                    custom string cbnu:placementSource = "2F partition clearance; shifted 0.5 m north"
+                    double3 xformOp:translate = (24.5, 9.5, 2.96)
+                }
                 over "CeilingLight_15"
                 {
                     custom string cbnu:placementSource = "2F partition clearance; shifted 0.6 m south"
                     double3 xformOp:translate = (29, 5.4, 2.96)
+                }
+                def Xform "CeilingLight_18" (
+                    prepend references = @../../assets/architecture/ceiling/ceiling_panel_light.usda@
+                )
+                {
+                    custom string cbnu:placement = "2F partition-side corridor fill light"
+                    double3 xformOp:translate = (21.5, 12.2753, 2.96)
+                    double xformOp:rotateZ = 90
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                def Xform "CeilingLight_19" (
+                    prepend references = @../../assets/architecture/ceiling/ceiling_panel_light.usda@
+                )
+                {
+                    custom string cbnu:placement = "2F partition-side corridor fill light"
+                    double3 xformOp:translate = (24, 12.2753, 2.96)
+                    double xformOp:rotateZ = 90
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                def Xform "CeilingLight_20" (
+                    prepend references = @../../assets/architecture/ceiling/ceiling_panel_light.usda@
+                )
+                {
+                    custom string cbnu:placement = "2F partition-side corridor fill light"
+                    double3 xformOp:translate = (26.5, 12.2753, 2.96)
+                    double xformOp:rotateZ = 90
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
+                }
+                def Xform "CeilingLight_21" (
+                    prepend references = @../../assets/architecture/ceiling/ceiling_panel_light.usda@
+                )
+                {
+                    custom string cbnu:placement = "2F partition-side corridor fill light"
+                    double3 xformOp:translate = (30.8, 12.2753, 2.96)
+                    double xformOp:rotateZ = 0
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+                    over "Light"
+                    {
+                        float inputs:intensity = 12000
+                    }
                 }
             }
             over "ExteriorSidewalkPavers" (
@@ -252,9 +355,9 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
-            double3 xformOp:translate = (15.5392, 14.1403, 3.1)
+            double3 xformOp:translate = (15.5392, 14.8603, 3.1)
             double xformOp:rotateZ = 90
-            double3 xformOp:scale = (2, 0.2, 0.2)
+            double3 xformOp:scale = (3.44, 0.2, 0.2)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
         }
         def Cube "Wall_17" (
@@ -263,9 +366,9 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
-            double3 xformOp:translate = (18.2392, 14.1403, 3.1)
+            double3 xformOp:translate = (18.2392, 14.8603, 3.1)
             double xformOp:rotateZ = 90
-            double3 xformOp:scale = (2, 0.2, 0.2)
+            double3 xformOp:scale = (3.44, 0.2, 0.2)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
         }
         def Cube "Wall_18" (
@@ -274,7 +377,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
-            double3 xformOp:translate = (16.8892, 15.1403, 3.1)
+            double3 xformOp:translate = (16.8892, 16.5803, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (2.9, 0.2, 0.2)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
@@ -296,9 +399,9 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
-            double3 xformOp:translate = (28.2724, 14.3044, 3.1)
+            double3 xformOp:translate = (28.2724, 15.0244, 3.1)
             double xformOp:rotateZ = 90
-            double3 xformOp:scale = (2, 0.2, 0.2)
+            double3 xformOp:scale = (3.44, 0.2, 0.2)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
         }
         def Cube "Wall_21" (
@@ -307,9 +410,9 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
-            double3 xformOp:translate = (30.9724, 14.3044, 3.1)
+            double3 xformOp:translate = (30.9724, 15.0244, 3.1)
             double xformOp:rotateZ = 90
-            double3 xformOp:scale = (2, 0.2, 0.2)
+            double3 xformOp:scale = (3.44, 0.2, 0.2)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]
         }
         def Cube "Wall_22" (
@@ -318,7 +421,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
-            double3 xformOp:translate = (29.6224, 15.3044, 3.1)
+            double3 xformOp:translate = (29.6224, 16.7444, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (2.9, 0.2, 0.2)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ", "xformOp:scale"]

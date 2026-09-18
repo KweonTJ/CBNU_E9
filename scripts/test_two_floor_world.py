@@ -3,6 +3,7 @@
 
 from pathlib import Path
 from pxr import Usd, UsdGeom, UsdShade
+from test_cbnu_haksan_staircase import validate_staircase
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda'
@@ -22,10 +23,11 @@ def main():
     active = list(stage.Traverse())
     assert sum(p.GetTypeName() == 'PhysicsScene' for p in active) == 1
     assert sum(p.GetTypeName() == 'DomeLight' for p in active) == 1
-    assert sum(p.GetTypeName() == 'RectLight' for p in active) == 35
+    assert sum(p.GetTypeName() == 'RectLight' for p in active) == 39
     assert sum('PhysicsRigidBodyAPI' in p.GetAppliedSchemas() for p in active) == 16
     removed = ('/World/Doors', '/World/Furniture', '/World/DynamicObstacles',
                '/World/Environment/CeilingLights/CeilingLight_Central_Large',
+               '/World/Environment/CeilingLights/AirConditioners',
                '/World/Columns/Column_01', '/World/Columns/Column_02', '/World/Columns/Column_03',
                '/World/Architecture/DigitalDisplayWall_01', '/World/Architecture/ColumnDisplay_01',
                '/World/Architecture/GrayPoster_01', '/World/Architecture/GrayPoster_02',
@@ -48,6 +50,12 @@ def main():
             continue
         if path in ('/World/PhysicsScene', '/World/DomeLight'):
             continue
+        if path in ('/World/Environment/Floor', '/World/Environment/Ceiling',
+                    '/World/Environment/Walls/Wall_16', '/World/Environment/Walls/Wall_17', '/World/Environment/Walls/Wall_18',
+                    '/World/Environment/Walls/Wall_20', '/World/Environment/Walls/Wall_21', '/World/Environment/Walls/Wall_22'):
+            continue  # Stair extension and opening checked independently below.
+        if any(path == '/World/Environment/CeilingLights/'+name or path.startswith('/World/Environment/CeilingLights/'+name+'/') for name in ('CeilingLight_16','CeilingLight_17')):
+            continue  # Removed below the opening and moved above the stair landing.
         upper = stage.GetPrimAtPath(path.replace('/World/', '/World/Floor_02/', 1))
         lower = stage.GetPrimAtPath(path)
         # Removed upper-floor objects remain intact on the ground floor.
@@ -68,6 +76,10 @@ def main():
             for target, dz in ((lower, 0), (upper, offset)):
                 box = bounds.ComputeWorldBound(target).ComputeAlignedRange()
                 dy = -.6 if dz and path.startswith('/World/Environment/CeilingLights/CeilingLight_15/') else 0
+                if dz and path.startswith('/World/Environment/CeilingLights/CeilingLight_09/'):
+                    dy = .5
+                if dz and any(path.startswith('/World/Environment/CeilingLights/' + name + '/') for name in ('CeilingLight_12', 'CeilingLight_13', 'CeilingLight_14')):
+                    dy = .25
                 for expected, actual in ((original.GetMin(), box.GetMin()), (original.GetMax(), box.GetMax())):
                     assert all(abs(actual[i] - expected[i] - (dz if i == 2 else dy if i == 1 else 0)) < 1e-5 for i in range(3)), path
             if prim.HasAPI(UsdShade.MaterialBindingAPI):
@@ -136,18 +148,16 @@ def main():
     assert 'PhysicsCollisionAPI' in partition.GetAppliedSchemas()
     assert UsdGeom.Imageable(partition).ComputeVisibility() != UsdGeom.Tokens.invisible
     partition_box = bounds.ComputeWorldBound(partition).ComputeAlignedRange()
-    west_box = bounds.ComputeWorldBound(stage.GetPrimAtPath('/World/Floor_02/Environment/Walls/Wall_09')).ComputeAlignedRange()
-    corner_box = bounds.ComputeWorldBound(stage.GetPrimAtPath('/World/Floor_02/Environment/Walls/Wall_12')).ComputeAlignedRange()
+    west_box = bounds.ComputeWorldBound(stage.GetPrimAtPath('/World/Floor_02/Environment/Walls/Wall_08')).ComputeAlignedRange()
     east_box = bounds.ComputeWorldBound(stage.GetPrimAtPath('/World/Floor_02/Environment/Walls/Wall_01')).ComputeAlignedRange()
     assert abs(partition_box.GetMin()[0] - west_box.GetMax()[0]) < 1e-6
     assert abs(partition_box.GetMax()[0] - east_box.GetMin()[0]) < 1e-6
     for axis in (1, 2):
-        shift = 1.0 if axis == 1 else 0
-        assert abs(partition_box.GetMin()[axis] - corner_box.GetMin()[axis] - shift) < 1e-6
-        assert abs(partition_box.GetMax()[axis] - corner_box.GetMax()[axis] - shift) < 1e-6
+        assert abs(partition_box.GetMin()[axis] - west_box.GetMin()[axis]) < 1e-6
+        assert abs(partition_box.GetMax()[axis] - west_box.GetMax()[axis]) < 1e-6
     for side_box in (west_box, east_box):
-        assert side_box.GetMin()[1] <= partition_box.GetMin()[1]
-        assert side_box.GetMax()[1] >= partition_box.GetMax()[1]
+        assert side_box.GetMin()[1] <= partition_box.GetMin()[1] + 1e-6
+        assert side_box.GetMax()[1] >= partition_box.GetMax()[1] - 1e-6
     assert abs(partition_box.GetMin()[2] - upper_floor.GetMax()[2]) < 1e-6
     ceiling_box = bounds.ComputeWorldBound(stage.GetPrimAtPath('/World/Floor_02/Environment/Ceiling')).ComputeAlignedRange()
     assert abs(partition_box.GetMax()[2] - ceiling_box.GetMin()[2]) < 1e-6
@@ -170,15 +180,45 @@ def main():
         assert light.GetAttribute('inputs:intensity').Get() == 8000
         matrix = UsdGeom.Xformable(light).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
         assert abs(matrix.ExtractTranslation()[2] - 6.115) < 1e-6
+    for name in ('CeilingLight_04', 'CeilingLight_05', 'CeilingLight_12', 'CeilingLight_13', 'CeilingLight_14'):
+        lower_light = stage.GetPrimAtPath(f'/World/Environment/CeilingLights/{name}/Light')
+        upper_light = stage.GetPrimAtPath(f'/World/Floor_02/Environment/CeilingLights/{name}/Light')
+        assert lower_light.GetAttribute('inputs:intensity').Get() == 8000
+        assert upper_light.GetAttribute('inputs:intensity').Get() == 12000
+    for name, x in (('CeilingLight_18', 21.5), ('CeilingLight_19', 24.0), ('CeilingLight_20', 26.5), ('CeilingLight_21', 30.8)):
+        assert not stage.GetPrimAtPath(f'/World/Environment/CeilingLights/{name}')
+        fixture = stage.GetPrimAtPath(f'/World/Floor_02/Environment/CeilingLights/{name}')
+        light = stage.GetPrimAtPath(str(fixture.GetPath()) + '/Light')
+        assert fixture.IsActive() and fixture.IsLoaded()
+        assert light.GetAttribute('inputs:intensity').Get() == 12000
+        assert light.GetAttribute('inputs:normalize').Get() is True
+        matrix = UsdGeom.Xformable(light).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+        for actual, expected in zip(matrix.ExtractTranslation(), (x, 12.2753, 6.115)):
+            assert abs(actual - expected) < 1e-6
+        assert matrix.TransformDir((0, 0, -1))[2] < -.999
+        fixture_box = bounds.ComputeWorldBound(fixture).ComputeAlignedRange()
+        expected_yaw = 0 if name == 'CeilingLight_21' else 90
+        assert fixture.GetAttribute('xformOp:rotateZ').Get() == expected_yaw
+        housing_box = bounds.ComputeWorldBound(fixture.GetChild('Housing')).ComputeAlignedRange()
+        expected_xy = (1.3, .36) if expected_yaw == 0 else (.36, 1.3)
+        assert all(abs(housing_box.GetSize()[i] - expected_xy[i]) < 1e-6 for i in (0, 1))
+        assert fixture_box.GetMin()[1] > partition_box.GetMax()[1]
+        assert fixture_box.GetMax()[1] < 13.0403
+        for part in ('Housing', 'Diffuser'):
+            targets = fixture.GetChild(part).GetRelationship('material:binding').GetTargets()
+            assert targets and all(stage.GetPrimAtPath(p).IsValid() for p in targets)
     print(f'CBNU Haksan two-floor Stage: PASS; matched geometry/materials for {verified} shared boundable prims per floor')
     print('Upper entrance: matching 4.85 x 2.82 m fixed glass, same sill/frames; equal 4.725 m center spacing; existing side windows/pillars and ground entrance unchanged')
     print('clear height 3 m per floor; 2F walking surface 3.2 m; roof 6.3 m; touching floor/ceiling slabs; 22 wall bands')
-    print('one PhysicsScene, one DomeLight, 35 panel lights (18 ground, 17 upper); upper large light removed; 16 rigid parcels on ground floor only')
+    print('one PhysicsScene, one DomeLight, 39 panel lights (16 ground, 21 upper, 2 landings); upper large light removed; 16 rigid parcels on ground floor only')
+    print('2F corridor: four added downward panels, five existing corridor/elevator panels boosted from 8000 to 12000; both stairwell lights adapted')
     print('Upper-floor regular doors, seating, tables, ATMs and parcels removed; both elevator doors restored; ground-floor objects preserved')
     print('Upper-floor corner/column displays, both gray posters and all three information boards removed with their frames and bases')
     print('Three upper-floor main columns removed, including collision; ground-floor columns and entrance-side pillars retained')
-    print('2F partition: shifted 1 m toward elevators, 19.2347 x 0.2 x 3 m, touches Wall_09/Wall_01 and floor/ceiling; no ceiling fixture overlaps')
-    print('Both display-end rooms and their lights are present on both floors. Inter-floor stairs/elevator motion are not implemented.')
+    print('2F partition centerline y=11.4103 continues Wall_08 with no corner offset; 19.2347 x 0.2 x 3 m; wall/floor/ceiling joints and fixture clearances verified')
+    print('Both bays extended for mirrored two-flight stairs. Elevator motion is not implemented.')
+    validate_staircase(stage, source)
+    validate_staircase(stage, source, 'Right')
 
 
 if __name__ == '__main__':
