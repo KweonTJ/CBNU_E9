@@ -16,6 +16,10 @@ LANDING_DEPTH = 1.2
 Y1 = Y0 + RUN + LANDING_DEPTH
 OPENING = (X0, X1, Y0, Y1)
 BAYS = {'Left': OPENING, 'Right': (28.3724,30.8724,13.2044,16.6444)}
+STAIR_CEILING_LIGHT_POSITIONS = {
+    name: ((x0+x1)/2,y0-.65,2.96)
+    for name,(x0,x1,y0,_) in zip(('CeilingLight_16','CeilingLight_17'),BAYS.values())
+}
 
 
 def n(v):
@@ -103,7 +107,7 @@ def cube(name, center, size, material='StairStone', rotate_x=0):
 }}'''
 
 
-def stair_parts(side='Left'):
+def flight_pair_parts(side='Left', base_z=0, guard=True):
     parts = []
     for flight in (0, 1):
         x = X0 + (.65 if flight == 0 else 1.85)
@@ -140,14 +144,53 @@ def stair_parts(side='Left'):
     parts.append(('HalfLanding',((X0+X1)/2,Y0+RUN+.6,1.51),(2.5,1.2,.18),'StairStone',0))
     parts.append(('UpperExitRiser',(X0+1.85,Y0-.0175,3.2-RISE/2),(1.1,.035,RISE),'StairStone',0))
     # Guard the lower flight opening at the upper-floor edge, keeping the exit open.
-    for index,x in enumerate((X0+.035,X0+.635,X0+1.255)):
-        parts.append((f'UpperGuardPost_{index}',(x,Y0-.035,3.725),(.04,.04,1.05),'RailMetal',0))
-    for index,z in enumerate((3.725,4.25)):
-        parts.append((f'UpperGuardRail_{index}',(X0+.645,Y0-.035,z),(1.26,.045,.045),'RailMetal',0))
+    if guard:
+        for index,x in enumerate((X0+.035,X0+.635,X0+1.255)):
+            parts.append((f'UpperGuardPost_{index}',(x,Y0-.035,3.725),(.04,.04,1.05),'RailMetal',0))
+        for index,z in enumerate((3.725,4.25)):
+            parts.append((f'UpperGuardRail_{index}',(X0+.645,Y0-.035,z),(1.26,.045,.045),'RailMetal',0))
     if side == 'Right':
         rx0,rx1,ry0,_ = BAYS['Right']
         parts = [(name,(rx1-(center[0]-X0),center[1]+ry0-Y0,center[2]),size,material,angle)
                  for name,center,size,material,angle in parts]
+    return [(name,(x,y,z+base_z),size,material,angle)
+            for name,(x,y,z),size,material,angle in parts]
+
+
+def stair_parts(side='Left'):
+    """Continuous 1F–2F–3F-height stairs; only the top arrival has an edge guard."""
+    parts = flight_pair_parts(side, guard=False)
+    parts.extend(('Continuation_'+name,center,size,material,angle)
+                 for name,center,size,material,angle in flight_pair_parts(side,3.2))
+    x0,x1,y0,_ = BAYS[side]
+    parts.append(('ThirdLevelArrival',((x0+x1)/2,y0-.6,6.31),(2.5,1.2,.18),'StairStone',0))
+    # Guard the exposed edges of this arrival until a full third floor is built.
+    for index,(x,y) in enumerate(((x0+.025,y0-.025),(x0+.025,y0-1.175),
+                                  (x1-.025,y0-.025),(x1-.025,y0-1.175),
+                                  ((x0+x1)/2,y0-1.175))):
+        parts.append((f'ArrivalPost_{index}',(x,y,6.925),(.04,.04,1.05),'RailMetal',0))
+    for level,z in enumerate((6.925,7.45)):
+        for index,x in enumerate((x0+.025,x1-.025)):
+            parts.append((f'ArrivalSideRail_{level}_{index}',(x,y0-.6,z),(.045,1.2,.045),'RailMetal',0))
+        parts.append((f'ArrivalFrontRail_{level}',((x0+x1)/2,y0-1.175,z),(2.5,.045,.045),'RailMetal',0))
+    return parts
+
+
+def window_parts(side):
+    """Replace the full-height back wall with wall piers and one tall glazed opening."""
+    x0,x1,_,y1 = BAYS[side]
+    mid = (x0+x1)/2
+    parts = [
+        ('WindowWall_Left',(x0+.275,y1+.1,3.1),(.95,.2,6.2),'WallSurface',0),
+        ('WindowWall_Right',(x1-.275,y1+.1,3.1),(.95,.2,6.2),'WallSurface',0),
+        ('WindowWall_Sill',(mid,y1+.1,.3),(1,.2,.6),'WallSurface',0),
+        ('WindowWall_Header',(mid,y1+.1,5.9),(1,.2,.6),'WallSurface',0),
+        ('WindowGlass',(mid,y1+.1,3.1),(.91,.025,4.91),'WindowGlassMaterial',0),
+    ]
+    for name,x in (('Left',mid-.4775),('Right',mid+.4775)):
+        parts.append(('WindowFrame_'+name,(x,y1+.1,3.1),(.045,.10,5),'RailMetal',0))
+    for name,z in (('Bottom',.6225),('Top',5.5775)):
+        parts.append(('WindowFrame_'+name,(mid,y1+.1,z),(.91,.10,.045),'RailMetal',0))
     return parts
 
 
@@ -166,11 +209,13 @@ def wall_overrides(z, thickness):
         result.append(f'''over "Wall_{wall_ids[2]}"
 {{
     double3 xformOp:translate = {vec(((x0+x1)/2,y1+.1,z))}
+    token visibility = "invisible"
+    bool physics:collisionEnabled = false
 }}''')
     return '\n'.join(result)
 
 
-def material(name, color, roughness, metallic=0):
+def material(name, color, roughness, metallic=0, opacity=1):
     return f'''def Material "{name}"
 {{
     token outputs:surface.connect = </World/Stairs_Left/{name}/Surface.outputs:surface>
@@ -180,6 +225,8 @@ def material(name, color, roughness, metallic=0):
         color3f inputs:diffuseColor = {vec(color)}
         float inputs:roughness = {roughness}
         float inputs:metallic = {metallic}
+        float inputs:opacity = {opacity}
+        float inputs:ior = 1.5
         token outputs:surface
     }}
 }}'''
@@ -191,6 +238,8 @@ def stair_root(side):
     {{
         custom double cbnu:floorToFloorHeight = 3.2
         custom double cbnu:landingHeight = 1.6
+        custom double cbnu:continuationLandingHeight = 4.8
+        custom double cbnu:arrivalHeight = 6.4
         custom int cbnu:risersPerFlight = 9
         custom double cbnu:riserHeight = {n(RISE)}
         custom double cbnu:treadDepth = .28
@@ -198,25 +247,20 @@ def stair_root(side):
         custom double4 cbnu:clearBoundsXY = {vec(BAYS[side])}
 {material('StairStone',(.60,.61,.59),.8)}
 {material('RailMetal',(.20,.22,.23),.32,.7)}
+{material('WallSurface',(.50,.51,.52),.72)}
+{material('WindowGlassMaterial',(.72,.88,.94),.12,opacity=.18)}
 {chr(10).join(cube(*part) for part in stair_parts(side))}
-        def Xform "LandingLight" (
-            prepend references = @../../../assets/architecture/ceiling/ceiling_panel_light.usda@
-        )
-        {{
-            double3 xformOp:translate = {vec(((x0+x1)/2,y1,2.7))}
-            double xformOp:rotateX = -90
-            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX"]
-            over "Light"
-            {{
-                float inputs:intensity = 8000
-            }}
-        }}
+{chr(10).join(cube(*part) for part in window_parts(side))}
     }}'''
     return result.replace('/World/Stairs_Left/',f'/World/Stairs_{side}/')
 
 
 def build():
     polygon = footprint()
+    ceiling_lights = '\n'.join(f'''over "{name}" (active = true)
+{{
+    double3 xformOp:translate = {vec(position)}
+}}''' for name,position in STAIR_CEILING_LIGHT_POSITIONS.items())
     layer = f'''#usda 1.0
 (defaultPrim = "World")
 over "World"
@@ -240,21 +284,14 @@ over "World"
         over "Environment"
         {{
 {slab_override('Floor',polygon,-.1,0,True)}
-{slab_override('Ceiling',polygon,3,3.1)}
+{slab_override('Ceiling',polygon,3,3.1,True)}
             over "Walls"
             {{
 {wall_overrides(1.5,3)}
             }}
             over "CeilingLights"
             {{
-                over "CeilingLight_16"
-                {{
-                    double3 xformOp:translate = {vec(((X0+X1)/2,Y0+RUN+.6,2.96))}
-                }}
-                over "CeilingLight_17"
-                {{
-                    double3 xformOp:translate = (29.6224, 16.0444, 2.96)
-                }}
+{ceiling_lights}
             }}
         }}
     }}
@@ -268,7 +305,7 @@ over "World"
 '''
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(layer)
-    print(f'wrote {OUTPUT}: mirrored stairs, 18 risers each, landings 1.6 m, openings 2.5 x 3.44 m')
+    print(f'wrote {OUTPUT}: mirrored stairs to z=6.4 m, 36 risers each, landings 1.6/4.8 m, openings 2.5 x 3.44 m')
 
 
 if __name__ == '__main__':

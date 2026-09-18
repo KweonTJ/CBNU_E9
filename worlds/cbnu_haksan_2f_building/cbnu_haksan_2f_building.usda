@@ -300,6 +300,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (35.4492, 10.23915, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (8.1305, 0.2, 0.2)
@@ -311,6 +312,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (27.1724, 13.3044, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (2.4, 0.2, 0.2)
@@ -322,6 +324,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (33.1692, 13.8044, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (1, 0.2, 0.2)
@@ -333,6 +336,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (34.3092, 14.3044, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (2.48, 0.2, 0.2)
@@ -344,6 +348,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (7.8631, 13.1403, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (15.5522, 0.2, 0.2)
@@ -355,6 +360,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (15.5392, 14.8603, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (3.44, 0.2, 0.2)
@@ -366,6 +372,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (18.2392, 14.8603, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (3.44, 0.2, 0.2)
@@ -376,7 +383,8 @@ def Xform "World" (
         )
         {
             double size = 1
-            bool physics:collisionEnabled = true
+            bool physics:collisionEnabled = false
+            token visibility = "invisible"
             double3 xformOp:translate = (16.8892, 16.5803, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (2.9, 0.2, 0.2)
@@ -388,6 +396,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (32.0708, 13.3044, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (2.3968, 0.2, 0.2)
@@ -399,6 +408,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (28.2724, 15.0244, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (3.44, 0.2, 0.2)
@@ -410,6 +420,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (30.9724, 15.0244, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (3.44, 0.2, 0.2)
@@ -420,7 +431,8 @@ def Xform "World" (
         )
         {
             double size = 1
-            bool physics:collisionEnabled = true
+            bool physics:collisionEnabled = false
+            token visibility = "invisible"
             double3 xformOp:translate = (29.6224, 16.7444, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (2.9, 0.2, 0.2)
@@ -432,6 +444,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (26.0724, 17.0145, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (7.4202, 0.2, 0.2)
@@ -443,6 +456,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (24.4058, 20.7246, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (3.3332, 0.2, 0.2)
@@ -454,6 +468,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (22.7392, 16.93245, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (7.5843, 0.2, 0.2)
@@ -465,6 +480,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (20.4892, 13.1403, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (4.7, 0.2, 0.2)
@@ -476,6 +492,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (0.087, 12.2753, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (1.73, 0.2, 0.2)
@@ -487,6 +504,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (8.10075, 11.4103, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (16.0275, 0.2, 0.2)
@@ -498,6 +516,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (16.0145, 5.7269, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (11.3668, 0.2, 0.2)
@@ -509,6 +528,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (23.38405, 0.0435, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (14.7391, 0.2, 0.2)
@@ -520,6 +540,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (30.7536, 3.1087, 3.1)
             double xformOp:rotateZ = 90
             double3 xformOp:scale = (6.1304, 0.2, 0.2)
@@ -531,6 +552,7 @@ def Xform "World" (
         {
             double size = 1
             bool physics:collisionEnabled = true
+            token visibility = "inherited"
             double3 xformOp:translate = (33.0514, 6.1739, 3.1)
             double xformOp:rotateZ = 0
             double3 xformOp:scale = (4.7956, 0.2, 0.2)

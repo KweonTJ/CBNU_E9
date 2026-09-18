@@ -19,6 +19,10 @@ def validate_staircase(stage, source, side='Left'):
     assert stairs and stairs.IsActive()
     assert stage.GetPrimAtPath('/World').GetAttribute('cbnu:interFloorConnectionBuilt').Get() is True
     assert stairs.GetAttribute('cbnu:landingHeight').Get() == 1.6
+    assert stairs.GetAttribute('cbnu:continuationLandingHeight').Get() == 4.8
+    assert stairs.GetAttribute('cbnu:arrivalHeight').Get() == 6.4
+    assert not stage.GetPrimAtPath(root+'/UpperGuardRail_0')
+    assert not stage.GetPrimAtPath(root+'/UpperGuardPost_0')
     assert stairs.GetAttribute('cbnu:risersPerFlight').Get() == 9
     assert abs(stairs.GetAttribute('cbnu:riserHeight').Get() - 3.2/18) < 1e-8
     assert not stage.GetPrimAtPath('/World/Environment/CeilingLights/'+light_name).IsActive()
@@ -62,28 +66,31 @@ def validate_staircase(stage, source, side='Left'):
                 and min(p[1] for p in face)-1e-5 <= y <= max(p[1] for p in face)+1e-5]
 
     route = []
-    for flight in (1,2):
-        previous = 0 if flight == 1 else 1.6
-        lane = .65 if (flight == 1) == (side == 'Left') else 1.85
-        for step in range(1,9):
-            box = bounds(f'{root}/Flight_{flight}_Step_{step:02d}')
-            top = box.GetMax()[2]
-            assert abs(top-previous-3.2/18) < 1e-6
-            assert abs(box.GetSize()[0]-1.1) < 1e-6
-            assert abs(box.GetSize()[1]-.28) < 1e-6
-            assert abs(box.GetSize()[2]-.12) < 1e-6
-            previous = top
-            x,y,_ = box.GetMidpoint()
-            expected_y = y0 + ((step-.5)*.28 if flight == 1 else 2.24-(step-.5)*.28)
-            assert abs(x-(x0+lane)) < 1e-6 and abs(y-expected_y) < 1e-6, ('stair position',side,flight,step,x,y)
-            route.append((x,y,top))
-        assert abs((1.6 if flight == 1 else 3.2)-previous-3.2/18) < 1e-6
-    route.extend((x0+x,y0+2.84,1.6) for x in (.65,1.25,1.85))
+    for prefix,base in (('',0),('Continuation_',3.2)):
+        landing = bounds(root+'/'+prefix+'HalfLanding')
+        assert abs(landing.GetMax()[2]-(base+1.6)) < 1e-6
+        for flight in (1,2):
+            previous = base + (0 if flight == 1 else 1.6)
+            lane = .65 if (flight == 1) == (side == 'Left') else 1.85
+            for step in range(1,9):
+                box = bounds(f'{root}/{prefix}Flight_{flight}_Step_{step:02d}')
+                top = box.GetMax()[2]
+                assert abs(top-previous-3.2/18) < 1e-6
+                assert abs(box.GetSize()[0]-1.1) < 1e-6
+                assert abs(box.GetSize()[1]-.28) < 1e-6
+                assert abs(box.GetSize()[2]-.12) < 1e-6
+                previous = top
+                x,y,_ = box.GetMidpoint()
+                expected_y = y0 + ((step-.5)*.28 if flight == 1 else 2.24-(step-.5)*.28)
+                assert abs(x-(x0+lane)) < 1e-6 and abs(y-expected_y) < 1e-6, ('stair position',side,flight,step,x,y)
+                route.append((x,y,top))
+            assert abs(base+(1.6 if flight == 1 else 3.2)-previous-3.2/18) < 1e-6
+        route.extend((x0+x,y0+2.84,base+1.6) for x in (.65,1.25,1.85))
     for x,y,z in route:
         assert not covering(slab_paths[1],x,y), ('ceiling blocks stair',x,y)
         assert not covering(slab_paths[2],x,y), ('upper floor blocks stair',x,y)
-        assert covering(slab_paths[0],x,y) and covering(slab_paths[3],x,y)
-        assert 6.2-z >= 2.0
+        assert covering(slab_paths[0],x,y)
+        assert not covering(slab_paths[3],x,y), ('roof blocks continuation',x,y)
         # Guardrails and lighting must not intersect a 2 m high walking centerline.
         for prim in Usd.PrimRange(stairs):
             if prim.IsA(UsdGeom.Boundable):
@@ -96,6 +103,18 @@ def validate_staircase(stage, source, side='Left'):
     for x in (x0+.65,x0+1.85):
         assert covering(slab_paths[0],x,y0-.03)
         assert covering(slab_paths[2],x,y0-.03)
+    arrival = bounds(root+'/ThirdLevelArrival')
+    assert abs(arrival.GetMax()[2]-6.4) < 1e-6
+    assert abs(arrival.GetMax()[1]-y0) < 1e-6
+    assert abs(arrival.GetSize()[0]-2.5) < 1e-6
+    assert abs(arrival.GetSize()[1]-1.2) < 1e-6
+    # Crossing from the 2F arrival to the new ascending flight is unobstructed.
+    for x in (x0+.65,x0+1.25,x0+1.85):
+        for prim in Usd.PrimRange(stairs):
+            if prim.IsA(UsdGeom.Boundable):
+                box = bbox.ComputeWorldBound(prim).ComputeAlignedRange()
+                if box.GetMin()[0] < x < box.GetMax()[0] and box.GetMin()[1] < y0-.035 < box.GetMax()[1]:
+                    assert box.GetMax()[2] <= 3.2+1e-6 or box.GetMin()[2] >= 5.2, str(prim.GetPath())
     # The space under the upper flight near its entrance is open from the floor.
     under_x, under_y = x0+(1.85 if side == 'Left' else .65),y0+.14
     for prim in Usd.PrimRange(stairs):
@@ -104,6 +123,9 @@ def validate_staircase(stage, source, side='Left'):
             if not box.IsEmpty() and box.GetMin()[0] < under_x < box.GetMax()[0] and box.GetMin()[1] < under_y < box.GetMax()[1]:
                 assert box.GetMin()[2] > 2.65, ('under-stair space is filled',str(prim.GetPath()))
     for prefix,z in (('/World/Environment',0),('/World/Floor_02/Environment',3.2)):
+        old_back = stage.GetPrimAtPath(prefix+'/Walls/'+back_wall)
+        assert old_back.GetAttribute('physics:collisionEnabled').Get() is False
+        assert UsdGeom.Imageable(old_back).ComputeVisibility() == UsdGeom.Tokens.invisible
         back = bounds(prefix+'/Walls/'+back_wall)
         assert abs(back.GetMin()[1]-y1) < 1e-6
         assert abs(back.GetMin()[2]-z) < 1e-6
@@ -111,7 +133,31 @@ def validate_staircase(stage, source, side='Left'):
             side_box = bounds(prefix+'/Walls/'+name)
             assert abs(side_box.GetSize()[1]-3.44) < 1e-6
             assert side_box.GetMax()[1] >= back.GetMin()[1]
-    upper_light = stage.GetPrimAtPath('/World/Floor_02/Environment/CeilingLights/'+light_name+'/Light')
-    light_pos = UsdGeom.Xformable(upper_light).ComputeLocalToWorldTransform(Usd.TimeCode.Default()).ExtractTranslation()
-    assert abs(light_pos[1]-(y0+2.84))<1e-6 and abs(light_pos[2]-6.115)<1e-6
-    print(f'{side} stairs: PASS; 18 risers of 0.17778 m, 0.28 m treads, 1.6 m U-turn landing, 1.1 m flights; open slabs, open underside, 2 m headroom and static collision verified')
+    assert not stage.GetPrimAtPath(root+'/LandingLight')
+    light_path = '/World/Floor_02/Environment/CeilingLights/'+light_name
+    ceiling_light = stage.GetPrimAtPath(light_path+'/Light')
+    assert ceiling_light and ceiling_light.IsActive()
+    assert ceiling_light.GetAttribute('inputs:intensity').Get() == 8000
+    light_matrix = UsdGeom.Xformable(ceiling_light).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+    light_position = light_matrix.ExtractTranslation()
+    assert all(abs(a-b)<1e-6 for a,b in zip(light_position,(x0+1.25,y0-.65,6.115)))
+    assert light_matrix.TransformDir((0,0,-1))[2] < -.999
+    light_box = bounds(light_path)
+    assert light_box.GetMax()[1] < y0  # Outside the open shaft and ascending treads.
+    assert light_box.GetMin()[2] > 5.2  # More than 2 m above the 2F entry.
+    assert light_box.GetMax()[2] < arrival.GetMin()[2]
+    assert covering(slab_paths[3],x0+1.25,y0-.65), 'fixture must sit under existing ceiling'
+    window = bounds(root+'/WindowGlass')
+    assert abs(window.GetMidpoint()[0]-(x0+1.25)) < 1e-6
+    assert abs(window.GetMidpoint()[1]-(y1+.1)) < 1e-6
+    assert abs(window.GetSize()[2]-4.91) < 1e-6
+    assert abs(window.GetSize()[0]-.91) < 1e-6
+    # No opaque wall pier, frame or old wall band covers the center of the glazing.
+    for z in (.7,1.6,3.1,4.8,5.5):
+        for prim in Usd.PrimRange(stairs):
+            if prim.IsA(UsdGeom.Cube) and prim.GetName() != 'WindowGlass':
+                box = bounds(str(prim.GetPath()))
+                assert not all(box.GetMin()[i] < v < box.GetMax()[i] for i,v in enumerate((x0+1.25,y1+.1,z))), str(prim.GetPath())
+    glass_material,_ = UsdShade.MaterialBindingAPI(stage.GetPrimAtPath(root+'/WindowGlass')).ComputeBoundMaterial()
+    assert glass_material.GetPrim().GetChild('Surface').GetAttribute('inputs:opacity').Get() < .3
+    print(f'{side} stairs: PASS; 36 risers to 6.4 m, landings 1.6/4.8 m, no 2F fence, open roof, 2 m centerline headroom, glazed opening 1 x 5 m')

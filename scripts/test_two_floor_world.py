@@ -23,7 +23,7 @@ def main():
     active = list(stage.Traverse())
     assert sum(p.GetTypeName() == 'PhysicsScene' for p in active) == 1
     assert sum(p.GetTypeName() == 'DomeLight' for p in active) == 1
-    assert sum(p.GetTypeName() == 'RectLight' for p in active) == 39
+    assert sum(p.GetTypeName() == 'RectLight' for p in active) == 37
     assert sum('PhysicsRigidBodyAPI' in p.GetAppliedSchemas() for p in active) == 16
     removed = ('/World/Doors', '/World/Furniture', '/World/DynamicObstacles',
                '/World/Environment/CeilingLights/CeilingLight_Central_Large',
@@ -55,7 +55,7 @@ def main():
                     '/World/Environment/Walls/Wall_20', '/World/Environment/Walls/Wall_21', '/World/Environment/Walls/Wall_22'):
             continue  # Stair extension and opening checked independently below.
         if any(path == '/World/Environment/CeilingLights/'+name or path.startswith('/World/Environment/CeilingLights/'+name+'/') for name in ('CeilingLight_16','CeilingLight_17')):
-            continue  # Removed below the opening and moved above the stair landing.
+            continue  # Ground stairwell lights removed, upper fixtures repositioned.
         upper = stage.GetPrimAtPath(path.replace('/World/', '/World/Floor_02/', 1))
         lower = stage.GetPrimAtPath(path)
         # Removed upper-floor objects remain intact on the ground floor.
@@ -170,16 +170,17 @@ def main():
     bands = stage.GetPrimAtPath('/World/InterFloorBand').GetChildren()
     assert len(bands) == len(stage.GetPrimAtPath('/World/Environment/Walls').GetChildren()) == 22
     for band in bands:
-        assert band.GetAttribute('physics:collisionEnabled').Get() is True
+        is_window_wall = band.GetName() in ('Wall_18','Wall_22')
+        assert band.GetAttribute('physics:collisionEnabled').Get() is (not is_window_wall)
+        if is_window_wall:
+            assert UsdGeom.Imageable(band).ComputeVisibility() == UsdGeom.Tokens.invisible
         box = bounds.ComputeWorldBound(band).ComputeAlignedRange()
         assert abs(box.GetMin()[2]-3.0) < 1e-6 and abs(box.GetMax()[2]-3.2) < 1e-6
         material, _ = UsdShade.MaterialBindingAPI(band).ComputeBoundMaterial()
         assert material and str(material.GetPath()) == '/World/Looks/WallColumnLightGray'
     for name in ('CeilingLight_16', 'CeilingLight_17'):
-        light = stage.GetPrimAtPath(f'/World/Floor_02/Environment/CeilingLights/{name}/Light')
-        assert light.GetAttribute('inputs:intensity').Get() == 8000
-        matrix = UsdGeom.Xformable(light).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
-        assert abs(matrix.ExtractTranslation()[2] - 6.115) < 1e-6
+        assert not stage.GetPrimAtPath(f'/World/Environment/CeilingLights/{name}').IsActive()
+        assert stage.GetPrimAtPath(f'/World/Floor_02/Environment/CeilingLights/{name}').IsActive()
     for name in ('CeilingLight_04', 'CeilingLight_05', 'CeilingLight_12', 'CeilingLight_13', 'CeilingLight_14'):
         lower_light = stage.GetPrimAtPath(f'/World/Environment/CeilingLights/{name}/Light')
         upper_light = stage.GetPrimAtPath(f'/World/Floor_02/Environment/CeilingLights/{name}/Light')
@@ -210,13 +211,13 @@ def main():
     print(f'CBNU Haksan two-floor Stage: PASS; matched geometry/materials for {verified} shared boundable prims per floor')
     print('Upper entrance: matching 4.85 x 2.82 m fixed glass, same sill/frames; equal 4.725 m center spacing; existing side windows/pillars and ground entrance unchanged')
     print('clear height 3 m per floor; 2F walking surface 3.2 m; roof 6.3 m; touching floor/ceiling slabs; 22 wall bands')
-    print('one PhysicsScene, one DomeLight, 39 panel lights (16 ground, 21 upper, 2 landings); upper large light removed; 16 rigid parcels on ground floor only')
-    print('2F corridor: four added downward panels, five existing corridor/elevator panels boosted from 8000 to 12000; both stairwell lights adapted')
+    print('one PhysicsScene, one DomeLight, 37 panel lights (16 ground, 21 upper); stair entrance ceiling lights installed, landing lights removed; 16 rigid parcels on ground floor only')
+    print('2F corridor: four added downward panels, five existing corridor/elevator panels boosted from 8000 to 12000; corridor lighting preserved')
     print('Upper-floor regular doors, seating, tables, ATMs and parcels removed; both elevator doors restored; ground-floor objects preserved')
     print('Upper-floor corner/column displays, both gray posters and all three information boards removed with their frames and bases')
     print('Three upper-floor main columns removed, including collision; ground-floor columns and entrance-side pillars retained')
     print('2F partition centerline y=11.4103 continues Wall_08 with no corner offset; 19.2347 x 0.2 x 3 m; wall/floor/ceiling joints and fixture clearances verified')
-    print('Both bays extended for mirrored two-flight stairs. Elevator motion is not implemented.')
+    print('Both staircases continue to 3F height (6.4 m) with tall back-wall windows. Full 3F rooms and elevator motion are not implemented.')
     validate_staircase(stage, source)
     validate_staircase(stage, source, 'Right')
 

@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib.patches import Rectangle
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from update_cbnu_haksan_two_floor import CORRIDOR_LIGHT_POSITIONS, CORRIDOR_LIGHT_YAWS
-from build_cbnu_haksan_staircase import footprint, slab_mesh, stair_parts, BAYS
+from build_cbnu_haksan_staircase import footprint, slab_mesh, stair_parts, window_parts, BAYS, STAIR_CEILING_LIGHT_POSITIONS
 from render_cbnu_haksan_staircase import box_faces
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +43,8 @@ def main():
         wall_faces = []
         for i,(x,y) in enumerate(polygon):
             nx,ny = polygon[(i+1)%len(polygon)]
+            if abs(y-ny)<1e-6 and any(abs(y-(bay[3]+.1))<1e-6 for bay in BAYS.values()):
+                continue  # Back walls are drawn with their actual window openings below.
             wall_faces.append([(x,y,z),(nx,ny,z),(nx,ny,z+height),(x,y,z+height)])
         axis.add_collection3d(Poly3DCollection(wall_faces, facecolors='#b4bac1', edgecolors='#727d87', alpha=.13, linewidths=.4))
         for xmin,xmax,ymin,ymax in BAYS.values():
@@ -50,15 +52,13 @@ def main():
         floor_lights = lights + ([{'name': name, 'position': position, 'yaw_deg': CORRIDOR_LIGHT_YAWS[name]}
                                   for name, position in CORRIDOR_LIGHT_POSITIONS.items()] if index == 1 else [])
         for light in floor_lights:
-            if index == 0 and light['name'] in ('CeilingLight_16', 'CeilingLight_17'):
+            if index == 0 and light['name'] in STAIR_CEILING_LIGHT_POSITIONS:
                 continue
             if index == 1 and light['name'] == 'CeilingLight_Central_Large':
                 continue
             x,y,lz = light['position']
-            if index == 1 and light['name'] == 'CeilingLight_16':
-                y = 15.8803
-            if index == 1 and light['name'] == 'CeilingLight_17':
-                y = 16.0444
+            if index == 1 and light['name'] in STAIR_CEILING_LIGHT_POSITIONS:
+                x,y,lz = STAIR_CEILING_LIGHT_POSITIONS[light['name']]
             if index == 1 and light['name'] == 'CeilingLight_15':
                 y = 5.4
             if index == 1 and light['name'] == 'CeilingLight_09':
@@ -75,6 +75,9 @@ def main():
         for name,center,size,material,angle in stair_parts(side):
             if material == 'StairStone':
                 axis.add_collection3d(Poly3DCollection(box_faces(center,size,angle),facecolors='#c5c4b9',edgecolors='#666666',linewidths=.2))
+        for name,center,size,material,angle in window_parts(side):
+            color = '#7ac5dc' if name == 'WindowGlass' else '#b4bac1' if material == 'WallSurface' else '#303e45'
+            axis.add_collection3d(Poly3DCollection(box_faces(center,size,angle),facecolors=color,alpha=.4,linewidths=.2))
     partition_face = [[(px-pw/2,py,offset),(px+pw/2,py,offset),
                        (px+pw/2,py,offset+ph),(px-pw/2,py,offset+ph)]]
     axis.add_collection3d(Poly3DCollection(partition_face, facecolors='#a6a6a6',edgecolors='#555555',linewidths=1))
@@ -87,7 +90,7 @@ def main():
     facade_panel(16.0145,30.7536,0,1.02,'#b8b8b8',y=-.01)
     for xmin,xmax in ((20.3775,21.42),(25.58,26.6225)):
         facade_panel(xmin,xmax,0,3,'#8c8e88',y=-.01)
-    axis.set(xlim=(0,38),ylim=(0,22),zlim=(-.1,6.7),xlabel='X [m]',ylabel='Y [m]',zlabel='Z [m]')
+    axis.set(xlim=(0,38),ylim=(0,22),zlim=(-.1,7.8),xlabel='X [m]',ylabel='Y [m]',zlabel='Z [m]')
     axis.set_box_aspect((36,21,14))
     axis.view_init(elev=24,azim=-62)
     axis.set_title('Same footprint on both floors\nStructural cutaway; ceilings hidden')
@@ -97,20 +100,21 @@ def main():
         section.add_patch(Rectangle((0,z-.1),5,.1,facecolor='#76818c'))
         section.add_patch(Rectangle((0,z+height),5,.1,facecolor='#d8dce0',edgecolor='#77808b',linewidth=.5))
         section.text(2.5,z+1.65,f'{label} — clear height 3.0 m',ha='center',fontsize=12,fontweight='bold')
-        description = '21 lights; corridor lighting reinforced; furniture cleared' if z == offset else '16 ceiling lights + 2 stair landing lights'
+        description = '21 lights; stair entry ceiling lights included' if z == offset else '16 ceiling lights; landing lights removed'
         section.text(2.5,z+1.1,description,ha='center',fontsize=9)
         if z == offset:
             section.text(2.5,z+.65,'Matching front window; existing window spacing',ha='center',fontsize=9)
             section.text(2.5,z+.3,'Partition flush with corridor corner; AC units removed',ha='center',fontsize=9)
         section.text(5.2,z,f'Floor z={z:g} m',va='center',fontsize=10)
     section.annotate('Ceiling + floor slabs: 0.2 m',xy=(2.5,3.1),xytext=(2.5,2.45),ha='center',fontsize=10,arrowprops={'arrowstyle':'->'})
-    section.text(5.2,offset+height+.1,'Roof z=6.3 m',va='center',fontsize=10)
-    section.set(xlim=(-.2,7.4),ylim=(-.35,6.8),ylabel='Height [m]',title='Vertical section')
+    section.plot([0,1.5],[6.4,6.4],color='#ad7c34',linewidth=3)
+    section.text(2.5,6.9,'Stair arrival z=6.4 m; full 3F not built',ha='center',fontsize=10)
+    section.set(xlim=(-.2,7.4),ylim=(-.35,7.4),ylabel='Height [m]',title='Vertical section')
     section.set_xticks([])
     section.spines[['top','right','bottom']].set_visible(False)
     section.grid(axis='y',alpha=.15)
     fig.suptitle('CBNU Haksan — two-floor building',fontsize=17)
-    fig.text(.5,.025,'Geometry schematic, not an Isaac Sim render. Both stairs connect floors through landings at z=1.6 m.',ha='center',fontsize=9,color='#475463')
+    fig.text(.5,.025,'Geometry schematic. Stairs reach z=6.4 m; tall windows; 2 stair entry ceiling lights, no landing lights.',ha='center',fontsize=9,color='#475463')
     fig.tight_layout(rect=(0,.05,1,.94))
     path=OUTPUT / 'preview_two_floor_structure.png'
     fig.savefig(path,dpi=150,facecolor='white')
@@ -121,6 +125,7 @@ def main():
     for X0,X1,Y0,Y1 in BAYS.values():
         plan.add_patch(Rectangle((X0,Y0),X1-X0,Y1-Y0,facecolor='#e8d49e',edgecolor='#79643d'))
         plan.text((X0+X1)/2,(Y0+Y1)/2,'U-turn\nstairs',ha='center',va='center',fontsize=10)
+        plan.plot([(X0+X1)/2-.5,(X0+X1)/2+.5],[Y1,Y1],color='#3197b8',linewidth=4)
     plan.add_patch(Rectangle((px-pw/2,py-pd/2),pw,pd,facecolor='#c34436',edgecolor='#a33228',zorder=4))
     plan.annotate('East wall connection',xy=(px+pw/2,py),xytext=(33,3.5),ha='center',arrowprops={'arrowstyle':'->'},fontsize=10)
     plan.annotate('West corridor corner',xy=(px-pw/2,py),xytext=(18.4,7),ha='center',arrowprops={'arrowstyle':'->'},fontsize=10)
@@ -132,6 +137,8 @@ def main():
         plan.add_patch(Rectangle((x-width/2,y-depth/2),width,depth,facecolor='#ffe074',edgecolor='#7e6621',zorder=5,
                                  label='4 added ceiling panels' if index == 0 else None))
     plan.legend(loc='upper right',fontsize=9)
+    for x,y,_ in STAIR_CEILING_LIGHT_POSITIONS.values():
+        plan.add_patch(Rectangle((x-.65,y-.18),1.3,.36,facecolor='#ffe074',edgecolor='#7e6621',zorder=5))
     for index, cx in enumerate((18.775,23.5,28.225)):
         plan.plot([cx-2.425,cx+2.425],[.17,.17],color='#3b9fae',linewidth=4)
     plan.text(24.4,18,'Elevator corridor',ha='center',rotation=90,fontsize=10)

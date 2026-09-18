@@ -93,7 +93,8 @@ def main():
         )
         {{
             double size = 1
-            bool physics:collisionEnabled = true
+            bool physics:collisionEnabled = {'false' if name in ('Wall_18','Wall_22') else 'true'}
+            token visibility = "{'invisible' if name in ('Wall_18','Wall_22') else 'inherited'}"
             double3 xformOp:translate = {vector(position)}
             double xformOp:rotateZ = {number(rotation)}
             double3 xformOp:scale = {vector(scale)}
