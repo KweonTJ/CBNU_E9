@@ -26,9 +26,15 @@ cd /home/a/Isaac_Worlds_CBNU
 ## 2층 구성
 
 - 1층 바닥 z=0m, 2층 바닥 z=3.2m, 지붕 상단 z=6.3m. 층별 실내 높이는 3m다.
-- 새 양쪽 2.5 × 2 × 3m 공간과 각각의 천장 조명, 안쪽 직각 문을 두 층에 동일하게 배치한다.
+- 2층 정면 출입문 자리는 양옆과 같은 규격의 고정창과 하부 벽으로 바꿨다. 세 창 중심 간격은 각각 4.725m이며 기존 창·기둥 위치를 유지한다. [변경 기록](docs/31.45_cbnu_haksan_upper_entrance_window.md)
+- 새 양쪽 2.5 × 2 × 3m 공간과 각각의 천장 조명은 두 층에 동일하게 배치한다.
+- 2층 일반 문, 소파·의자, 책상, 우편물·택배 상자, ATM을 제거했다. 1층 배치는 유지한다. [변경 기록](docs/31.46_cbnu_haksan_upper_floor_clear.md)
+- 2층 엘리베이터 문 2개는 원래 위치·형상·재질로 복원했다. [복원 기록](docs/31.48_cbnu_haksan_upper_elevators_restore.md)
+- 2층 중앙 기둥 3개를 충돌 형상까지 제거했다. [변경 기록](docs/31.49_cbnu_haksan_upper_columns_clear.md)
+- 2층 가벽은 최초 코너 벽선에서 엘리베이터 쪽으로 1m 이동했다. 양 끝을 벽까지 연결해 길이는 약 19.23m이며 높이 3m·두께 0.2m다. [배치도](worlds/cbnu_haksan_2f_building/preview_upper_partition.png) · [변경 기록](docs/31.51_cbnu_haksan_upper_partition_shift.md)
+- 2층 코너·기둥 디스플레이, 회색 전시 패널 2개, 엘리베이터 옆 안내판 3개도 제거했다. [변경 기록](docs/31.47_cbnu_haksan_upper_displays_clear.md)
 - 1층 천장과 2층 바닥은 z=3.1m에서 맞닿으며, 두 층의 벽 사이에는 높이 0.2m 연결부 22개가 있다.
-- PhysicsScene과 DomeLight는 각 1개만 사용한다. 외부 보도는 지상에만 있고 실내 패널 조명은 총 36개다.
+- PhysicsScene과 DomeLight는 각 1개만 사용한다. 외부 보도는 지상에만 있다. 2층 대형 천장등을 제거해 패널 조명은 1층 18개·2층 17개, 총 35개다.
 - 1층은 기존 `/World/Environment` 등의 경로를 유지하고 2층은 `/World/Floor_02` 아래에 있다.
 - 층간 계단과 엘리베이터 이동 기능은 아직 없다.
 

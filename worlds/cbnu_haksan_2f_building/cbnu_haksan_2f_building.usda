@@ -21,7 +21,7 @@ def Xform "World" (
     custom int cbnu:floorCount = 2
     custom double cbnu:floorToFloorHeight = 3.2
     custom double cbnu:clearFloorHeight = 3
-    custom string cbnu:layout = "same lobby layout on both floors"
+    custom string cbnu:layout = "upper floor cleared of three main columns, regular doors, furniture, parcels, ATMs, displays, posters and information boards; elevator doors retained; matching front windows"
     custom bool cbnu:interFloorConnectionBuilt = false
 
     def Xform "Floor_02" (
@@ -38,11 +38,150 @@ def Xform "World" (
         over "DomeLight" (
             active = false
         ) {}
+        over "Doors" (
+            active = false
+        ) {}
+        over "Furniture" (
+            active = false
+        ) {}
+        over "DynamicObstacles" (
+            active = false
+        ) {}
+        over "Columns"
+        {
+            over "Column_01" (
+                active = false
+            ) {}
+            over "Column_02" (
+                active = false
+            ) {}
+            over "Column_03" (
+                active = false
+            ) {}
+        }
+        over "Architecture"
+        {
+            over "DigitalDisplayWall_01" (
+                active = false
+            ) {}
+            over "ColumnDisplay_01" (
+                active = false
+            ) {}
+            over "GrayPoster_01" (
+                active = false
+            ) {}
+            over "GrayPoster_02" (
+                active = false
+            ) {}
+            over "GreenInformationBoard_01" (
+                active = false
+            ) {}
+            over "GreenInformationBoard_02" (
+                active = false
+            ) {}
+            over "GreenInformationBoard_03" (
+                active = false
+            ) {}
+        }
         over "Environment"
         {
+            def Cube "PartitionWall_01" (
+                prepend apiSchemas = ["MaterialBindingAPI", "PhysicsCollisionAPI"]
+            )
+            {
+                custom string cbnu:placement = "1 m north toward elevators from former corner line; spans Wall_09 to Wall_01"
+                custom double cbnu:shiftTowardElevators = 1
+                rel material:binding = </World/Floor_02/Looks/WallColumnLightGray>
+                bool physics:collisionEnabled = true
+                double size = 1
+                double3 xformOp:translate = (25.73185, 7.1739, 1.5)
+                double3 xformOp:scale = (19.2347, 0.2, 3)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+            over "CeilingLights"
+            {
+                over "CeilingLight_Central_Large" (
+                    active = false
+                ) {}
+                over "CeilingLight_15"
+                {
+                    custom string cbnu:placementSource = "2F partition clearance; shifted 0.6 m south"
+                    double3 xformOp:translate = (29, 5.4, 2.96)
+                }
+            }
             over "ExteriorSidewalkPavers" (
                 active = false
             ) {}
+            over "FrontEntranceGlassWalls"
+            {
+                custom int cbnu:fullHeightGlassPanelCount = 3
+                custom int cbnu:lowerFacadeWallPanelCount = 3
+                custom string cbnu:placement = "three fixed windows; existing side windows and pillars retained"
+                custom double cbnu:windowCenterSpacing = 4.725
+                def Xform "CenterFullHeightGlass"
+                {
+                    custom string cbnu:side = "upper entrance replacement"
+                    double3 xformOp:translate = (4.725, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate"]
+                    custom rel cbnu:collisionWall = </World/Floor_02/Environment/Walls/Wall_10>
+
+                    def Cube "GlassPanel"
+                    {
+                        rel material:binding = </World/Floor_02/Environment/FrontEntranceGlassWalls/GlassMaterial>
+                        double size = 1
+                        double3 xformOp:scale = (4.85, 0.025, 2.82)
+                        double3 xformOp:translate = (-4.725, 0, 1.5)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    }
+
+                    def Cube "LowerOpaqueWall" (
+                        prepend apiSchemas = ["MaterialBindingAPI"]
+                    )
+                    {
+                        rel material:binding = </World/Floor_02/Environment/FrontEntranceGlassWalls/LowerFacadeWallMaterial>
+                        double size = 1
+                        double3 xformOp:scale = (5.4055, 0.20, 1.02)
+                        double3 xformOp:translate = (-4.78275, -0.08, 0.51)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    }
+
+                    def Cube "OuterFrame"
+                    {
+                        rel material:binding = </World/Floor_02/Environment/FrontEntranceGlassWalls/FrameMaterial>
+                        double size = 1
+                        double3 xformOp:scale = (0.2355, 0.060, 3.0)
+                        double3 xformOp:translate = (-7.26775, 0, 1.5)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    }
+
+                    def Cube "DoorSideFrame"
+                    {
+                        rel material:binding = </World/Floor_02/Environment/FrontEntranceGlassWalls/FrameMaterial>
+                        double size = 1
+                        double3 xformOp:scale = (0.22, 0.060, 3.0)
+                        double3 xformOp:translate = (-2.19, 0, 1.5)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    }
+
+                    def Cube "BottomFrame"
+                    {
+                        rel material:binding = </World/Floor_02/Environment/FrontEntranceGlassWalls/FrameMaterial>
+                        double size = 1
+                        double3 xformOp:scale = (4.85, 0.060, 0.10)
+                        double3 xformOp:translate = (-4.725, 0, 0.05)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    }
+
+                    def Cube "TopFrame"
+                    {
+                        rel material:binding = </World/Floor_02/Environment/FrontEntranceGlassWalls/FrameMaterial>
+                        double size = 1
+                        double3 xformOp:scale = (4.85, 0.060, 0.10)
+                        double3 xformOp:translate = (-4.725, 0, 2.95)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    }
+                }
+            }
         }
     }
 
