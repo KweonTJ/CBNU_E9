@@ -1,376 +1,238 @@
 # CBNU 학연산 2층 건물 Isaac Sim 월드
 
-충북대학교 학연산공동기술연구원 1층 피난안내도를 바탕으로 제작한 실내 로비를 두 층으로 쌓은 Isaac Sim 월드다. 같은 평면을 바탕으로 2층의 가구·전시물을 정리하고 가벽과 양쪽 계단을 추가했다.
+충북대학교 학연산공동기술연구원의 로비·복도를 바탕으로 만든 **2층 건물 월드**다. 1층에는 가구·출입문·전시물·택배 상자를 유지하고, 2층은 가구와 전시물을 비운 공간에 가벽을 설치했다. 로비 양쪽 계단은 층 사이 중간참에서 180° 돌아 1층과 2층을 연결한다.
 
-실측 CAD 복제가 아니라 안내도와 현장 이미지를 기준으로 비율과 동선을 근사한 환경이다. 현재 버전은 로비·복도 구조, 가구, 출입문, 전시 구조물, 엘리베이터 철문, 이동식 안내판, 실내 조명과 물리 반응형 택배 박스를 포함한다.
+피난안내도와 현장 이미지를 바탕으로 비율과 동선을 근사한 환경이며 실측 CAD 모델은 아니다. 이 문서는 **2026-09-18 기준 생성된 2층 월드**를 설명한다.
 
-![CBNU 학연산 2층 구조도](worlds/cbnu_haksan_2f_building/preview_two_floor_structure.png)
+![현재 2층 건물 구조도](worlds/cbnu_haksan_2f_building/preview_two_floor_structure.png)
 
-## 빠른 시작
+미리보기 이미지는 생성 형상을 표시한 구조도이며 Isaac Sim 렌더 화면은 아니다.
 
-2층 건물 기준 Stage:
+## 월드 열기
 
-<code>worlds/cbnu_haksan_2f_building/cbnu_haksan_2f_building.usda</code>
+Isaac Sim에서 다음 파일을 연다.
 
-Isaac Sim GUI에서 위 파일을 연다. 프로젝트 내부 USD는 상대경로 reference를 사용하므로 <code>assets/</code>와 <code>worlds/</code>의 상대 위치를 유지해야 한다.
+**[cbnu_haksan_2f_building.usda](worlds/cbnu_haksan_2f_building/cbnu_haksan_2f_building.usda)**
 
-~~~bash
-cd /home/a/Isaac_Worlds_CBNU
-./scripts/test_world_with_isaac_usd.sh scripts/test_two_floor_world.py
-~~~
+```text
+/home/a/Isaac_Worlds_CBNU/worlds/cbnu_haksan_2f_building/cbnu_haksan_2f_building.usda
+```
 
-수정한 하위 layer가 GUI에 바로 반영되지 않으면 열린 Stage를 닫고 기준 Stage를 다시 연다.
+- USD 참조는 상대경로를 사용한다. 저장소를 옮길 때는 `assets/`와 `worlds/`를 함께 유지한다.
+- 수정한 하위 레이어가 반영되지 않으면 Stage를 닫고 위 파일을 다시 연다.
+- [1층 원본 Stage](worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda)를 열면 원본 1층만 보인다. 최신 계단과 2층 수정은 2층 Stage에 적용되어 있다.
 
-1층 배치 원본은 `worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda`에 보존한다. 2층 파일은 이 원본을 두 번 참조한다. 기존 1층 파일을 열면 여전히 1층만 보이므로 위의 **2층 건물 파일**을 연다.
+## 현재 건물 구성
 
-## 2층 구성
+좌표 단위는 미터이고 위쪽 축은 Z다.
 
-- 1층 바닥 z=0m, 2층 바닥 z=3.2m, 지붕 상단 z=6.3m. 층별 실내 높이는 3m다.
-- 2층 정면 출입문 자리는 양옆과 같은 규격의 고정창과 하부 벽으로 바꿨다. 세 창 중심 간격은 각각 4.725m이며 기존 창·기둥 위치를 유지한다. [변경 기록](docs/31.45_cbnu_haksan_upper_entrance_window.md)
-- 양쪽 공간은 각각 폭 2.5m·깊이 3.44m의 계단실로 확장했다.
-- 2층 일반 문, 소파·의자, 책상, 우편물·택배 상자, ATM을 제거했다. 1층 배치는 유지한다. [변경 기록](docs/31.46_cbnu_haksan_upper_floor_clear.md)
-- 2층 엘리베이터 문 2개는 원래 위치·형상·재질로 복원했다. [복원 기록](docs/31.48_cbnu_haksan_upper_elevators_restore.md)
-- 2층 중앙 기둥 3개를 충돌 형상까지 제거했다. [변경 기록](docs/31.49_cbnu_haksan_upper_columns_clear.md)
-- 2층 가벽은 서쪽 복도의 꺾인 코너 벽선(y=11.4103m)까지 옮겨 기존 벽과 일자로 연결했다. 길이 약 19.23m, 높이 3m·두께 0.2m이며 2층 에어컨 2대는 제거 상태다. [배치도](worlds/cbnu_haksan_2f_building/preview_upper_partition.png) · [변경 기록](docs/31.53_cbnu_haksan_partition_corner.md)
-- 2층 코너·기둥 디스플레이, 회색 전시 패널 2개, 엘리베이터 옆 안내판 3개도 제거했다. [변경 기록](docs/31.47_cbnu_haksan_upper_displays_clear.md)
-- 1층 천장과 2층 바닥은 z=3.1m에서 맞닿으며, 두 층의 벽 사이에는 높이 0.2m 연결부 22개가 있다.
-- PhysicsScene과 DomeLight는 각 1개만 사용한다. 외부 보도는 지상에만 있다. 패널 조명은 1층 16개·2층 21개·중간참 2개, 총 39개다. 2층 복도·엘리베이터 쪽 기존 등 5개의 광원 세기를 50% 높였다. [조명 변경 기록](docs/31.54_cbnu_haksan_upper_corridor_lighting.md)
-- 복도 중앙 보강등 3개(`CeilingLight_18`–`20`)는 세로 방향으로 90° 회전했다. [변경 기록](docs/31.55_cbnu_haksan_corridor_light_rotation.md)
-- 1층은 기존 `/World/Environment` 등의 경로를 유지하고 2층은 `/World/Floor_02` 아래에 있다.
-- 양쪽 계단은 서로 대칭이며 높이 1.6m 중간참에서 180° 돌아 2층(3.2m)으로 연결된다. 각각 총 18단, 단 높이 약 17.8cm, 디딤판 깊이 28cm이며 계단 아래는 개방했다. 합성 월드에서 계단 위 1층 천장과 2층 바닥을 뚫었으며 원본 1층 파일은 보존한다. [왼쪽 미리보기](worlds/cbnu_haksan_2f_building/preview_left_staircase.png) · [오른쪽 미리보기](worlds/cbnu_haksan_2f_building/preview_right_staircase.png) · [변경 기록](docs/31.56_cbnu_haksan_staircases.md). 엘리베이터 이동 기능은 아직 없다.
-
-1층 배치 수정은 reference를 통해 두 층에 반영된다. 벽 위치·층 높이를 바꾸면 연결부도 함께 갱신한다.
-
-~~~bash
-python3 scripts/update_cbnu_haksan_two_floor.py
-MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_two_floor_preview.py
-MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_staircase.py
-./scripts/test_world_with_isaac_usd.sh scripts/test_two_floor_world.py
-~~~
-
-[2층 변경 기록](docs/31.43_cbnu_haksan_two_floor_building.md) · [층별 평면도](worlds/cbnu_haksan_1f_corridor/preview_top_view_detailed.png)
-
-## 층별 구성 요약
-
-| 구분 | 현재 구성 |
+| 항목 | 현재 값 |
 | --- | --- |
-| 기준 단위 | meter, Z-up |
-| 전체 범위 | 약 35.6 × 20.8m |
-| 외곽 구조 | 높이 3.0m, 두께 0.20m의 직각 벽 22개 + 정면 낮은 외벽 2개, 동쪽 문 앞 공간과 디스플레이 끝 양쪽 공간 |
-| 바닥 | Bala White 계열 polished granite |
-| 천장 | 높이 3.0m, 두께 0.10m의 흰색 무광 천장 |
-| 조명 | 일반 LED 패널 17개(디스플레이 끝 양쪽 공간 각 1개 포함) + 중앙 6.0 × 2.4m 대형 패널 1개 |
-| 냉방 | 중앙 대형 조명 좌우에 1.1 × 1.1m 4방향 천장 카세트 에어컨 2대 |
-| 기둥 | 1.2 × 1.2 × 3.0m 메인 기둥 3개 + 정문 측면 기둥 2개 |
-| 문 | 목재 single 4개, 목재 double 2개, 동쪽 흰색 양개문+목재 포털 3개, 정문 양개 유리문 2세트; 중앙 문 3개 동일형 목재 포털 적용 |
-| 가구 | 갈색 직선 소파 3개 + 검정·회색빛이 강한 어두운 적갈색 가죽 코너/U형 소파 2개, 하부가 채워진 책상 3개, ATM 2개 |
-| 전시 구조 | `학연산공통기술연구원` 벽면 글자가 있는 L자 전시벽 1개(왼쪽 6개·오른쪽 3개 화면), 유리창 연결용 나무 가벽 1개, Column 03 대형 화면 1개, 회색 포스터 2개 |
-| 엘리베이터 | Wall 05 스테인리스 중앙개폐식 철문 2개 |
-| 북측 단상 | 1.02m 하부벽과 상부 유리 앞 3.1332 × 0.60 × 0.15m 목재 단상 1개 + 초록색 바퀴형 안내판 3개 |
-| 동적 장애물 | Table 03 앞 9개 + 정문 안쪽 4개 + 엘리베이터 사이 3개, 총 16개 택배 박스 |
-| 하늘 | DomeLight 기본 흰색 배경, intensity 1600 |
+| 1층 바닥 | z = 0m |
+| 층간 높이 / 2층 바닥 | 3.2m / z = 3.2m |
+| 층별 실내 높이 | 3.0m |
+| 지붕 상단 | z = 6.3m |
+| 층간 벽 연결부 | 높이 0.2m, 22개 |
+| 계단 | 좌우 대칭 2개, 중간참 높이 1.6m |
+| 패널 조명 | 1층 16개 + 2층 21개 + 중간참 2개 = 39개 |
+| 물리 환경 | PhysicsScene 1개, DomeLight 1개 |
+| 동적 물체 | 1층 택배 상자 16개 |
 
-## 공간별 구성
+계단 개구부를 제외한 곳에서 1층 천장과 2층 바닥은 z=3.1m에서 맞닿는다. 계단실은 두 층에 걸쳐 열려 있으며 양층 외벽과 지붕도 계단실 깊이에 맞춰 확장했다.
 
-### 메인 로비
+### 층별 차이
 
-- 새 직각 문 `Door_Double_06`은 기존 벽보다 1m 안쪽에 있다. 기존 오른쪽 문 `Door_Double_03`이 붙은 `Wall_01`을 꺾임 없이 곧게 연장해 새 문의 오른쪽 문틀까지 연결했다. 공간 폭은 문틀과 같은 2.08m이며 바닥·천장도 확장했다. [확대 평면도](worlds/cbnu_haksan_1f_corridor/preview_east_alcove.png) · [변경 기록](docs/31.40_cbnu_haksan_east_lobby_alcove.md)
-
-- `Wall_02–03`, `Wall_05–06`, `Wall_08–09`, `Wall_11–12`의 안쪽 코너는 수평 벽 끝을 인접 세로 벽의 실내면까지 `0.10m` 연장했다. 벽 높이 전체와 collision이 끊기지 않으며 코너 외곽선에는 돌출 단차가 없다.
-- 메인 기둥은 <code>Column_01</code>, <code>Column_03</code>, <code>Column_02</code> 순으로 배치된다.
-- <code>Column_03</code>은 바깥쪽 두 기둥의 정확한 중점에 있으며 정문 방향 면에 1.0 × 1.45m 화면 1장이 달려 있다.
-- L자 전시벽의 스크린 6개 면 상단에는 검정색 `학연산공통기술연구원` 돌출 Mesh 글자가 3.6 × 0.38 × 0.016m 크기로 벽에 직접 부착되어 있다. 투명 텍스처를 사용하지 않아 GUI 렌더 모드와 무관하게 형상이 표시된다.
-- L자 전시벽은 3개 화면 쪽 길이 2.50m를 유지하고 반대쪽을 6.288533m로 확장해 화면을 5개에서 6개로 늘렸다. 6개 화면은 0.24m 간격을 유지하며 회색 면 양 끝 여백은 각각 동일한 0.5342665m다. 화면 바로 둘레의 회색 frame 여백도 양 끝 각각 0.10m다.
-- 6개 화면 쪽 회색 본체 끝과 북측 유리창 오른쪽 프레임 사이에는 `WoodPartition_01`이 이어진다. 가벽 길이는 기존 2.0656m의 2/3인 1.377067m로 줄었으며, 두께 0.30m와 높이 3.00m는 유지한다. 줄어든 0.688533m만큼 디스플레이 본체가 늘어나 두 구조 사이에 틈이 없다.
-- <code>Column_02</code>는 검정·회색빛이 강하고 적갈색 언더톤이 남은 가죽의 상단이 열린 U형 소파가 둘러싸며 소파 안쪽 면과 기둥 사이 clearance는 0이다.
-- 남동쪽 코너의 <code>Sofa_Corner_01</code>도 같은 어두운 차콜 적갈색 가죽 재질을 사용한다.
-- 로비 동쪽과 남쪽에는 벽 부착 소파·책상과 ATM이 배치돼 있다.
-- 정문 오른쪽 <code>Wall_11</code>에는 <code>Door_Single_04</code>와 밝은 회색 <code>GrayPoster_01</code>이 있다.
-- 동쪽 끝 `Wall_01`의 `Door_Double_03`, `Door_Double_04`는 불투명한 웜화이트 양개문이다. 각 문은 좌우 기둥과 상부 헤더로 이루어진 `2.08 × 0.20 × 2.28m` 밝은 갈색 목재 U자 포털이 개구부를 감싼다.
-- 좁은 서쪽 복도와 정문을 제외한 중앙의 `Door_Double_01`, `Door_Double_02`, `Door_Single_04`에는 동쪽 흰색 문과 같은 단순한 목재 포털을 적용했다. 모든 포털의 좌우 안쪽 면은 문짝 외곽과 바로 맞닿고 상부 헤더 하단은 문짝 상단 `z=2.10m`에서 시작해 사이 여백이 `0m`다. 중앙 세 문의 기존 갈색 문짝과 위치는 유지한다.
-
-### 서쪽 복도와 책상 구역
-
-- 서쪽 복도 중심선은 y=12.2753m, 폭은 1.73m다.
-- 끝 벽 <code>Wall_07</code>은 불투명하며 collision을 유지한다.
-- 서쪽 두 문 사이의 <code>Table_03</code>은 기존 소파 자리를 대체한다.
-- 책상 전면과 약 0.60m를 띄운 위치에 서로 다른 크기의 택배 박스 9개가 5-3-1의 3단으로 쌓여 있다.
-
-### 북측 복도, 통형 포스터와 엘리베이터
-
-로비에서 엘리베이터 방향을 볼 때 회색 장식의 왼쪽 끝과 검정 디스플레이의 오른쪽 끝에는 각각 **폭 2.5m × 깊이 2m × 높이 3m**의 문 없는 공간이 있다. 바닥·천장과 측면·뒤쪽 벽은 기존 재질과 collision을 사용하고 입구는 전체 높이로 열려 있다. [확대 평면도](worlds/cbnu_haksan_1f_corridor/preview_display_end_spaces.png) · [변경 기록](docs/31.41_cbnu_haksan_display_end_spaces.md)
-
-<code>GrayPoster_02</code>는 <code>Wall_06</code>에서 코너를 돌아 <code>Wall_05</code>의 첫 번째 엘리베이터 바로 옆까지 이어지는 단일 L자 통형 포스터다.
-
-| 항목 | 값 |
-| --- | --- |
-| 위치 | (20.5892, 13.0403, 0.85) |
-| 방향 | yaw 0°, 로비 -Y 방향 |
-| 크기 | 정면 4.5m + 코너 반환부 1.3247m × 높이 1.22m × 두께 0.15m |
-| 색상 | (0.34, 0.36, 0.38) 진회색 |
-| 구조 | 비발광·watertight L자 <code>PosterSlab</code> Mesh 1개 |
-| 물리 | 별도 collider 없음 |
-
-포스터 반환부는 코너에서 `1.3247m` 이어져 첫 번째 엘리베이터 외곽 문틀의 남측 끝 `y=14.365m`에서 맞닿는다. 그 뒤 <code>Wall_05</code>에는 운영 중인 엘리베이터 위치를 나타내는 철문 2개가 있다.
-
-| Prim | 위치 | 크기 | 방향 |
-| --- | --- | --- | --- |
-| <code>ElevatorDoor_01</code> | (22.8392, 15.2, 0.0) | 1.45 × 2.30 × 0.08m | +X, yaw 90° |
-| <code>ElevatorDoor_02</code> | (22.8392, 18.8, 0.0) | 1.45 × 2.30 × 0.08m | +X, yaw 90° |
-
-각 모듈은 브러시드 스테인리스 좌·우 패널, 금속 프레임, 중앙 seam과 점등 상태 표시기로 구성된다. metadata는 <code>operational</code>, 현재 문 상태는 <code>closed</code>다. 시각용 모듈에는 별도 collider를 두지 않고 기존 <code>Wall_05</code> collider를 사용한다.
-
-북측 복도 끝은 <code>Wall_04</code>의 collision을 유지하면서 상부를 통유리로 표현한다. 유리 하단에는 정면 외벽과 같은 높이 `1.02m`의 석재 회색 불투명 벽이 전체 폭 `3.1332m`를 채운다. 그 앞에는 깊이 `0.60m`, 높이 `0.15m`의 낮은 목재 단상 `NorthGlassWoodPlatform`이 있으며 하부벽 남쪽 면과 단상 북쪽 끝이 단차 없이 맞닿는다. 단상 위에는 참고 이미지 형태의 초록색 이동식 안내판 3개가 정면(-Y)을 향해 나란히 놓인다. 각 안내판은 `0.72 × 0.34 × 1.55m`이며 밝은 안내문 면, 초록색 패널, 금속 프레임과 바퀴 4개로 구성된다. 안내판 사이 간격은 `0.23m`, 단상 좌우 끝 여백은 각각 `0.2566m`다. 단상 옆 `ElevatorDoor_02`는 벽을 정면에서 보았을 때 왼쪽으로 `0.20m` 이동했으며 단상과 `0.445m` 떨어져 있다.
-
-### 정문
-
-- 정문은 투명 양개 유리문 2세트, 중앙 고정 유리, 상부 transom으로 구성된다.
-- 문 좌우에는 각각 4.85 × 2.82m 통유리가 있다.
-- 좌우 통유리 바깥 하단에는 소파 높이에 맞춘 불투명 외벽이 각각 1개씩 있다.
-- 왼쪽 외벽은 `Wall_09` 중심선부터 유리문 프레임까지 `5.4055m`, 오른쪽은 유리문 프레임부터 `Wall_11` 중심선까지 `5.1736m`로 이어진다.
-- 낮은 외벽은 실제 유리문 구간 `x=21.42–25.58m`를 가리지 않으며 실내 가구의 하단 시야를 차단한다.
-- 낮은 외벽의 남쪽 바깥 면은 실제 외관 기준인 정문 양옆 기둥 전면 y=-0.01m와 일치한다. 이전보다 안쪽으로 0.0465m 이동해 외부 돌출 단차를 제거했다.
-- 기존 <code>Wall_10</code> collider는 낮은 외벽 내부에서 겹쳐지도록 유지하고 불투명 표면만 숨겼다.
-- 정문 안쪽 오른편의 택배 박스 4개는 중앙·왼쪽 통행선 x ≤ 24.4m와 <code>Spawn_South</code>를 침범하지 않는다.
-- 유리 밖에는 남쪽·북쪽 대형 보도블럭 slab이 있어 기본 그리드 노출을 막는다.
-
-## 재질과 조명
-
-| 대상 | 재질/색상 | 주요 값 |
+| 구분 | 1층 | 2층 |
 | --- | --- | --- |
-| 바닥 | Bala White granite texture | roughness 0.24, clearcoat 0.26, 2.4m repeat |
-| 천장 | warm white matte | 흰색 유지, roughness 0.78 |
-| 벽·기둥 | cool stone gray | (0.50, 0.51, 0.52), roughness 0.72 |
-| 정면 낮은 외벽 | wall/column 공용 재질 | 높이 1.02m, 왼쪽 폭 5.4055m, 오른쪽 폭 5.1736m |
-| 밝은 포스터 | light gray | (0.70, 0.72, 0.74) |
-| 통형 포스터 | dark gray | (0.34, 0.36, 0.38), 두께 0.15m |
-| 소파 | brown soft matte upholstery | 공용 furniture material |
-| 엘리베이터 | brushed stainless steel | metallic 0.84, roughness 0.28 |
-| 이동식 안내판 | deep green + brushed metal | green (0.035, 0.28, 0.14), 바퀴 4개/대 |
-| 동쪽 양개문 | warm white + honey-brown wood | door (0.91, 0.92, 0.89), portal (0.52, 0.27, 0.09) |
-| 중앙 문 장식 | honey-brown wood portal | 동쪽 문과 같은 좌·우 jamb + 상부 header, 시각용 |
+| 일반 출입문 | 기존 배치 유지 | 제거 |
+| 정면 유리 출입구 | 기존 유리문 유지 | 양옆 창문과 같은 크기의 고정창으로 교체 |
+| 엘리베이터 문 | 2개 유지 | 2개 유지 |
+| 소파·의자·책상·ATM | 기존 배치 유지 | 제거 |
+| 우편물·택배 상자 | 동적 상자 16개 | 제거 |
+| 디스플레이·회색 포스터·안내판 | 기존 배치 유지 | 제거 |
+| 중앙 기둥 | 3개 유지 | 충돌 형상까지 제거 |
+| 정문 측면 기둥 | 유지 | 유지 |
+| 중앙 대형 조명·천장 에어컨 | 유지 | 제거 |
+| 복도 가벽 | 없음 | 길이 약 19.23m, 높이 3m |
+| 외부 보도 | 지상에 배치 | 없음 |
 
-외곽 벽 12개, 메인 기둥 3개, 정문 기둥 2개와 정면 낮은 외벽 2개는 푸른 기가 아주 약한 석재 회색을 사용한다. 밝은 포스터보다 어둡고 통형 진회색 포스터보다 밝아 세 표면이 구분된다. 바닥과 흰색 천장 재질은 이 색상 조정의 영향을 받지 않는다.
+1층도 합성 월드에서는 계단실의 바닥·천장·외벽·조명이 변경된다. 보존되는 대상은 계단 공사 범위 밖의 기존 배치이며, 별도 1층 원본 파일은 그대로 유지한다.
 
-조명 구성:
+### 양쪽 계단
 
-- 일반 매입형 LED 패널 17개: RectLight intensity 8000
-- 중앙 대형 패널 1개: 6.0 × 2.4m, intensity 12000, normalize false
-- 추가된 일반 패널 3개: (19.0, 12.0), (28.8, 12.0), (29.0, 6.0)
-- 디스플레이 끝 새 공간 조명 2개: (16.8892, 14.0403), (29.6224, 14.2044), 천장 높이 z=2.96m. [변경 기록](docs/31.42_cbnu_haksan_display_space_lights.md)
-- DomeLight: intensity 1600, 별도 color 미지정
+| 항목 | 각 계단 규격 |
+| --- | --- |
+| 계단실 내부 폭 × 깊이 | 2.50 × 3.44m |
+| 동선 | 1층 → 중간참에서 180° 회전 → 2층 |
+| 중간참 높이 / 깊이 | 1.60m / 1.20m |
+| 전체 단차 수 | 18개, 경사 구간별 9개 |
+| 단 높이 | 약 0.1778m |
+| 디딤판 깊이 / 두께 | 0.28m / 0.12m |
+| 경사 구간 폭 | 1.10m |
+| 부속 구조 | 경사 지지대, 양쪽 난간, 2층 개구부 가드 |
+| 아래 공간 | 채움 형상을 없앤 개방 구조 |
 
-## 동적 택배 박스
+입구에서 보면 왼쪽 계단은 왼쪽으로 올라가 오른쪽으로 2층에 도착하고, 오른쪽 계단은 그 반대다. 계단 위 1층 천장과 2층 바닥에는 실제 메시 개구부가 있으며, 디딤판·중간참·난간·지지대에는 정적 충돌을 설정했다.
 
-모든 상자는 크기 조합이 서로 다르며 <code>/World/DynamicObstacles</code> 아래에 있다.
+[왼쪽 계단 구조도](worlds/cbnu_haksan_2f_building/preview_left_staircase.png) · [오른쪽 계단 구조도](worlds/cbnu_haksan_2f_building/preview_right_staircase.png) · [계단 변경 기록](docs/31.56_cbnu_haksan_staircases.md)
 
-| 구역 | 수량 | 적층 | 통행 조건 |
-| --- | ---: | --- | --- |
-| <code>Table_03</code> 앞 | 9 | 5-3-1, 최대 3단 | 책상 전면과 약 0.60m 간격 |
-| 정문 안쪽 오른편 | 4 | 바닥 3 + 상단 1 | 중앙·왼쪽 진입로 보존 |
-| 두 엘리베이터 사이 | 3 | 바닥 2 + 상단 1 | 서쪽 벽 쪽 배치, 동쪽 약 2.32m 통행 폭 보존 |
+### 2층 가벽과 정면 창문
 
-- 전체 질량: 43.9kg
-- Root: <code>PhysicsRigidBodyAPI</code>, <code>PhysicsMassAPI</code>
-- Body: <code>PhysicsCollisionAPI</code>
-- 초기 상태: starts asleep, non-kinematic
-- 접촉 후 동적 강체로 반응
-- 외관: kraft cardboard 3색, 포장 테이프와 배송 라벨
+가벽은 서쪽 복도 벽선과 일자로 이어져 반대쪽 벽까지 닿는다. 중심선은 y=11.4103m, 길이 19.2347m, 두께 0.2m이며 바닥 z=3.2m부터 천장 z=6.2m까지 막는다. 기존 코너와 어긋나지 않도록 배치했고 충돌 형상을 포함한다.
 
-기존 raw <code>/World/Obstacles</code>는 사용하지 않는다.
+정면 유리 출입문 자리는 양옆 창문과 같은 **4.85 × 2.82m 고정창 모듈**과 하부 벽으로 교체했다. 세 창의 중심 간격은 각각 4.725m이며 기존 측면 창과 정문 기둥은 유지한다.
 
-## Stage 구조
+![2층 가벽과 양쪽 계단 배치](worlds/cbnu_haksan_2f_building/preview_upper_partition.png)
 
-~~~text
+### 조명과 재질
+
+1층에는 중앙 대형 조명을 포함한 패널 16개가 있다. 계단 개구부 아래의 기존 천장등 2개는 비활성화하고 각 중간참에 조명을 설치했다. 2층은 중앙 대형 조명을 제거한 뒤 복도 조명 4개를 보강해 패널 21개를 사용한다.
+
+- 2층 기존 복도·엘리베이터 조명 5개의 intensity는 8000에서 12000으로 높였다.
+- 추가 복도 조명 4개도 intensity 12000을 사용한다.
+- 복도 중앙 조명 3개(`CeilingLight_18`–`20`)는 긴 변이 복도 폭 방향인 Y축을 향하도록 90° 회전했다.
+- 2층 계단실 조명은 확장된 중간참 위에 배치했다.
+- 바닥은 광택 석재, 천장은 흰색 무광, 벽·가벽은 회색 재질을 사용한다. 계단은 회색 석재와 어두운 금속 난간으로 구성된다.
+
+## USD 구성과 수정 위치
+
+2층 Stage는 1층 원본을 지상과 `/World/Floor_02`에 각각 참조한다. 2층 전용 배치와 비활성화 설정은 최상위 파일에, 양쪽 계단과 건물 개구부는 `config/staircases.usda`에 작성된다.
+
+주요 활성 경로는 다음과 같다. 비활성화된 원본 객체는 아래 목록에서 생략했다.
+
+```text
 /World
 ├── PhysicsScene
 ├── DomeLight
 ├── Looks
-├── Environment
-│   ├── Floor
-│   ├── Ceiling
-│   ├── CeilingLights
-│   │   ├── CeilingLight_01 ... CeilingLight_17
-│   │   ├── CeilingLight_Central_Large
-│   │   └── AirConditioners/CeilingAC_01 ... CeilingAC_02
-│   ├── FrontEntranceGlassWalls
-│   │   ├── LeftFullHeightGlass/LowerOpaqueWall
-│   │   └── RightFullHeightGlass/LowerOpaqueWall
-│   ├── NorthCorridorEndGlassWall/LowerOpaqueWall
-│   ├── NorthGlassWoodPlatform
-│   └── Walls
-├── Columns
-│   ├── Column_01
-│   ├── Column_03
-│   ├── Column_02
-│   ├── Entrance_Pillar_ATM_Side
-│   └── Entrance_Pillar_Opposite
-├── Architecture
-│   ├── DigitalDisplayWall_01
-│   ├── WoodPartition_01
-│   ├── ColumnDisplay_01
-│   ├── GrayPoster_01
-│   ├── GrayPoster_02
-│   ├── ElevatorDoor_01
-│   ├── ElevatorDoor_02
-│   └── GreenInformationBoard_01 ... GreenInformationBoard_03
+├── Environment                 # 1층 바닥·천장·벽·조명
+├── Columns                     # 1층 중앙 및 정문 기둥
+├── Architecture                # 1층 전시물·엘리베이터 문 등
 ├── Furniture
-│   ├── Sofa_02, Sofa_03, Sofa_05
-│   ├── Sofa_Corner_01
-│   ├── Sofa_U_Column_02
-│   ├── ATM_01, ATM_02
-│   └── Table_01 ... Table_03
-├── DynamicObstacles
-│   └── ParcelBox_01 ... ParcelBox_16
+├── DynamicObstacles            # 택배 상자 16개
 ├── Doors
-└── SpawnPoints
-~~~
+├── SpawnPoints
+├── Floor_02                    # Z 방향 3.2m 이동
+│   ├── Looks
+│   ├── Environment
+│   │   ├── Floor / Ceiling / Walls
+│   │   ├── CeilingLights
+│   │   ├── FrontEntranceGlassWalls
+│   │   └── PartitionWall_01
+│   ├── Columns                 # 정문 측면 기둥 유지
+│   ├── Architecture            # 엘리베이터 문·기존 목재 가벽 유지
+│   └── SpawnPoints
+├── InterFloorBand              # 층간 벽 연결부 22개
+├── Stairs_Left
+└── Stairs_Right
+```
 
-## 설정 파일과 생성 layer
+| 수정 대상 | 수정할 파일 |
+| --- | --- |
+| 2층 객체 표시 여부, 가벽, 창문, 복도 조명 | [update_cbnu_haksan_two_floor.py](scripts/update_cbnu_haksan_two_floor.py) |
+| 계단 치수·방향·난간·중간참, 계단실 확장·개구부 | [build_cbnu_haksan_staircase.py](scripts/build_cbnu_haksan_staircase.py) |
+| 원본 벽·바닥·천장 형상 | [1층 Stage](worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda), [geometry.json](worlds/cbnu_haksan_1f_corridor/config/geometry.json) |
+| 원본 문·가구·조명·전시물·택배 배치 | [1층 config 디렉토리](worlds/cbnu_haksan_1f_corridor/config) |
+| 공용 형상과 재질 | [assets 디렉토리](assets) |
 
-배치값은 JSON에서 수정하고 생성 USD layer는 스크립트로 다시 만든다.
+생성된 2층 Stage와 `staircases.usda`는 재생성할 때 덮어쓴다. 영구적으로 유지할 변경은 생성 스크립트에 반영한다. 1층 원본 변경은 두 층에 참조되지만 2층 및 계단 레이어가 덮어쓴 부분에는 그대로 적용되지 않을 수 있다.
 
-| 대상 | 원본 설정 | 생성 layer | 생성 스크립트 |
-| --- | --- | --- | --- |
-| 문 | <code>config/doors.json</code> | <code>config/doors_layout.usda</code> | <code>update_cbnu_haksan_doors.py</code> |
-| 가구 | <code>config/furniture.json</code> | <code>config/furniture_layout.usda</code> | <code>update_cbnu_haksan_furniture.py</code> |
-| 택배 박스 | <code>config/dynamic_obstacles.json</code> | <code>config/dynamic_obstacles_layout.usda</code> | <code>update_cbnu_haksan_dynamic_obstacles.py</code> |
-| 천장 조명·에어컨 | <code>config/ceiling.json</code> | <code>config/ceiling_layout.usda</code> | <code>update_cbnu_haksan_ceiling.py</code> |
-| 전시·포스터·엘리베이터 | <code>config/architecture.json</code> | <code>config/architecture_layout.usda</code> | <code>update_cbnu_haksan_architecture.py</code> |
+`geometry.json`만 바꿔서는 원본 벽과 바닥 형상이 자동 재생성되지 않는다. 층 높이·외곽 벽·계단실 치수를 바꿀 때는 원본 Stage, 두 생성 스크립트의 치수, 검증 기준을 함께 확인한다.
 
-표의 <code>config/</code> 경로는 <code>worlds/cbnu_haksan_1f_corridor/</code> 기준이며 생성 스크립트는 저장소의 <code>scripts/</code>에 있다.
+## 재생성
 
-전체 재생성:
+기존 월드를 여는 데 재생성은 필요하지 않다. 생성 스크립트를 수정했다면 저장소 루트에서 실행한다.
 
-~~~bash
-cd /home/a/Isaac_Worlds
-python3 scripts/update_cbnu_haksan_doors.py
-python3 scripts/update_cbnu_haksan_furniture.py
-python3 scripts/update_cbnu_haksan_dynamic_obstacles.py
-python3 scripts/update_cbnu_haksan_ceiling.py
-python3 scripts/update_cbnu_haksan_architecture.py
-MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_preview.py
-~~~
+```bash
+cd /home/a/Isaac_Worlds_CBNU
+python3 -B scripts/update_cbnu_haksan_two_floor.py
+```
 
-생성된 <code>*_layout.usda</code>는 직접 수정하지 않는다.
+이 명령은 계단 레이어와 2층 Stage를 함께 만든다. 생성에는 Python 표준 라이브러리를 사용한다.
 
-## 주요 수정 지점
+구조도 갱신에는 NumPy와 Matplotlib이 필요하다.
 
-### 전시 구조, 포스터와 엘리베이터
+```bash
+MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 -B scripts/render_cbnu_haksan_two_floor_preview.py
+MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 -B scripts/render_cbnu_haksan_staircase.py
+```
 
-배치·크기·상태:
+1층 원본 배치 JSON을 수정한 경우에는 해당 생성기를 먼저 실행하고, 그다음 2층 월드를 재생성한다.
 
-<code>worlds/cbnu_haksan_1f_corridor/config/architecture.json</code>
-
-형상:
-
-~~~text
-assets/architecture/digital_display_wall/
-assets/architecture/wall_decor/
-assets/architecture/elevators/stainless_elevator_door.usda
-~~~
-
-### 조명과 천장형 에어컨
-
-- 배치: <code>worlds/cbnu_haksan_1f_corridor/config/ceiling.json</code>
-- 일반 패널: <code>assets/architecture/ceiling/ceiling_panel_light.usda</code>
-- 중앙 대형 패널: <code>assets/architecture/ceiling/ceiling_panel_light_large.usda</code>
-- 4방향 카세트 에어컨: <code>assets/architecture/ceiling/ceiling_cassette_air_conditioner.usda</code>
-
-중앙 대형 패널의 좌우에는 `CeilingAC_01`, `CeilingAC_02`가 중앙축 기준으로 대칭 배치되어 있다. 각 장치는 1.1 × 1.1m이며 대형 조명 가장자리와 0.65m 간격을 유지한다. 흡입 그릴과 4방향 토출구를 가지며 별도 조명이나 collider는 추가하지 않는다.
-
-천장 본체의 높이와 footprint는 조명 config만으로 자동 재생성되지 않는다. 이를 바꿀 때는 <code>geometry.json</code>과 기준 Stage의 <code>Ceiling</code> Mesh를 함께 수정한다.
-
-### 가구와 소파 Mesh
-
-- 배치: <code>worlds/cbnu_haksan_1f_corridor/config/furniture.json</code>
-- 직선 소파 재질: <code>assets/materials/furniture/brown_sofa_material.usda</code>
-- 코너/U형 소파 재질: <code>assets/materials/furniture/dark_reddish_brown_leather_material.usda</code>
-- Corner/U형 통합 Mesh 생성: <code>scripts/generate_unified_sofa_meshes.py</code>
-
-Corner/U형의 보이는 형상은 각각 하나의 <code>SofaUnified</code> Mesh다. 생성 스크립트는 render Mesh만 갱신하며 invisible collision helper와 상대경로 material reference는 유지한다.
-
-### 복도, 벽과 기둥
-
-<code>worlds/cbnu_haksan_1f_corridor/config/geometry.json</code>은 기준 수치를 기록하지만 메인 geometry를 자동 생성하지 않는다. 복도 polygon, Floor/Ceiling point, 벽 또는 기둥 위치를 바꾸면 기준 Stage와 관련 배치 config를 함께 수정해야 한다.
-
-<code>column_2m.usda</code>와 <code>wall_column_light_gray.usda</code>는 기존 reference 호환을 위해 파일명을 유지한다. 현재 실제 기둥 단면은 1.2 × 1.2m이고 표면은 중간 회색이다.
-
-## Collision 정책
-
-- Floor, Ceiling, 외곽 Wall: collision enabled
-- 동적 택배 박스: rigid body + mass + 단일 box collider
-- 기존 L자 전시벽: invisible box helper 2개
-- 개별 화면과 두 포스터: 별도 collider 없음
-- 엘리베이터 철문: 별도 collider 없음, <code>Wall_05</code> 재사용
-- 정문 유리 구조: 별도 collider 없음, <code>Wall_10</code> 재사용
-- 정면 낮은 외벽 2개: 별도 collider 없음, <code>Wall_10</code> 재사용
-- 북측 끝 통유리: 별도 collider 없음, <code>Wall_04</code> 재사용
-- 북측 통유리 앞 목재 단상: 단일 static box collider
-- 정문 측면 기둥: 시각용, 기존 남쪽 벽 collider 사용
+| 원본 설정 | 대응 생성기 (`scripts/` 아래) |
+| --- | --- |
+| `doors.json` | `update_cbnu_haksan_doors.py` |
+| `furniture.json` | `update_cbnu_haksan_furniture.py` |
+| `dynamic_obstacles.json` | `update_cbnu_haksan_dynamic_obstacles.py` |
+| `ceiling.json` | `update_cbnu_haksan_ceiling.py` |
+| `architecture.json` | `update_cbnu_haksan_architecture.py` |
 
 ## 검증
 
-~~~bash
-cd /home/a/Isaac_Worlds
-python3 scripts/validate_cbnu_haksan_detail.py
-./scripts/test_world_with_isaac_usd.sh
-~~~
+현재 2층 Stage와 양쪽 계단을 검사한다.
 
-2026-09-04 Asia/Seoul 기준:
+```bash
+cd /home/a/Isaac_Worlds_CBNU
+./scripts/test_world_with_isaac_usd.sh scripts/test_two_floor_world.py
+```
 
-~~~text
-CBNU Haksan detailed lobby validation: PASS
-USD references: 83 relative and resolved
-CBNU Haksan composed Stage: PASS (USD 24.05)
-verified composed prims: 77
-preview: 2250 × 1425
-architecture preview: 2250 × 1425
-~~~
+래퍼는 기본적으로 `/home/a/isaacsim`의 Kit Python과 `omni.usd.libs`를 사용한다. 설치 위치가 다르면 `CBNU_ISAAC_ROOT` 환경변수를 실제 Isaac Sim 경로로 지정한다. 스크립트 인자를 생략하면 **1층 원본 검사**가 실행되므로 2층 검사에서는 위 인자를 포함한다.
 
-검증기는 geometry, material binding, collision, 조명 수량과 좌표, 가구·문 배치, 정면 낮은 외벽, 북측 통유리 앞 목재 단상, 포스터 치수, 엘리베이터 두 대, 택배 박스 적층과 모든 상대경로 reference를 확인한다.
+2026-09-18에 현재 생성 파일로 확인한 결과:
+
+| 검사 | 결과 |
+| --- | --- |
+| 2층 USD 합성, 층 높이, 연결부 22개 | PASS |
+| 공통 형상·재질 107개 비교 및 1층 보존 대상 확인 | PASS |
+| 2층 객체 제거·엘리베이터 문 유지·고정창 간격 | PASS |
+| 가벽의 벽·바닥·천장 접합과 조명 배치 | PASS |
+| 패널 조명 39개, 물리 환경 1개, 지상 동적 상자 16개 | PASS |
+| 양쪽 계단 위치·단차·중간참·바닥 개구부 | PASS |
+| 계단 메시 폐합·충돌 설정·아래 공간·중심 동선 위 2m 여유 | PASS |
+
+검사 코드는 [test_two_floor_world.py](scripts/test_two_floor_world.py)와 여기서 호출하는 [test_cbnu_haksan_staircase.py](scripts/test_cbnu_haksan_staircase.py)에 있다. 위 결과는 USD 형상·속성에 대한 검사이며 실제 로봇의 계단 주행 결과를 뜻하지 않는다.
+
+1층 원본을 수정했을 때의 별도 검사:
+
+```bash
+python3 -B scripts/validate_cbnu_haksan_detail.py
+./scripts/test_world_with_isaac_usd.sh scripts/test_world.py
+```
+
+## 현재 동작 범위
+
+바닥·천장·외곽 벽·2층 가벽·계단에는 충돌 형상이 있다. 1층 택배 상자 16개는 질량과 충돌을 가진 동적 강체다. 엘리베이터 문은 닫힌 상태의 시각 형상이며 기존 벽 collider를 사용한다.
+
+로봇 배치·제어 정책 연결, 실제 계단 주행 검증, 엘리베이터 이동 및 문 개폐 애니메이션은 구현·검증 범위에 포함하지 않는다. 생성된 Stage의 최종 GUI 반영 여부는 별도로 확인해야 한다.
 
 ## 저장소 구조
 
-~~~text
-Isaac_Worlds/
-├── assets/
-│   ├── architecture/
-│   │   ├── ceiling/
-│   │   ├── digital_display_wall/
-│   │   ├── doors/
-│   │   ├── elevators/
-│   │   ├── exterior/
-│   │   ├── wall_decor/
-│   │   └── windows/
-│   ├── equipment/
-│   ├── furniture/
-│   ├── materials/
-│   └── structural/
-├── worlds/cbnu_haksan_1f_corridor/
-│   ├── cbnu_haksan_1f_corridor.usda
-│   ├── config/
-│   ├── reference/
-│   └── preview_*.png
-├── scripts/
-├── terrains/
-└── docs/
-~~~
+```text
+Isaac_Worlds_CBNU/
+├── README.md
+├── assets/                               # 공용 형상·재질
+├── worlds/
+│   ├── cbnu_haksan_1f_corridor/           # 1층 원본과 배치 설정
+│   │   ├── cbnu_haksan_1f_corridor.usda
+│   │   ├── config/
+│   │   └── reference/
+│   └── cbnu_haksan_2f_building/          # 현재 사용할 월드
+│       ├── cbnu_haksan_2f_building.usda
+│       ├── config/staircases.usda
+│       └── preview_*.png
+├── scripts/                              # 생성·구조도·검증
+├── docs/                                 # 번호별 변경 기록
+└── terrains/
+```
 
-## 현재 범위
+## 관련 변경 기록
 
-포함:
+- [2층 건물 합성](docs/31.43_cbnu_haksan_two_floor_building.md)
+- [2층 정면 고정창](docs/31.45_cbnu_haksan_upper_entrance_window.md)
+- [2층 문·가구·택배 제거](docs/31.46_cbnu_haksan_upper_floor_clear.md) · [디스플레이·안내판 제거](docs/31.47_cbnu_haksan_upper_displays_clear.md)
+- [엘리베이터 문 복원](docs/31.48_cbnu_haksan_upper_elevators_restore.md) · [중앙 기둥 제거](docs/31.49_cbnu_haksan_upper_columns_clear.md)
+- [가벽 코너 정렬](docs/31.53_cbnu_haksan_partition_corner.md)
+- [복도 조명 보강](docs/31.54_cbnu_haksan_upper_corridor_lighting.md) · [중앙 조명 세로 배치](docs/31.55_cbnu_haksan_corridor_light_rotation.md)
+- [양쪽 계단과 아래 공간 개방](docs/31.56_cbnu_haksan_staircases.md)
 
-- 로비·복도 시각 구성과 collision
-- 정적 가구·문·엘리베이터 입구
-- 동적 택배 박스 장애물
-- 조명, 유리, 바닥과 외부 보도블럭
-- 결정론적 평면 미리보기와 정적/실제 USD 검증
-
-미포함:
-
-- Go2 spawn과 RL policy 연결
-- reward, observation, action 변경
-- 엘리베이터 이동과 문 개폐 animation
-- 실측 기반 치수 보증
-- terrain 생성과 물리 parameter tuning
+변경 기록과 1층 원본 미리보기에는 당시 상태가 남아 있다. 현재 배치는 이 README와 2층 Stage를 기준으로 확인한다.
