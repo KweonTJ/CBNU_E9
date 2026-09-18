@@ -9,6 +9,19 @@ def Xform "Doors"
 {
     custom string cbnu:sourceConfig = "doors.json"
 
+    def Xform "Door_Double_06" (
+        prepend references = @../../../assets/architecture/doors/white_door_double_wood_portal.usda@
+    )
+    {
+        custom string cbnu:doorType = "double"
+        custom string cbnu:assetVariant = "white_wood_portal"
+        custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"
+        custom string cbnu:placementSource = "doors.json"
+        double xformOp:rotateZ = 0
+        double3 xformOp:translate = (34.3092, 14.1769, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+
     def Xform "Door_Single_01" (
         prepend references = @../../../assets/architecture/doors/wood_door_single.usda@
     )

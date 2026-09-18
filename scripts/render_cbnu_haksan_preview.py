@@ -1052,7 +1052,7 @@ def main() -> None:
             frame_width = (
                 2.08 if is_white_wood_portal or has_matching_wood_portal else 1.86
             )
-            label = f"D{double_index}{' PORT' if has_matching_wood_portal else ''}"
+            label = f"D{int(door['name'].rsplit('_', 1)[-1])}{' PORT' if has_matching_wood_portal else ''}"
             frame_color = (
                 "#9b5822"
                 if is_white_wood_portal
@@ -1190,6 +1190,16 @@ def main() -> None:
     fig.tight_layout()
     fig.savefig(OUTPUT_PATH, dpi=150, facecolor="white")
     fig.savefig(ARCHITECTURE_OUTPUT_PATH, dpi=150, facecolor="white")
+    axis.get_legend().remove()
+    axis.set_xlim(29.5, 36.0)
+    axis.set_ylim(10.8, 15.1)
+    axis.set_title("East lobby — recessed perpendicular door with a straight east wall")
+    axis.text(34.3092, 14.75, "Clear width 2.08 m / depth 1.0 m", ha="center", fontsize=10)
+    axis.annotate("STRAIGHT WALL", xy=(35.4492, 13.75), xytext=(32.0, 14.4),
+                  ha="center", color="#155d42", zorder=20,
+                  bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.85},
+                  arrowprops={"arrowstyle": "->", "color": "#155d42"})
+    fig.savefig(WORLD_DIR / "preview_east_alcove.png", dpi=150, facecolor="white")
     plt.close(fig)
     print(
         f"wrote {OUTPUT_PATH} "

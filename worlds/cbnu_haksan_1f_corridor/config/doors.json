@@ -1,6 +1,15 @@
 {
   "doors": [
     {
+      "name": "Door_Double_06",
+      "type": "double",
+      "asset_variant": "white_wood_portal",
+      "portal_fit": "zero_margin_to_leaf_perimeter",
+      "position": [34.3092, 14.1769, 0.0],
+      "yaw_deg": 0,
+      "source_note": "new perpendicular door at the back of a 1 m recess; existing east Wall_01 continues straight to its right jamb; clear recess width equals 2.08 m portal width"
+    },
+    {
       "name": "Door_Single_01",
       "type": "single",
       "position": [5.4, 13.0175, 0.0],

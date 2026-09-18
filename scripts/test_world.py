@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 try:
-    from pxr import Usd, UsdShade
+    from pxr import Gf, Usd, UsdGeom, UsdShade
 except ModuleNotFoundError as exc:
     raise SystemExit(
         "pxr is unavailable in this Python. Run this script with the Isaac Sim USD "
@@ -141,10 +141,74 @@ HIDDEN_SOFA_HELPERS = (
 )
 
 
+def validate_east_adjacent_doors(stage) -> None:
+    """The existing east wall runs straight to the new perpendicular recessed door."""
+    door = stage.GetPrimAtPath('/World/Doors/Door_Double_06')
+    existing = stage.GetPrimAtPath('/World/Doors/Door_Double_03')
+    assert door.IsValid() and door.IsLoaded()
+    assert tuple(door.GetAttribute('xformOp:translate').Get()) == (34.3092, 14.1769, 0.0)
+    assert door.GetAttribute('xformOp:rotateZ').Get() == 0
+    assert door.GetAttribute('cbnu:assetVariant').Get() == 'white_wood_portal'
+    for leaf in ('LeftDoor', 'RightDoor'):
+        slab = stage.GetPrimAtPath(f'{door.GetPath()}/{leaf}/Slab')
+        material, _ = UsdShade.MaterialBindingAPI(slab).ComputeBoundMaterial()
+        assert material and str(material.GetPath()).endswith('/Materials/WhiteDoor')
+    matrix = UsdGeom.Xformable(door).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+    old_matrix = UsdGeom.Xformable(existing).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+    facing = matrix.TransformDir(Gf.Vec3d(0, -1, 0))
+    old_facing = old_matrix.TransformDir(Gf.Vec3d(0, -1, 0))
+    assert facing[1] < -0.99 and abs(Gf.Dot(facing, old_facing)) < 1e-6, 'doors must be perpendicular'
+    bounds = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+    new_box = bounds.ComputeWorldBound(door).ComputeAlignedRange()
+    east_wall = stage.GetPrimAtPath('/World/Environment/Walls/Wall_01')
+    east_box = bounds.ComputeWorldBound(east_wall).ComputeAlignedRange()
+    assert tuple(east_wall.GetAttribute('xformOp:scale').Get()) == (8.1305, .2, 3)
+    assert abs(east_box.GetMin()[0] - 35.3492) < 1e-6
+    assert abs(east_box.GetMax()[1] - 14.3044) < 1e-6, 'east wall must extend straight to the back'
+    left_box = bounds.ComputeWorldBound(stage.GetPrimAtPath('/World/Environment/Walls/Wall_13')).ComputeAlignedRange()
+    assert abs(new_box.GetMax()[0] - east_box.GetMin()[0]) < 1e-6, 'right jamb must meet straight east wall'
+    assert abs(new_box.GetMin()[0] - left_box.GetMax()[0]) < 1e-6, 'left jamb must meet side wall'
+    assert abs(east_box.GetMin()[0] - left_box.GetMax()[0] - 2.08) < 1e-6, 'recess width must match portal'
+    wall = stage.GetPrimAtPath('/World/Environment/Walls/Wall_14')
+    wall_box = bounds.ComputeWorldBound(wall).ComputeAlignedRange()
+    slab_box = bounds.ComputeWorldBound(stage.GetPrimAtPath(f'{door.GetPath()}/LeftDoor/Slab')).ComputeAlignedRange()
+    assert abs(slab_box.GetMax()[1] - wall_box.GetMin()[1]) < 1e-6, 'new door must meet back wall'
+    assert abs(wall_box.GetMin()[1] - 13.2044 - 1.0) < 1e-6, 'recess depth must be 1 m'
+    assert wall.GetAttribute('physics:collisionEnabled').Get() is True
+    assert len(stage.GetPrimAtPath('/World/Environment/Walls').GetChildren()) == 14
+    for boundary in stage.GetPrimAtPath('/World/Environment/Walls').GetChildren():
+        assert boundary.GetAttribute('physics:collisionEnabled').Get() is True
+        box = bounds.ComputeWorldBound(boundary).ComputeAlignedRange()
+        if all(box.GetMin()[i] < (35.34, 14.05, 2.8)[i] and box.GetMax()[i] > (33.28, 13.2, .05)[i] for i in range(3)):
+            raise AssertionError(f'wall obstructs straight recess: {boundary.GetPath()}')
+    for mesh_name, z in [('Floor', 0.0), ('Ceiling', 3.0)]:
+        mesh = UsdGeom.Mesh(stage.GetPrimAtPath(f'/World/Environment/{mesh_name}'))
+        points, indices = mesh.GetPointsAttr().Get(), mesh.GetFaceVertexIndicesAttr().Get()
+        triangles, cursor = [], 0
+        for count in mesh.GetFaceVertexCountsAttr().Get():
+            face = [points[i] for i in indices[cursor:cursor+count]]
+            cursor += count
+            if count == 3 and all(abs(p[2]-z) < 1e-6 for p in face):
+                triangles.append(face)
+        def cross(a, b, c):
+            return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        assert triangles and all(cross(*t)*(1 if mesh_name == 'Floor' else -1) > 0 for t in triangles)
+        for x in (33.3, 34.3092, 35.3):
+            for y in (13.2, 13.5, 14.15):
+                assert any(all(cross(t[i],t[(i+1)%3],(x,y)) >= -1e-6 for i in range(3)) or
+                           all(cross(t[i],t[(i+1)%3],(x,y)) <= 1e-6 for i in range(3))
+                           for t in triangles), f'{mesh_name} has a gap at {(x,y)}'
+    assert not stage.GetPrimAtPath('/World/Doors/Door_Double_07').IsValid(), 'extra side door remains'
+    assert not stage.GetPrimAtPath('/World/Environment/CeilingLights/CeilingLight_16').IsValid(), 'recess light remains'
+    print('east doors: straight east wall, 1 m depth, 2.08 m clear width, perpendicular back door, unobstructed entry and slab coverage verified')
+
+
 def main() -> None:
     stage = Usd.Stage.Open(str(WORLD))
     if stage is None:
         raise AssertionError(f"failed to open composed Stage: {WORLD}")
+
+    validate_east_adjacent_doors(stage)
 
     for path, expected_type in REQUIRED_PRIMS.items():
         prim = stage.GetPrimAtPath(path)
@@ -284,7 +348,7 @@ def main() -> None:
         raise AssertionError("north glass wood platform material mismatch")
 
     unified_corner_walls = {
-        "Wall_02": ((9.4768, 0.2, 3.0), (30.7108, 13.3044, 1.5)),
+        "Wall_02": ((7.2968, 0.2, 3.0), (29.6208, 13.3044, 1.5)),
         "Wall_06": ((22.7522, 0.2, 3.0), (11.4631, 13.1403, 1.5)),
         "Wall_08": ((16.0275, 0.2, 3.0), (8.10075, 11.4103, 1.5)),
         "Wall_12": ((4.7956, 0.2, 3.0), (33.0514, 6.1739, 1.5)),

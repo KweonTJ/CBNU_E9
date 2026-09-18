@@ -211,7 +211,7 @@ def validate_world() -> None:
     require('uniform token primvars:st:interpolation = "vertex"' in floor_block, "Floor marble UV interpolation missing")
     st_match = re.search(r"primvars:st\s*=\s*\[([^]]+)\]", floor_block)
     require(st_match is not None, "Floor marble UV data missing")
-    require(len(re.findall(r"\([^()]+\)", st_match.group(1))) == 24, "Floor must have one UV per existing vertex")
+    require(len(re.findall(r"\([^()]+\)", st_match.group(1))) == len(mesh_points(world_text, "Floor")), "Floor must have one UV per vertex")
 
     require(GRANITE_TEXTURE.exists(), "Bala White granite albedo texture missing")
     require(png_size(GRANITE_TEXTURE) == (1254, 1254), "unexpected granite texture size")
@@ -226,7 +226,7 @@ def validate_world() -> None:
 
     wall_blocks = re.findall(r'def Cube "Wall_\d+".*?\n\s*}', world_text, flags=re.DOTALL)
     rotations = [float(re.search(r"xformOp:rotateZ = ([\d.-]+)", block).group(1)) for block in wall_blocks]
-    require(len(rotations) == 12, f"expected 12 walls, found {len(rotations)}")
+    require(len(rotations) == 14, f"expected 14 walls, found {len(rotations)}")
     require(all(rotation in {0.0, 90.0} for rotation in rotations), f"non-orthogonal wall rotations: {rotations}")
     require(all('PhysicsCollisionAPI' in block and 'physics:collisionEnabled = 1' in block for block in wall_blocks), "Wall collision missing")
     walls_section = world_text.split('def Xform "Walls"', 1)[1].split('def Xform "Columns"', 1)[0]
@@ -236,7 +236,7 @@ def validate_world() -> None:
     require('custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"' in walls_section, "wall gray metadata missing")
 
     expected_corner_wall_transforms = {
-        "Wall_02": ((9.4768, 0.2, 3.0), (30.7108, 13.3044, 1.5), 25.9724, "min"),
+        "Wall_02": ((7.2968, 0.2, 3.0), (29.6208, 13.3044, 1.5), 25.9724, "min"),
         "Wall_06": ((22.7522, 0.2, 3.0), (11.4631, 13.1403, 1.5), 22.8392, "max"),
         "Wall_08": ((16.0275, 0.2, 3.0), (8.10075, 11.4103, 1.5), 16.1145, "max"),
         "Wall_12": ((4.7956, 0.2, 3.0), (33.0514, 6.1739, 1.5), 30.6536, "min"),
@@ -272,12 +272,12 @@ def validate_world() -> None:
     require(west_corridor.get("center_y") == 12.2753, "west corridor centerline changed")
     require(west_corridor.get("end_treatment") == "opaque_wall", "west corridor end must be an opaque wall")
     polygon = geometry["corridor_polygon_xy"]
-    require(polygon[5][1] == polygon[6][1] == 13.1403, "west corridor north boundary mismatch")
-    require(polygon[7][1] == polygon[8][1] == 11.4103, "west corridor south boundary mismatch")
-    require(abs(polygon[5][1] - polygon[7][1] - 1.73) < 1e-9, "west corridor polygon width mismatch")
+    require(polygon[7][1] == polygon[8][1] == 13.1403, "west corridor north boundary mismatch")
+    require(polygon[9][1] == polygon[10][1] == 11.4103, "west corridor south boundary mismatch")
+    require(abs(polygon[7][1] - polygon[9][1] - 1.73) < 1e-9, "west corridor polygon width mismatch")
     floor_points = mesh_points(world_text, "Floor")
     require(
-        [(point[0], point[1]) for point in floor_points[:12]] == [tuple(point) for point in polygon],
+        [(point[0], point[1]) for point in floor_points[:len(polygon)]] == [tuple(point) for point in polygon],
         "Floor footprint does not match geometry.json",
     )
 
@@ -427,13 +427,13 @@ def validate_ceiling() -> Counter[str]:
 
     expected_xy = [tuple(float(value) for value in point) for point in geometry["corridor_polygon_xy"]]
     points = mesh_points(world_text, "Ceiling")
-    require(len(points) == 24, "Ceiling must preserve the 24-point closed corridor footprint")
-    require([point[:2] for point in points[:12]] == expected_xy, "Ceiling top footprint differs from corridor polygon")
-    require([point[:2] for point in points[12:]] == expected_xy, "Ceiling underside footprint differs from corridor polygon")
+    require(len(points) == 2 * len(expected_xy), "Ceiling must be a closed corridor slab")
+    require([point[:2] for point in points[:len(expected_xy)]] == expected_xy, "Ceiling top footprint differs from corridor polygon")
+    require([point[:2] for point in points[len(expected_xy):]] == expected_xy, "Ceiling underside footprint differs from corridor polygon")
     height = float(ceiling["height"])
     thickness = float(ceiling["thickness"])
-    require(all(abs(point[2] - (height + thickness)) < 1e-9 for point in points[:12]), "Ceiling top height mismatch")
-    require(all(abs(point[2] - height) < 1e-9 for point in points[12:]), "Ceiling underside height mismatch")
+    require(all(abs(point[2] - (height + thickness)) < 1e-9 for point in points[:len(expected_xy)]), "Ceiling top height mismatch")
+    require(all(abs(point[2] - height) < 1e-9 for point in points[len(expected_xy):]), "Ceiling underside height mismatch")
     require(float(geometry["world"]["ceiling_height"]) == height, "geometry/config ceiling height mismatch")
     require(float(geometry["world"]["ceiling_thickness"]) == thickness, "geometry/config ceiling thickness mismatch")
 
@@ -749,7 +749,7 @@ def validate_exterior_sidewalk_pavers() -> None:
 def validate_doors() -> Counter[str]:
     doors = json.loads(DOORS.read_text(encoding="utf-8"))["doors"]
     counts = Counter(item["type"] for item in doors)
-    require(counts == Counter({"single": 4, "double": 4, "double_glass_pair": 1}), f"unexpected door counts: {counts}")
+    require(counts == Counter({"single": 4, "double": 5, "double_glass_pair": 1}), f"unexpected door counts: {counts}")
     doors_by_name = {item["name"]: item for item in doors}
     require(doors_by_name["Door_Single_01"]["position"] == [5.4, 13.0175, 0.0], "north west-corridor door pose mismatch")
     require(doors_by_name["Door_Single_02"]["position"] == [5.4, 11.5325, 0.0], "south west-corridor door pose mismatch")
@@ -881,12 +881,12 @@ def validate_doors() -> Counter[str]:
         require('custom string cbnu:assetVariant = "white_wood_portal"' in block, f"east door layout variant mismatch: {name}")
         require(f"double3 xformOp:translate = (35.32, {expected_y}, 0)" in block, f"east door layout pose mismatch: {name}")
         require("double xformOp:rotateZ = 90" in block, f"east door layout yaw mismatch: {name}")
-    require(layout.count("white_door_double_wood_portal.usda@") == 2, "east white double-door reference count mismatch")
+    require(layout.count("white_door_double_wood_portal.usda@") == 3, "east white double-door reference count mismatch")
     require(layout.count("wood_door_double_portal.usda@") == 2, "central double-door portal reference count mismatch")
     require(layout.count("wood_door_single_portal.usda@") == 1, "central single-door portal reference count mismatch")
     require(layout.count("wood_door_double.usda@") == 0, "undecorated central double-door reference remains")
     require(layout.count("wood_door_single.usda@") == 3, "narrow-corridor single-door reference count changed")
-    require(layout.count('custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"') == 5, "zero-margin portal layout metadata count mismatch")
+    require(layout.count('custom string cbnu:portalFit = "zero_margin_to_leaf_perimeter"') == 6, "zero-margin portal layout metadata count mismatch")
     for name, variant in (
         ("Door_Double_01", "wood_double_portal"),
         ("Door_Double_02", "wood_double_portal"),
@@ -1944,12 +1944,12 @@ def main() -> None:
     print("CBNU Haksan detailed lobby validation: PASS")
     print(
         f"doors: single wood={door_counts['single']}, double total={door_counts['double']} "
-        "(brown wood+portal=2, east white+wood portal=2), "
+        "(brown wood+portal=2, east white+wood portal=3), "
         f"double glass sets={2 * door_counts['double_glass_pair']} "
         "(four clear leaves + one central clear fixed glass panel)"
     )
     print("east double-door finish: Door_Double_03/04 use warm-white leaves with zero-margin three-sided honey-brown wood portals")
-    print("portal fit: all five portal doors have 0 m side/top gaps; jamb inner faces meet leaf edges and header bottoms start at z=2.10 m")
+    print("portal fit: all six portal doors have 0 m side/top gaps; jamb inner faces meet leaf edges and header bottoms start at z=2.10 m")
     print(
         "sofas: total=" + str(sum(type_counts.values())) + ", "
         + ", ".join(f"{key}={type_counts[key]}" for key in ("straight", "corner", "u_column"))
