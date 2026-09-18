@@ -212,6 +212,14 @@ def main() -> None:
     )
     axis.add_patch(floor_outline)
 
+    for bay in geometry.get("display_end_bays", []):
+        xmin, xmax, ymin, ymax = bay["clear_bounds_xy"]
+        add_centered_rectangle(axis, ((xmin+xmax)/2, (ymin+ymax)/2), xmax-xmin, ymax-ymin,
+                               facecolor="#b6e0cd", edgecolor="#226b51", alpha=0.25, zorder=3)
+        axis.text((xmin+xmax)/2, (ymin+ymax)/2 - 0.6, f"OPEN SPACE\n{bay['width_m']:g} × {bay['depth_m']:g} m / H {bay['height_m']:g} m",
+                  ha="center", va="center", color="#14533e", fontsize=7, zorder=12,
+                  bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9})
+
     # The ceiling surface has the same footprint as the floor, so the cutaway
     # plan only overlays its light fixtures instead of hiding the room below.
     for light in ceiling_lights:
@@ -1191,6 +1199,15 @@ def main() -> None:
     fig.savefig(OUTPUT_PATH, dpi=150, facecolor="white")
     fig.savefig(ARCHITECTURE_OUTPUT_PATH, dpi=150, facecolor="white")
     axis.get_legend().remove()
+    for label in axis.texts:
+        label.set_clip_on(True)
+    fig.set_size_inches(15, 5.5)
+    axis.set_xlim(15, 31.5)
+    axis.set_ylim(11.2, 16.1)
+    axis.set_title("Spaces at the outer ends of the gray and black corner displays")
+    fig.tight_layout()
+    fig.savefig(WORLD_DIR / "preview_display_end_spaces.png", dpi=150, facecolor="white")
+    fig.set_size_inches(15, 9.5)
     axis.set_xlim(29.5, 36.0)
     axis.set_ylim(10.8, 15.1)
     axis.set_title("East lobby — recessed perpendicular door with a straight east wall")
@@ -1199,6 +1216,7 @@ def main() -> None:
                   ha="center", color="#155d42", zorder=20,
                   bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.85},
                   arrowprops={"arrowstyle": "->", "color": "#155d42"})
+    fig.tight_layout()
     fig.savefig(WORLD_DIR / "preview_east_alcove.png", dpi=150, facecolor="white")
     plt.close(fig)
     print(

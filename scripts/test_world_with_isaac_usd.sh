@@ -17,10 +17,11 @@ if [[ -z "${CBNU_USD_EXT}" ]]; then
 fi
 
 CBNU_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CBNU_TEST_SCRIPT="${1:-scripts/test_world.py}"
 
 env \
     PYTHONPATH="${CBNU_USD_EXT}" \
     LD_LIBRARY_PATH="${CBNU_USD_EXT}/bin:${CBNU_ISAAC_ROOT}/kit" \
     PXR_PLUGINPATH_NAME="${CBNU_USD_EXT}/bin/usd" \
     "${CBNU_ISAAC_ROOT}/kit/python/bin/python3" \
-    "${CBNU_REPO_ROOT}/scripts/test_world.py"
+    "${CBNU_REPO_ROOT}/${CBNU_TEST_SCRIPT}"

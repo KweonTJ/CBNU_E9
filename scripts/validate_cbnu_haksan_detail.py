@@ -226,7 +226,7 @@ def validate_world() -> None:
 
     wall_blocks = re.findall(r'def Cube "Wall_\d+".*?\n\s*}', world_text, flags=re.DOTALL)
     rotations = [float(re.search(r"xformOp:rotateZ = ([\d.-]+)", block).group(1)) for block in wall_blocks]
-    require(len(rotations) == 14, f"expected 14 walls, found {len(rotations)}")
+    require(len(rotations) == 22, f"expected 22 walls, found {len(rotations)}")
     require(all(rotation in {0.0, 90.0} for rotation in rotations), f"non-orthogonal wall rotations: {rotations}")
     require(all('PhysicsCollisionAPI' in block and 'physics:collisionEnabled = 1' in block for block in wall_blocks), "Wall collision missing")
     walls_section = world_text.split('def Xform "Walls"', 1)[1].split('def Xform "Columns"', 1)[0]
@@ -236,8 +236,8 @@ def validate_world() -> None:
     require('custom string cbnu:surfaceFinish = "cool stone gray between the light and dark-gray posters"' in walls_section, "wall gray metadata missing")
 
     expected_corner_wall_transforms = {
-        "Wall_02": ((7.2968, 0.2, 3.0), (29.6208, 13.3044, 1.5), 25.9724, "min"),
-        "Wall_06": ((22.7522, 0.2, 3.0), (11.4631, 13.1403, 1.5), 22.8392, "max"),
+        "Wall_02": ((2.4, 0.2, 3.0), (27.1724, 13.3044, 1.5), 25.9724, "min"),
+        "Wall_06": ((4.7, 0.2, 3.0), (20.4892, 13.1403, 1.5), 22.8392, "max"),
         "Wall_08": ((16.0275, 0.2, 3.0), (8.10075, 11.4103, 1.5), 16.1145, "max"),
         "Wall_12": ((4.7956, 0.2, 3.0), (33.0514, 6.1739, 1.5), 30.6536, "min"),
     }
@@ -272,9 +272,9 @@ def validate_world() -> None:
     require(west_corridor.get("center_y") == 12.2753, "west corridor centerline changed")
     require(west_corridor.get("end_treatment") == "opaque_wall", "west corridor end must be an opaque wall")
     polygon = geometry["corridor_polygon_xy"]
-    require(polygon[7][1] == polygon[8][1] == 13.1403, "west corridor north boundary mismatch")
-    require(polygon[9][1] == polygon[10][1] == 11.4103, "west corridor south boundary mismatch")
-    require(abs(polygon[7][1] - polygon[9][1] - 1.73) < 1e-9, "west corridor polygon width mismatch")
+    require(polygon[11][1] == polygon[16][1] == 13.1403, "west corridor north boundary mismatch")
+    require(polygon[17][1] == polygon[18][1] == 11.4103, "west corridor south boundary mismatch")
+    require(abs(polygon[11][1] - polygon[17][1] - 1.73) < 1e-9, "west corridor polygon width mismatch")
     floor_points = mesh_points(world_text, "Floor")
     require(
         [(point[0], point[1]) for point in floor_points[:len(polygon)]] == [tuple(point) for point in polygon],
@@ -380,7 +380,7 @@ def validate_ceiling() -> Counter[str]:
     air_conditioners = ceiling_config.get("air_conditioners", [])
     type_counts = Counter(item.get("type", "panel") for item in lights)
 
-    require(type_counts == Counter({"panel": 15, "large_panel": 1}), f"unexpected ceiling lights: {type_counts}")
+    require(type_counts == Counter({"panel": 17, "large_panel": 1}), f"unexpected ceiling lights: {type_counts}")
     require(len(air_conditioners) == 2, "exactly two central ceiling air conditioners are required")
     air_conditioners_by_name = {item["name"]: item for item in air_conditioners}
     require(
@@ -403,6 +403,8 @@ def validate_ceiling() -> Counter[str]:
         "CeilingLight_13": ([19.0, 12.0, 2.96], 90),
         "CeilingLight_14": ([28.8, 12.0, 2.96], 90),
         "CeilingLight_15": ([29.0, 6.0, 2.96], 90),
+        "CeilingLight_16": ([16.8892, 14.0403, 2.96], 0),
+        "CeilingLight_17": ([29.6224, 14.2044, 2.96], 0),
     }
     for name, (position, yaw_deg) in expected_additional_lights.items():
         require(name in lights_by_name, f"additional ceiling light missing: {name}")
@@ -442,7 +444,7 @@ def validate_ceiling() -> Counter[str]:
     require('float inputs:roughness = 0.78' in ceiling_material_text, "Ceiling must remain matte")
 
     layout_text = CEILING_LAYOUT.read_text(encoding="utf-8")
-    require(layout_text.count('ceiling_panel_light.usda@') == 15, "standard ceiling panel reference count mismatch")
+    require(layout_text.count('ceiling_panel_light.usda@') == 17, "standard ceiling panel reference count mismatch")
     require(layout_text.count('ceiling_panel_light_large.usda@') == 1, "large central ceiling light reference missing")
     require('def Scope "AirConditioners"' in layout_text, "ceiling air conditioner scope missing")
     require(layout_text.count('ceiling_cassette_air_conditioner.usda@') == 2, "ceiling air conditioner references missing")

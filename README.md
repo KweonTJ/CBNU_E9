@@ -1,36 +1,57 @@
-# CBNU 학연산 1층 로비 Isaac Sim 월드
+# CBNU 학연산 2층 건물 Isaac Sim 월드
 
-충북대학교 학연산공동기술연구원 1층 피난안내도를 바탕으로 제작한 Isaac Sim용 실내 로비 월드다.
+충북대학교 학연산공동기술연구원 1층 피난안내도를 바탕으로 제작한 실내 로비를 두 층으로 쌓은 Isaac Sim 월드다. 두 층은 같은 평면·가구·문·디스플레이·조명을 사용한다.
 
 실측 CAD 복제가 아니라 안내도와 현장 이미지를 기준으로 비율과 동선을 근사한 환경이다. 현재 버전은 로비·복도 구조, 가구, 출입문, 전시 구조물, 엘리베이터 철문, 이동식 안내판, 실내 조명과 물리 반응형 택배 박스를 포함한다.
 
-![CBNU 학연산 1층 상세 평면도](worlds/cbnu_haksan_1f_corridor/preview_top_view_detailed.png)
+![CBNU 학연산 2층 구조도](worlds/cbnu_haksan_2f_building/preview_two_floor_structure.png)
 
 ## 빠른 시작
 
-기준 Stage:
+2층 건물 기준 Stage:
 
-<code>worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda</code>
+<code>worlds/cbnu_haksan_2f_building/cbnu_haksan_2f_building.usda</code>
 
 Isaac Sim GUI에서 위 파일을 연다. 프로젝트 내부 USD는 상대경로 reference를 사용하므로 <code>assets/</code>와 <code>worlds/</code>의 상대 위치를 유지해야 한다.
 
 ~~~bash
-cd /home/a/Isaac_Worlds
-./scripts/test_world_with_isaac_usd.sh
+cd /home/a/Isaac_Worlds_CBNU
+./scripts/test_world_with_isaac_usd.sh scripts/test_two_floor_world.py
 ~~~
 
 수정한 하위 layer가 GUI에 바로 반영되지 않으면 열린 Stage를 닫고 기준 Stage를 다시 연다.
 
-## 현재 월드 요약
+1층 배치 원본은 `worlds/cbnu_haksan_1f_corridor/cbnu_haksan_1f_corridor.usda`에 보존한다. 2층 파일은 이 원본을 두 번 참조한다. 기존 1층 파일을 열면 여전히 1층만 보이므로 위의 **2층 건물 파일**을 연다.
+
+## 2층 구성
+
+- 1층 바닥 z=0m, 2층 바닥 z=3.2m, 지붕 상단 z=6.3m. 층별 실내 높이는 3m다.
+- 새 양쪽 2.5 × 2 × 3m 공간과 각각의 천장 조명, 안쪽 직각 문을 두 층에 동일하게 배치한다.
+- 1층 천장과 2층 바닥은 z=3.1m에서 맞닿으며, 두 층의 벽 사이에는 높이 0.2m 연결부 22개가 있다.
+- PhysicsScene과 DomeLight는 각 1개만 사용한다. 외부 보도는 지상에만 있고 실내 패널 조명은 총 36개다.
+- 1층은 기존 `/World/Environment` 등의 경로를 유지하고 2층은 `/World/Floor_02` 아래에 있다.
+- 층간 계단과 엘리베이터 이동 기능은 아직 없다.
+
+1층 배치 수정은 reference를 통해 두 층에 반영된다. 벽 위치·층 높이를 바꾸면 연결부도 함께 갱신한다.
+
+~~~bash
+python3 scripts/update_cbnu_haksan_two_floor.py
+MPLCONFIGDIR=/tmp/cbnu_matplotlib python3 scripts/render_cbnu_haksan_two_floor_preview.py
+./scripts/test_world_with_isaac_usd.sh scripts/test_two_floor_world.py
+~~~
+
+[2층 변경 기록](docs/31.43_cbnu_haksan_two_floor_building.md) · [층별 평면도](worlds/cbnu_haksan_1f_corridor/preview_top_view_detailed.png)
+
+## 층별 구성 요약
 
 | 구분 | 현재 구성 |
 | --- | --- |
 | 기준 단위 | meter, Z-up |
 | 전체 범위 | 약 35.6 × 20.8m |
-| 외곽 구조 | 높이 3.0m, 두께 0.20m의 직각 벽 12개 + 정면 낮은 외벽 2개, 안쪽 코너 4곳 연속 접합 |
+| 외곽 구조 | 높이 3.0m, 두께 0.20m의 직각 벽 22개 + 정면 낮은 외벽 2개, 동쪽 문 앞 공간과 디스플레이 끝 양쪽 공간 |
 | 바닥 | Bala White 계열 polished granite |
 | 천장 | 높이 3.0m, 두께 0.10m의 흰색 무광 천장 |
-| 조명 | 일반 LED 패널 15개 + 중앙 6.0 × 2.4m 대형 패널 1개 |
+| 조명 | 일반 LED 패널 17개(디스플레이 끝 양쪽 공간 각 1개 포함) + 중앙 6.0 × 2.4m 대형 패널 1개 |
 | 냉방 | 중앙 대형 조명 좌우에 1.1 × 1.1m 4방향 천장 카세트 에어컨 2대 |
 | 기둥 | 1.2 × 1.2 × 3.0m 메인 기둥 3개 + 정문 측면 기둥 2개 |
 | 문 | 목재 single 4개, 목재 double 2개, 동쪽 흰색 양개문+목재 포털 3개, 정문 양개 유리문 2세트; 중앙 문 3개 동일형 목재 포털 적용 |
@@ -45,7 +66,7 @@ cd /home/a/Isaac_Worlds
 
 ### 메인 로비
 
-- `Wall_02`의 새 문 `Door_Double_06`은 기존 오른쪽 `Door_Double_03` 바로 옆 코너에 붙어 있다. 두 문틀은 틈 없이 직각으로 만나며 별도 후퇴 공간이나 꺾이는 연결 벽은 없다. 새 문은 기존 흰색 양개문과 같은 2.08m 목재 포털을 사용한다. [확대 평면도](worlds/cbnu_haksan_1f_corridor/preview_east_alcove.png) · [변경 기록](docs/31.40_cbnu_haksan_east_lobby_alcove.md)
+- 새 직각 문 `Door_Double_06`은 기존 벽보다 1m 안쪽에 있다. 기존 오른쪽 문 `Door_Double_03`이 붙은 `Wall_01`을 꺾임 없이 곧게 연장해 새 문의 오른쪽 문틀까지 연결했다. 공간 폭은 문틀과 같은 2.08m이며 바닥·천장도 확장했다. [확대 평면도](worlds/cbnu_haksan_1f_corridor/preview_east_alcove.png) · [변경 기록](docs/31.40_cbnu_haksan_east_lobby_alcove.md)
 
 - `Wall_02–03`, `Wall_05–06`, `Wall_08–09`, `Wall_11–12`의 안쪽 코너는 수평 벽 끝을 인접 세로 벽의 실내면까지 `0.10m` 연장했다. 벽 높이 전체와 collision이 끊기지 않으며 코너 외곽선에는 돌출 단차가 없다.
 - 메인 기둥은 <code>Column_01</code>, <code>Column_03</code>, <code>Column_02</code> 순으로 배치된다.
@@ -68,6 +89,8 @@ cd /home/a/Isaac_Worlds
 - 책상 전면과 약 0.60m를 띄운 위치에 서로 다른 크기의 택배 박스 9개가 5-3-1의 3단으로 쌓여 있다.
 
 ### 북측 복도, 통형 포스터와 엘리베이터
+
+로비에서 엘리베이터 방향을 볼 때 회색 장식의 왼쪽 끝과 검정 디스플레이의 오른쪽 끝에는 각각 **폭 2.5m × 깊이 2m × 높이 3m**의 문 없는 공간이 있다. 바닥·천장과 측면·뒤쪽 벽은 기존 재질과 collision을 사용하고 입구는 전체 높이로 열려 있다. [확대 평면도](worlds/cbnu_haksan_1f_corridor/preview_display_end_spaces.png) · [변경 기록](docs/31.41_cbnu_haksan_display_end_spaces.md)
 
 <code>GrayPoster_02</code>는 <code>Wall_06</code>에서 코너를 돌아 <code>Wall_05</code>의 첫 번째 엘리베이터 바로 옆까지 이어지는 단일 L자 통형 포스터다.
 
@@ -123,9 +146,10 @@ cd /home/a/Isaac_Worlds
 
 조명 구성:
 
-- 일반 매입형 LED 패널 15개: RectLight intensity 8000
+- 일반 매입형 LED 패널 17개: RectLight intensity 8000
 - 중앙 대형 패널 1개: 6.0 × 2.4m, intensity 12000, normalize false
 - 추가된 일반 패널 3개: (19.0, 12.0), (28.8, 12.0), (29.0, 6.0)
+- 디스플레이 끝 새 공간 조명 2개: (16.8892, 14.0403), (29.6224, 14.2044), 천장 높이 z=2.96m. [변경 기록](docs/31.42_cbnu_haksan_display_space_lights.md)
 - DomeLight: intensity 1600, 별도 color 미지정
 
 ## 동적 택배 박스
@@ -158,7 +182,7 @@ cd /home/a/Isaac_Worlds
 │   ├── Floor
 │   ├── Ceiling
 │   ├── CeilingLights
-│   │   ├── CeilingLight_01 ... CeilingLight_15
+│   │   ├── CeilingLight_01 ... CeilingLight_17
 │   │   ├── CeilingLight_Central_Large
 │   │   └── AirConditioners/CeilingAC_01 ... CeilingAC_02
 │   ├── FrontEntranceGlassWalls

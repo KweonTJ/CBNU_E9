@@ -4,7 +4,7 @@
     "units": "meter",
     "scale_basis": "corridor scale retained from the original reconstruction; west corridor width = 1.73 m and active column width = 1.2 m",
     "note": "Approximate world reconstructed from evacuation diagram annotations. Corridor boundary snapped to exact orthogonal (90-degree) X/Y-aligned walls. Not survey-grade.",
-    "geometry_revision": "v3_straight_east_door_recess"
+    "geometry_revision": "v4_display_end_bays"
   },
   "world": {
     "wall_height": 3.0,
@@ -21,6 +21,46 @@
     "door_name": "Door_Double_06",
     "note": "Existing east Wall_01 continues straight into the recess; new perpendicular door sits at the back."
   },
+  "display_end_bays": [
+    {
+      "name": "DisplayBay_Left",
+      "adjacent_display": "GrayPoster_02",
+      "clear_bounds_xy": [
+        15.6392,
+        18.1392,
+        13.0403,
+        15.0403
+      ],
+      "width_m": 2.5,
+      "depth_m": 2.0,
+      "height_m": 3.0,
+      "wall_names": [
+        "Wall_15",
+        "Wall_16",
+        "Wall_17",
+        "Wall_18"
+      ]
+    },
+    {
+      "name": "DisplayBay_Right",
+      "adjacent_display": "DigitalDisplayWall_01",
+      "clear_bounds_xy": [
+        28.3724,
+        30.8724,
+        13.2044,
+        15.2044
+      ],
+      "width_m": 2.5,
+      "depth_m": 2.0,
+      "height_m": 3.0,
+      "wall_names": [
+        "Wall_19",
+        "Wall_20",
+        "Wall_21",
+        "Wall_22"
+      ]
+    }
+  ],
   "wall_corner_unifications": [
     {
       "corner": [26.0724, 13.3044],
@@ -62,6 +102,10 @@
     ],
     [33.1692, 14.3044],
     [33.1692, 13.3044],
+    [30.9724, 13.3044],
+    [30.9724, 15.3044],
+    [28.2724, 15.3044],
+    [28.2724, 13.3044],
     [
       26.0724,
       13.3044
@@ -78,6 +122,10 @@
       22.7392,
       13.1403
     ],
+    [18.2392, 13.1403],
+    [18.2392, 15.1403],
+    [15.5392, 15.1403],
+    [15.5392, 13.1403],
     [
       0.087,
       13.1403

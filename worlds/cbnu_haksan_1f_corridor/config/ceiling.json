@@ -29,6 +29,8 @@
     {"name": "CeilingLight_13", "position": [19.0, 12.0, 2.96], "yaw_deg": 90},
     {"name": "CeilingLight_14", "position": [28.8, 12.0, 2.96], "yaw_deg": 90},
     {"name": "CeilingLight_15", "position": [29.0, 6.0, 2.96], "yaw_deg": 90},
+    {"name": "CeilingLight_16", "position": [16.8892, 14.0403, 2.96], "yaw_deg": 0, "note": "centered above left display-end space"},
+    {"name": "CeilingLight_17", "position": [29.6224, 14.2044, 2.96], "yaw_deg": 0, "note": "centered above right display-end space"},
     {
       "name": "CeilingLight_Central_Large",
       "type": "large_panel",

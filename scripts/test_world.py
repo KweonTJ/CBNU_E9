@@ -175,7 +175,7 @@ def validate_east_adjacent_doors(stage) -> None:
     assert abs(slab_box.GetMax()[1] - wall_box.GetMin()[1]) < 1e-6, 'new door must meet back wall'
     assert abs(wall_box.GetMin()[1] - 13.2044 - 1.0) < 1e-6, 'recess depth must be 1 m'
     assert wall.GetAttribute('physics:collisionEnabled').Get() is True
-    assert len(stage.GetPrimAtPath('/World/Environment/Walls').GetChildren()) == 14
+    assert len(stage.GetPrimAtPath('/World/Environment/Walls').GetChildren()) == 22
     for boundary in stage.GetPrimAtPath('/World/Environment/Walls').GetChildren():
         assert boundary.GetAttribute('physics:collisionEnabled').Get() is True
         box = bounds.ComputeWorldBound(boundary).ComputeAlignedRange()
@@ -199,8 +199,72 @@ def validate_east_adjacent_doors(stage) -> None:
                            all(cross(t[i],t[(i+1)%3],(x,y)) <= 1e-6 for i in range(3))
                            for t in triangles), f'{mesh_name} has a gap at {(x,y)}'
     assert not stage.GetPrimAtPath('/World/Doors/Door_Double_07').IsValid(), 'extra side door remains'
-    assert not stage.GetPrimAtPath('/World/Environment/CeilingLights/CeilingLight_16').IsValid(), 'recess light remains'
     print('east doors: straight east wall, 1 m depth, 2.08 m clear width, perpendicular back door, unobstructed entry and slab coverage verified')
+
+
+def validate_display_end_bays(stage) -> None:
+    """Check open, full-height rooms at the outer ends of both corner displays."""
+    geometry = json.loads((WORLD.parent / 'config/geometry.json').read_text())
+    bays = geometry['display_end_bays']
+    assert {b['name'] for b in bays} == {'DisplayBay_Left', 'DisplayBay_Right'}
+    bounds = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+    samples = []
+    for bay in bays:
+        xmin, xmax, ymin, ymax = bay['clear_bounds_xy']
+        assert abs(xmax-xmin-2.5) < 1e-6 and abs(ymax-ymin-2) < 1e-6
+        assert bay['height_m'] == geometry['world']['wall_height'] == 3.0
+        light_name = 'CeilingLight_16' if bay['name'] == 'DisplayBay_Left' else 'CeilingLight_17'
+        fixture = stage.GetPrimAtPath(f'/World/Environment/CeilingLights/{light_name}')
+        assert fixture.IsValid() and fixture.IsLoaded(), light_name
+        position = fixture.GetAttribute('xformOp:translate').Get()
+        assert all(abs(a-b) < 1e-6 for a,b in zip(position, ((xmin+xmax)/2, (ymin+ymax)/2, 2.96))), light_name
+        light = stage.GetPrimAtPath(f'{fixture.GetPath()}/Light')
+        assert light.GetTypeName() == 'RectLight' and light.GetAttribute('inputs:intensity').Get() == 8000, light_name
+        matrix = UsdGeom.Xformable(light).ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+        assert matrix.TransformDir(Gf.Vec3d(0,0,-1))[2] < -.99, 'bay light must point down'
+        assert abs(matrix.ExtractTranslation()[2]-2.915) < 1e-6, 'bay light must sit below ceiling'
+        side_bounds = []
+        for name in bay['wall_names']:
+            wall = stage.GetPrimAtPath(f'/World/Environment/Walls/{name}')
+            assert wall.IsValid() and wall.GetAttribute('physics:collisionEnabled').Get() is True, name
+            box = bounds.ComputeWorldBound(wall).ComputeAlignedRange()
+            assert abs(box.GetMin()[2]) < 1e-6 and abs(box.GetMax()[2]-3) < 1e-6, name
+            material, _ = UsdShade.MaterialBindingAPI(wall).ComputeBoundMaterial()
+            assert material and str(material.GetPath()) == '/World/Looks/WallColumnLightGray', name
+            side_bounds.append(box)
+        assert abs(side_bounds[1].GetMax()[0]-xmin) < 1e-6
+        assert abs(side_bounds[2].GetMin()[0]-xmax) < 1e-6
+        assert abs(side_bounds[3].GetMin()[1]-ymax) < 1e-6
+        for wall in stage.GetPrimAtPath('/World/Environment/Walls').GetChildren():
+            box = bounds.ComputeWorldBound(wall).ComputeAlignedRange()
+            low, high = (xmin+.01, ymin-.15, .001), (xmax-.01, ymax-.01, 2.999)
+            assert not all(box.GetMin()[i] < high[i] and box.GetMax()[i] > low[i] for i in range(3)), f'{bay["name"]} blocked by {wall.GetPath()}'
+        decor = stage.GetPrimAtPath(f'/World/Architecture/{bay["adjacent_display"]}')
+        decor_box = bounds.ComputeWorldBound(decor).ComputeAlignedRange()
+        if bay['name'] == 'DisplayBay_Left':
+            assert xmax <= decor_box.GetMin()[0], 'left room must be outside the gray poster end'
+        else:
+            assert xmin >= decor_box.GetMax()[0], 'right room must be outside the black display end'
+        samples.extend((x,y) for x in (xmin+.05,(xmin+xmax)/2,xmax-.05)
+                       for y in (ymin-.05,ymin+.5,ymax-.05))
+    for name,z in [('Floor',0),('Ceiling',3)]:
+        mesh = UsdGeom.Mesh(stage.GetPrimAtPath(f'/World/Environment/{name}'))
+        assert mesh.GetPrim().GetAttribute('physics:collisionEnabled').Get() is True
+        points,indices = mesh.GetPointsAttr().Get(),mesh.GetFaceVertexIndicesAttr().Get()
+        triangles,cursor = [],0
+        for count in mesh.GetFaceVertexCountsAttr().Get():
+            face = [points[i] for i in indices[cursor:cursor+count]]
+            cursor += count
+            if count == 3 and all(abs(p[2]-z) < 1e-6 for p in face):
+                triangles.append(face)
+        def cross(a,b,c):
+            return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        assert triangles and all(cross(*t)*(1 if name == 'Floor' else -1) > 0 for t in triangles)
+        for sample in samples:
+            assert any(all(cross(t[i],t[(i+1)%3],sample) >= -1e-6 for i in range(3)) or
+                       all(cross(t[i],t[(i+1)%3],sample) <= 1e-6 for i in range(3))
+                       for t in triangles), f'{name} gap at {sample}'
+    print('display-end rooms: 2 x (2.5 m wide, 2 m deep, 3 m high), clear full-height entries, wall collisions and floor/ceiling coverage verified')
 
 
 def main() -> None:
@@ -209,6 +273,7 @@ def main() -> None:
         raise AssertionError(f"failed to open composed Stage: {WORLD}")
 
     validate_east_adjacent_doors(stage)
+    validate_display_end_bays(stage)
 
     for path, expected_type in REQUIRED_PRIMS.items():
         prim = stage.GetPrimAtPath(path)
@@ -348,8 +413,8 @@ def main() -> None:
         raise AssertionError("north glass wood platform material mismatch")
 
     unified_corner_walls = {
-        "Wall_02": ((7.2968, 0.2, 3.0), (29.6208, 13.3044, 1.5)),
-        "Wall_06": ((22.7522, 0.2, 3.0), (11.4631, 13.1403, 1.5)),
+        "Wall_02": ((2.4, 0.2, 3.0), (27.1724, 13.3044, 1.5)),
+        "Wall_06": ((4.7, 0.2, 3.0), (20.4892, 13.1403, 1.5)),
         "Wall_08": ((16.0275, 0.2, 3.0), (8.10075, 11.4103, 1.5)),
         "Wall_12": ((4.7956, 0.2, 3.0), (33.0514, 6.1739, 1.5)),
     }
@@ -729,7 +794,7 @@ def main() -> None:
     print(
         "dynamic parcels: loaded=16; Table_03=9, main entrance=4, between elevators=3"
     )
-    print("ceiling: loaded; standard panels=15 at 8000; large central panel=1 at 12000 (6.0 x 2.4 m); four-way cassette air conditioners=2 (1.1 x 1.1 m)")
+    print("ceiling: loaded; standard panels=17 at 8000 including two display-end room lights; large central panel=1 at 12000 (6.0 x 2.4 m); four-way cassette air conditioners=2 (1.1 x 1.1 m)")
     print("front entrance glazing: loaded=2 clear panels plus full-span sofa-height lower walls from Wall_09 to the door frame and from the door frame to Wall_11; south face aligned to the visible entrance pillars at y=-0.01 m")
     print("west corridor: width=1.73 m; opaque Wall_07 visible with collision")
     print("north corridor end glazing: loaded=1 clear full-height panel plus one 3.1332 x 0.20 x 1.02 m stone-gray lower wall; original Wall_04 collider retained")
